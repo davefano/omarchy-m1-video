@@ -1,0 +1,218 @@
+#!/bin/bash
+# apple-avd-rebuild: keep the patched apple_avd (Apple Video Decoder) kernel module
+# in sync with the installed linux-asahi kernels.
+#
+# Part of omarchy-m1-video: https://github.com/iconidentify/omarchy-m1-video
+#
+# For each installed linux-asahi kernel this fetches that kernel's avd driver
+# source from AsahiLinux/linux (as 'nobody'), applies the patches in
+# /usr/local/share/apple-avd-patched/patches (skipping any upstream already has),
+# builds as 'nobody', and installs /usr/lib/modules/<kver>/updates/apple-avd.ko.
+# If upstream already has every patch, the stock module is used.
+#
+# Usage: apple-avd-rebuild              rebuild where needed (pacman hook)
+#        apple-avd-rebuild --force      rebuild every kernel even if up to date
+#        apple-avd-rebuild --status     show what is installed and loaded
+#        apple-avd-rebuild --check-libva
+#                                       check the VA-API driver still has the fix
+#        apple-avd-rebuild --detect DIR report whether an avd source dir is fixed
+set -uo pipefail
+
+SHARE=/usr/local/share/apple-avd-patched
+PATCHES=("$SHARE"/patches/000*.patch)
+REPO=https://github.com/AsahiLinux/linux.git
+AVD_REL=drivers/media/platform/apple/avd
+STAMP=apple-avd.ko.patched-stamp
+LIBVA_SO=/usr/lib/dri/v4l2_request_drv_video.so
+LIBVA_MARKER='exported before its first decode'
+
+say()  { echo "==> apple-avd: $*"; }
+warn() { echo "==> apple-avd: WARNING: $*" >&2; }
+
+# Kernels installed by the linux-asahi package: prints "<kver> <pkgver>".
+asahi_kernels() {
+	local d k owner
+	for d in /usr/lib/modules/*/; do
+		k=$(basename "$d")
+		[[ -e $d/vmlinuz ]] || continue
+		owner=$(pacman -Qo "$d/vmlinuz" 2>/dev/null) || continue
+		[[ $owner =~ is\ owned\ by\ linux-asahi\ ([^ ]+)$ ]] || continue
+		echo "$k ${BASH_REMATCH[1]}"
+	done
+}
+
+# linux-asahi pkgver-pkgrel -> AsahiLinux/linux tag, following the PKGBUILD:
+#   pkgver=${_rcver}${_rcrel:+rc}${_rcrel}.asahi${_asahirel}
+#   tag   =asahi-${_rcver}${_rcrel+-rc}${_rcrel}-${_asahirel}
+tag_for_pkgver() {
+	local v=${1%-*} base rel
+	base=${v%.asahi*}
+	rel=${v##*.asahi}
+	if [[ $base =~ ^(.+)rc([0-9]+)$ ]]; then
+		echo "asahi-${BASH_REMATCH[1]}-rc${BASH_REMATCH[2]}-$rel"
+	else
+		echo "asahi-$base-$rel"
+	fi
+}
+
+patchset_id() { cat "${PATCHES[@]}" | sha256sum | cut -c1-12; }
+
+# Is the driver source in $1 already fixed upstream? Sets SLICE_FIXED/ALLOC_FIXED.
+detect_fixed() {
+	local src=$1
+	SLICE_FIXED=0 ALLOC_FIXED=0
+	awk '/^static void avd_h264_done\(/,/^}/' "$src/avd-h264.c" | grep -q 'slice_num = 0' && SLICE_FIXED=1
+	if awk '/^int avd_init_job\(/,/^}/' "$src/avd-drv.c" | grep -qE 'kv(m|z|c)?alloc' ||
+	   ! grep -q 'avd_init_job(ctx, AVD_CODEC_H264, MAX_SLICES)' "$src/avd-h264.c"; then
+		ALLOC_FIXED=1
+	fi
+}
+
+check_libva() {
+	local ver libva_ver want have
+	ver=$(pacman -Q libva-v4l2_request-avd 2>/dev/null || echo "libva-v4l2_request-avd (not installed)")
+	if [[ ! -f $LIBVA_SO ]]; then
+		warn "$LIBVA_SO missing ($ver); there is no hardware video decoding."
+		return 1
+	fi
+	if grep -aq "$LIBVA_MARKER" "$LIBVA_SO"; then
+		say "VA-API driver OK: $ver has the Chrome early-export fix."
+	else
+		warn "$ver does not contain the known Chrome early-export fix."
+		warn "  If upstream reworked the fix, check Chrome for solid green video frames."
+		warn "  If they are back, run install.sh from omarchy-m1-video again."
+	fi
+	libva_ver=$(pacman -Q libva 2>/dev/null | awk '{print $2}')
+	want="__vaDriverInit_1_$(cut -d. -f2 <<<"$libva_ver")"
+	have=$(grep -aoE '__vaDriverInit_1_[0-9]+' "$LIBVA_SO" | head -1)
+	if [[ -n $libva_ver && $have != "$want" ]]; then
+		warn "libva $libva_ver expects $want but the driver exports ${have:-nothing}:"
+		warn "  rebuild it: run install.sh from omarchy-m1-video again"
+	fi
+}
+
+status() {
+	local k pv tag stamp
+	say "running kernel $(uname -r); apple_avd loaded from: $(modinfo -n apple_avd 2>/dev/null) taint=$(cat /sys/module/apple_avd/taint 2>/dev/null || echo not-loaded)"
+	while read -r k pv; do
+		tag=$(tag_for_pkgver "$pv")
+		stamp=$(cat "/usr/lib/modules/$k/updates/$STAMP" 2>/dev/null || echo "none (stock module)")
+		say "$k  linux-asahi $pv  tag $tag  local build: $stamp"
+	done < <(asahi_kernels)
+	check_libva
+}
+
+cleanup_orphans() {
+	local s d k
+	for s in /usr/lib/modules/*/updates/"$STAMP"; do
+		[[ -e $s ]] || continue
+		d=${s%/updates/*}
+		k=$(basename "$d")
+		[[ $k == "$(uname -r)" ]] && continue          # still needed until reboot
+		pacman -Qqo "$d/vmlinuz" >/dev/null 2>&1 && continue
+		rm -f "$d/updates/apple-avd.ko" "$s"
+		rmdir "$d/updates" 2>/dev/null
+		say "removed local apple-avd.ko for uninstalled kernel $k"
+	done
+}
+
+FORCE=0
+case "${1:-}" in
+	--status) status; exit 0 ;;
+	--check-libva) check_libva; exit 0 ;;
+	--detect)
+		[[ -d ${2:-} ]] || { echo "usage: $0 --detect <avd source dir>" >&2; exit 2; }
+		detect_fixed "$2"; echo "slice_num reset upstream: $SLICE_FIXED; non-contiguous/small job alloc upstream: $ALLOC_FIXED"; exit 0 ;;
+	--force) FORCE=1 ;;
+	"") ;;
+	*) echo "usage: $0 [--force|--status|--check-libva|--detect DIR]" >&2; exit 2 ;;
+esac
+
+[[ $EUID -eq 0 ]] || { echo "must run as root" >&2; exit 1; }
+exec 9>/run/apple-avd-rebuild.lock
+flock -w 600 9 || { warn "another apple-avd-rebuild is running"; exit 1; }
+
+cleanup_orphans
+
+PID=$(patchset_id)
+FAILED=0 UPSTREAM=0 KERNELS=0
+while read -r K PV; do
+	KERNELS=$((KERNELS + 1))
+	TAG=$(tag_for_pkgver "$PV")
+	DEST=/usr/lib/modules/$K/updates
+	WANT="tag=$TAG patches=$PID"
+
+	if [[ $FORCE -eq 0 && -f $DEST/apple-avd.ko && "$(cat "$DEST/$STAMP" 2>/dev/null)" == "$WANT" ]]; then
+		say "$K: patched module up to date ($TAG)"
+		continue
+	fi
+	if [[ ! -f /usr/lib/modules/$K/build/Makefile ]]; then
+		warn "$K: linux-asahi-headers for this kernel is not installed; cannot build."
+		warn "  Hardware video decoding will break after ~2 minutes on this kernel. Install the headers and run: sudo apple-avd-rebuild"
+		FAILED=1; continue
+	fi
+
+	W=$(mktemp -d /tmp/apple-avd-rebuild.XXXXXX)
+	chown nobody:nobody "$W"
+	nob() { setpriv --reuid=nobody --regid=nobody --clear-groups env -i HOME="$W" PATH=/usr/bin GIT_TERMINAL_PROMPT=0 "$@"; }
+
+	say "$K: fetching $AVD_REL from AsahiLinux/linux $TAG"
+	if ! nob timeout 300 git -c advice.detachedHead=false clone -q --depth 1 --filter=blob:none --sparse -b "$TAG" "$REPO" "$W/linux" 2>"$W/git.log" ||
+	   ! nob timeout 300 git -C "$W/linux" sparse-checkout set "$AVD_REL" 2>>"$W/git.log" ||
+	   [[ ! -f $W/linux/$AVD_REL/avd-h264.c ]]; then
+		warn "$K: could not fetch $TAG (offline, or tag missing). Retry later: sudo apple-avd-rebuild"
+		tail -5 "$W/git.log" >&2
+		rm -rf "$W"; FAILED=1; continue
+	fi
+
+	nob cp -r "$W/linux/$AVD_REL" "$W/avd"
+	APPLIED=0
+	for p in "${PATCHES[@]}"; do
+		if nob patch -d "$W/avd" -p6 -N -t -s --fuzz=0 --dry-run < "$p" >/dev/null 2>&1; then
+			nob patch -d "$W/avd" -p6 -N -t -s --fuzz=0 --no-backup-if-mismatch < "$p" >/dev/null
+			APPLIED=$((APPLIED + 1))
+		elif nob patch -d "$W/avd" -p6 -R -t -s -f --fuzz=0 --dry-run < "$p" >/dev/null 2>&1; then
+			say "$K: $(basename "$p") is already upstream, skipping"
+		else
+			warn "$K: $(basename "$p") does not apply to $TAG. Needs a new port."
+			FAILED=2
+		fi
+	done
+	if [[ $FAILED -eq 2 ]]; then
+		warn "$K: NOT installing a patched module. Hardware video decoding on this kernel will break after ~2 minutes."
+		warn "  Until the patches are updated (https://github.com/iconidentify/omarchy-m1-video),"
+		warn "  set hwdec=no in ~/.config/mpv/mpv.conf if videos misbehave."
+		rm -rf "$W"; FAILED=1; continue
+	fi
+
+	if [[ $APPLIED -eq 0 ]]; then
+		say "$K: UPSTREAM FIXED. $TAG already has every patch; the stock module will be used."
+		if [[ -f $DEST/$STAMP ]]; then rm -f "$DEST/apple-avd.ko" "$DEST/$STAMP"; rmdir "$DEST" 2>/dev/null; depmod -a "$K"; fi
+		UPSTREAM=$((UPSTREAM + 1)); rm -rf "$W"; continue
+	fi
+
+	say "$K: building apple-avd.ko"
+	if ! nob make -s -C "/usr/lib/modules/$K/build" M="$W/avd" CONFIG_VIDEO_APPLE_AVD=m modules -j"$(nproc)" > "$W/build.log" 2>&1; then
+		warn "$K: build failed:"; tail -15 "$W/build.log" >&2
+		rm -rf "$W"; FAILED=1; continue
+	fi
+	VM=$(modinfo -F vermagic "$W/avd/apple-avd.ko")
+	if [[ $VM != "$K "* ]]; then
+		warn "$K: built module vermagic '$VM' does not match; not installing"
+		rm -rf "$W"; FAILED=1; continue
+	fi
+
+	install -Dm644 "$W/avd/apple-avd.ko" "$DEST/apple-avd.ko"
+	strip --strip-debug "$DEST/apple-avd.ko"
+	echo "$WANT" > "$DEST/$STAMP"
+	depmod -a "$K"
+	rm -rf "$W"
+	say "$K: installed patched apple-avd.ko ($TAG, patches $PID)"
+	[[ $K == "$(uname -r)" ]] && say "  loads on next boot (or now, with no video playing: sudo modprobe -r apple_avd && sudo modprobe apple_avd)"
+done < <(asahi_kernels)
+
+if [[ $KERNELS -gt 0 && $UPSTREAM -eq $KERNELS ]]; then
+	say "Every installed kernel has the fixes upstream. You can retire the kernel side:"
+	say "  sudo rm /etc/pacman.d/hooks/65-apple-avd-rebuild.hook   (see https://github.com/iconidentify/omarchy-m1-video)"
+fi
+exit $(( FAILED > 0 ? 1 : 0 ))

@@ -1,0 +1,318 @@
+From: iconidentify <303316+iconidentify@users.noreply.github.com>
+Subject: [PATCH 5/5] media: apple: avd: track job state so completions cannot race the run
+
+A completion IRQ or the watchdog could finish the current m2m job while
+avd_device_run() was still building or submitting it. v4l2-mem2mem then ran
+the next job on a kworker against the same ctx->job. On T8103 this oopsed
+twice: a NULL dereference in avd_submit_job() (segment table freed under the
+submit loop) and, with an earlier attempt at a fix, one in avd_hevc_run()
+right after avd_init_job(). Each oops left the video device lock held, so
+every later access to /dev/video0 hung until reboot.
+
+Track the device's one job in avd_dev under a spinlock: RUNNING while
+avd_device_run() executes, SUBMITTED once the hardware owns it, FINISHING once
+the IRQ handler or the watchdog has claimed it. The watchdog is armed only on
+the move to SUBMITTED, and it resets the hardware only for the job it was
+armed for. A completion during RUNNING is dropped as stale unless the END
+command already went out; then it is remembered and avd_device_run() finishes
+the job on return. Every finish path resets the state in
+avd_job_finish_no_pm(). avd_submit_job() walks a local copy of the segment
+table and frees it only at the end, and release cancels the watchdog.
+Transitions log with dev_dbg("avd-job: ...") for dynamic debug.
+---
+--- a/drivers/media/platform/apple/avd/avd.h
++++ b/drivers/media/platform/apple/avd/avd.h
+@@ -17,6 +17,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/firmware.h>
+ #include <linux/iommu.h>
++#include <linux/spinlock.h>
+ 
+ #include <media/v4l2-ctrls.h>
+ #include <media/v4l2-device.h>
+@@ -186,6 +187,14 @@
+ 	unsigned int quirks;
+ };
+ 
++/* Lifecycle of the one m2m job the device runs at a time. */
++enum avd_job_state {
++	AVD_JOB_IDLE,
++	AVD_JOB_RUNNING,	/* inside avd_device_run() */
++	AVD_JOB_SUBMITTED,	/* handed to the hardware, watchdog armed */
++	AVD_JOB_FINISHING,	/* claimed by the IRQ handler or the watchdog */
++};
++
+ struct avd_dev {
+ 	struct device *dev;
+ 	struct v4l2_device v4l2_dev;
+@@ -205,6 +214,15 @@
+ 
+ 	struct mutex vdev_lock;
+ 
++	/* The current job; see avd_device_run(). Protected by job_lock. */
++	spinlock_t job_lock;
++	enum avd_job_state job_state;
++	struct avd_ctx *job_ctx;
++	u64 job_seq;
++	bool job_end_sent;
++	bool job_pending;
++	enum vb2_buffer_state job_pending_result;
++
+ 	struct reset_control *rstc;
+ 
+ 	const struct avd_variant *variant;
+@@ -240,6 +258,8 @@
+ 	bool decomp;
+ 
+ 	struct delayed_work watchdog_work;
++	/* job_seq of the job watchdog_work was armed for */
++	u64 wd_seq;
+ 
+ 	void *priv;
+ 
+--- a/drivers/media/platform/apple/avd/avd-drv.c
++++ b/drivers/media/platform/apple/avd/avd-drv.c
+@@ -147,7 +147,9 @@
+ {
+ 	struct avd_dev *avd = ctx->dev;
+ 	struct avd_job *sub = &ctx->job;
+-	struct avd_segment *seg;
++	struct avd_segment *segments, *seg;
++	unsigned long flags;
++	size_t num;
+ 	int i, idx = 0, vp = 0;
+ 	void __iomem *reg;
+ 	u32 exec_mask = sub->codec == AVD_CODEC_VP9 &&
+@@ -162,7 +164,16 @@
+ 	for (i = 0; i < sub->codec; i++)
+ 		vp += avd->variant->vp_slots[i];
+ 
+-	schedule_delayed_work(&ctx->watchdog_work, msecs_to_jiffies(2000));
++	/*
++	 * avd_device_run() keeps this job from being finished (and the next one
++	 * from starting) until it returns, and arms the watchdog itself once the
++	 * job belongs to the hardware. Still walk a local copy of the table.
++	 */
++	segments = sub->segments;
++	num = sub->num;
++	if (WARN_ON_ONCE(!segments))
++		return -EINVAL;
++
+ 	avd->variant->configure_stream(avd, ctx->inst.addr, ctx->fifo_idx, vp);
+ 	reg = avd->ctrl + avd->variant->vp_slot_offset + vp * 4;
+ 
+@@ -171,22 +182,29 @@
+ 	writel(AVD_OP_EXEC | exec_mask | exec_rev_flag |
+ 		       AVD_OP_EXEC_FIFO_IDX(ctx->fifo_idx),
+ 	       reg);
+-	seg = &sub->segments[idx++];
++	seg = &segments[idx++];
+ 	for (i = 0; i < seg->num; i++)
+ 		writel(seg->instructions[i], reg);
+-	for (; idx <= sub->num; idx++) {
+-		seg = &sub->segments[idx];
++	for (; idx <= num; idx++) {
++		seg = &segments[idx];
+ 		for (i = 0; i < seg->num; i++)
+ 			writel(seg->instructions[i], reg);
+ 		if (avd_wait_submission_queue(ctx, vp))
+ 			break;
++		if (idx == num) {
++			/* A completion from here on belongs to this job. */
++			spin_lock_irqsave(&avd->job_lock, flags);
++			avd->job_end_sent = true;
++			spin_unlock_irqrestore(&avd->job_lock, flags);
++		}
+ 		writel(AVD_OP_EXEC | exec_mask |
+-			       AVD_OP_EXEC_FLAG_END(idx == sub->num),
++			       AVD_OP_EXEC_FLAG_END(idx == num),
+ 		       reg);
+ 	}
+ 
+-	kvfree(sub->segments);
+-	sub->segments = NULL;
++	if (sub->segments == segments)
++		sub->segments = NULL;
++	kvfree(segments);
+ 	return 0;
+ }
+ 
+@@ -220,6 +238,8 @@
+ {
+ 	struct avd_dev *avd;
+ 	struct avd_ctx *ctx;
++	unsigned long flags;
++	bool claimed;
+ 	int ret;
+ 	ctx = container_of(to_delayed_work(work), struct avd_ctx,
+ 			   watchdog_work);
+@@ -228,6 +248,22 @@
+ 
+ 	avd = ctx->dev;
+ 
++	/*
++	 * Time out only the job this watchdog was armed for, and only while the
++	 * hardware still owns it. Otherwise that job already finished, and
++	 * resetting the hardware would break whichever job is running now.
++	 */
++	spin_lock_irqsave(&avd->job_lock, flags);
++	claimed = avd->job_ctx == ctx && avd->job_seq == ctx->wd_seq &&
++		  avd->job_state == AVD_JOB_SUBMITTED;
++	if (claimed)
++		avd->job_state = AVD_JOB_FINISHING;
++	spin_unlock_irqrestore(&avd->job_lock, flags);
++	dev_dbg(avd->dev, "avd-job: watchdog seq %llu: %s\n", ctx->wd_seq,
++		claimed ? "timeout" : "stale, ignored");
++	if (!claimed)
++		return;
++
+ 	dev_err(avd->dev, "Frame processing timed out!");
+ 
+ 	writel(0, avd->mbox + AVD_REG_MBOX_IRQ_ENABLE);
+@@ -244,6 +280,8 @@
+ 	struct avd_ctx *ctx = v4l2_m2m_get_curr_priv(avd->m2m_dev);
+ 
+ 	enum vb2_buffer_state state;
++	unsigned long flags;
++	bool finish = false, stale = false;
+ 	u32 status;
+ 	if (!ctx)
+ 		return IRQ_HANDLED;
+@@ -272,9 +310,33 @@
+ 		goto done;
+ 	}
+ 
+-	/* if the watchdog_work has run the work has already been submitted */
+-	if (cancel_delayed_work(&ctx->watchdog_work))
++	/*
++	 * Finish only a job the hardware owns. While avd_device_run() is still
++	 * setting up or submitting, a completion is left over from an older job
++	 * unless this job's END command already went out; then remember it and
++	 * let avd_device_run() finish the job when it returns.
++	 */
++	spin_lock_irqsave(&avd->job_lock, flags);
++	if (avd->job_ctx != ctx) {
++		stale = true;
++	} else if (avd->job_state == AVD_JOB_SUBMITTED) {
++		avd->job_state = AVD_JOB_FINISHING;
++		finish = true;
++	} else if (avd->job_state == AVD_JOB_RUNNING && avd->job_end_sent) {
++		avd->job_pending = true;
++		avd->job_pending_result = state;
++	} else {
++		stale = true;
++	}
++	spin_unlock_irqrestore(&avd->job_lock, flags);
++	dev_dbg(avd->dev, "avd-job: irq %#x: %s\n", status,
++		finish ? "finish" : stale ? "stale, ignored" : "pending");
++	if (stale)
++		dev_warn_ratelimited(avd->dev, "ignoring stale completion");
++	if (finish) {
++		cancel_delayed_work(&ctx->watchdog_work);
+ 		avd_job_finish(ctx, state);
++	}
+ 
+ done:
+ 	return IRQ_HANDLED;
+@@ -285,6 +347,11 @@
+ 	struct avd_ctx *ctx = priv;
+ 	struct avd_dev *avd = ctx->dev;
+ 	const struct avd_coded_fmt_desc *desc = ctx->coded_fmt_desc;
++	enum vb2_buffer_state result = VB2_BUF_STATE_ERROR;
++	const char *outcome = "already finished";
++	unsigned long flags;
++	bool finish = false;
++	u64 seq;
+ 	int ret;
+ 
+ 	if (WARN_ON(!desc))
+@@ -296,9 +363,51 @@
+ 		return;
+ 	}
+ 
++	/*
++	 * While the job is RUNNING neither completion IRQs nor the watchdog may
++	 * finish it: v4l2-mem2mem would start the next job on a kworker while
++	 * this one still builds and submits ctx->job.
++	 */
++	spin_lock_irqsave(&avd->job_lock, flags);
++	seq = ++avd->job_seq;
++	avd->job_ctx = ctx;
++	avd->job_state = AVD_JOB_RUNNING;
++	avd->job_end_sent = false;
++	avd->job_pending = false;
++	spin_unlock_irqrestore(&avd->job_lock, flags);
++	dev_dbg(avd->dev, "avd-job: run seq %llu\n", seq);
++
+ 	ret = desc->ops->run(ctx);
+-	if (ret)
++	if (ret) {
++		dev_dbg(avd->dev, "avd-job: run seq %llu failed: %d\n", seq, ret);
+ 		avd_job_finish(ctx, VB2_BUF_STATE_ERROR);
++		return;
++	}
++
++	/*
++	 * The run either finished the job itself (held capture buffer) or handed
++	 * it to the hardware: arm the watchdog, or finish right away if the
++	 * completion already arrived.
++	 */
++	spin_lock_irqsave(&avd->job_lock, flags);
++	if (avd->job_seq == seq && avd->job_state == AVD_JOB_RUNNING) {
++		if (avd->job_pending) {
++			avd->job_state = AVD_JOB_FINISHING;
++			result = avd->job_pending_result;
++			finish = true;
++			outcome = "completed during submission";
++		} else {
++			avd->job_state = AVD_JOB_SUBMITTED;
++			ctx->wd_seq = seq;
++			schedule_delayed_work(&ctx->watchdog_work, msecs_to_jiffies(2000));
++			outcome = "submitted";
++		}
++	}
++	spin_unlock_irqrestore(&avd->job_lock, flags);
++	dev_dbg(avd->dev, "avd-job: run seq %llu: %s\n", seq, outcome);
++
++	if (finish)
++		avd_job_finish(ctx, result);
+ }
+ 
+ static int avd_queue_init(void *priv, struct vb2_queue *src_vq,
+@@ -394,6 +503,8 @@
+ 
+ 	v4l2_fh_del(&ctx->fh, filp);
+ 	v4l2_m2m_ctx_release(ctx->fh.m2m_ctx);
++	/* The job has finished; its watchdog must not run on the freed ctx. */
++	cancel_delayed_work_sync(&ctx->watchdog_work);
+ 	v4l2_ctrl_handler_free(&ctx->ctrl_hdl);
+ 	v4l2_fh_exit(&ctx->fh);
+ 	avd_buf_free(ctx->dev, &ctx->inst);
+@@ -694,6 +805,7 @@
+ 	avd->pdev = pdev;
+ 
+ 	mutex_init(&avd->vdev_lock);
++	spin_lock_init(&avd->job_lock);
+ 
+ 	match = of_match_node(avd_of_match, pdev->dev.of_node);
+ 	avd->variant = match->data;
+--- a/drivers/media/platform/apple/avd/avd-v4l2.c
++++ b/drivers/media/platform/apple/avd/avd-v4l2.c
+@@ -925,6 +925,17 @@
+ 
+ void avd_job_finish_no_pm(struct avd_ctx *ctx, enum vb2_buffer_state result)
+ {
++	struct avd_dev *avd = ctx->dev;
++	unsigned long flags;
++
++	spin_lock_irqsave(&avd->job_lock, flags);
++	if (avd->job_ctx == ctx) {
++		avd->job_state = AVD_JOB_IDLE;
++		avd->job_ctx = NULL;
++		avd->job_pending = false;
++	}
++	spin_unlock_irqrestore(&avd->job_lock, flags);
++
+ 	if (ctx->coded_fmt_desc->ops->done) {
+ 		struct vb2_v4l2_buffer *src_buf, *dst_buf;
+ 

@@ -1,0 +1,64 @@
+From af6eada66df5ffa52e2df8001dd0bff8eae12b08 Mon Sep 17 00:00:00 2001
+From: Aaron <blue@aquarat.co.uk>
+Date: Sun, 13 Sep 2026 12:54:30 +0100
+Subject: [PATCH 4/4] media: apple: avd: h264: reset slice_num when a frame is
+ done
+
+avd_h264_run() appends every slice to h264_ctx->slices[] and increments
+slice_num, and avd_h264_done() frees slices[0..slice_num) once the
+capture buffer is no longer held, but slice_num is only ever zeroed by
+the kzalloc() in avd_h264_start(). On a long-running stream it therefore
+reaches MAX_SLICES (4096) after 4096 slices - about four and a half
+minutes of a 15 fps single-slice camera - and every later frame is
+rejected with "slice_num > 4096, stream was rejected!". done() also walks
+an ever-growing range of already-freed entries on every frame.
+
+Reset slice_num after the slices are freed. Also complete the media
+request (avd_run_postamble) on the two early returns that precede it
+(MAX_SLICES, slice buffer allocation failure); otherwise the rejected
+request is never completed and every following request on the context
+fails with EBUSY.
+---
+ avd-h264.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/platform/apple/avd/avd-h264.c b/drivers/media/platform/apple/avd/avd-h264.c
+index 8c9c7df..c1b6ded 100644
+--- a/drivers/media/platform/apple/avd/avd-h264.c
++++ b/drivers/media/platform/apple/avd/avd-h264.c
+@@ -731,6 +731,7 @@ static int avd_h264_run(struct avd_ctx *ctx)
+ 		dev_err_ratelimited(ctx->dev->dev,
+ 				    "slice_num > %d, stream was rejected!",
+ 				    MAX_SLICES);
++		avd_run_postamble(ctx, &run.base);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -739,8 +740,10 @@ static int avd_h264_run(struct avd_ctx *ctx)
+ 	const u8 *data = vb2_plane_vaddr(&src->vb2_buf, 0);
+ 	h264_ctx->active_slice = &h264_ctx->slices[h264_ctx->slice_num];
+ 	ret = avd_buf_alloc(ctx->dev, h264_ctx->active_slice, payload_len);
+-	if (ret)
++	if (ret) {
++		avd_run_postamble(ctx, &run.base);
+ 		return ret;
++	}
+ 	memcpy(h264_ctx->active_slice->cpu, data, payload_len);
+ 	h264_ctx->slice_num++;
+ 
+@@ -792,9 +795,11 @@ static void avd_h264_done(struct avd_ctx *ctx, struct vb2_v4l2_buffer *src_buf,
+ 	struct avd_h264_ctx *h264_ctx = ctx->priv;
+ 	int i;
+ 
+-	if (!(src_buf->flags & V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF))
++	if (!(src_buf->flags & V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF)) {
+ 		for (i = 0; i < h264_ctx->slice_num; i++)
+ 			avd_buf_free(avd, &h264_ctx->slices[i]);
++		h264_ctx->slice_num = 0;
++	}
+ }
+ 
+ static enum avd_image_fmt avd_h264_get_image_fmt(struct avd_ctx *ctx,
+-- 
+2.55.0
+

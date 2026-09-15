@@ -1,0 +1,47 @@
+From 92235005d10fa531e9394bccd7a633e5e5a09336 Mon Sep 17 00:00:00 2001
+From: Aaron <blue@aquarat.co.uk>
+Date: Sun, 13 Sep 2026 11:43:04 +0100
+Subject: [PATCH 3/4] media: apple: avd: allocate the job segment table with
+ kvcalloc
+
+avd_init_job() allocates MAX_SLICES (4096 for H.264) struct avd_segment
+entries of 2056 bytes each - about 8.4 MB, an order-10 allocation on a
+16K-page kernel - with kzalloc() for every frame. Once the page cache is
+full of file pages (an NVR writing recordings) that contiguous allocation
+fails, the frame is returned with an error and the output silently loses
+frames: with four concurrent 2304x1296 decodes on T6000 the page
+allocation failure was logged in avd_init_job() and all four outputs
+differed from the single-stream reference.
+
+The table is only read by the CPU (its instructions are written to MMIO
+with writel()), so it does not need physically contiguous memory. Use
+kvcalloc()/kvfree(), which also checks the multiplication for overflow.
+---
+ avd-drv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/platform/apple/avd/avd-drv.c b/drivers/media/platform/apple/avd/avd-drv.c
+index 88b3be0..195c186 100644
+--- a/drivers/media/platform/apple/avd/avd-drv.c
++++ b/drivers/media/platform/apple/avd/avd-drv.c
+@@ -137,7 +137,7 @@ int avd_init_job(struct avd_ctx *ctx, enum avd_codec codec, size_t segments)
+ 
+ 	job->codec = codec;
+ 	job->num = 0;
+-	job->segments = kzalloc(sizeof(*job->segments) * segments, GFP_KERNEL);
++	job->segments = kvcalloc(segments, sizeof(*job->segments), GFP_KERNEL);
+ 	if (!job->segments)
+ 		ret = -ENOMEM;
+ 	return ret;
+@@ -185,7 +185,7 @@ int avd_submit_job(struct avd_ctx *ctx)
+ 		       reg);
+ 	}
+ 
+-	kfree(sub->segments);
++	kvfree(sub->segments);
+ 	sub->segments = NULL;
+ 	return 0;
+ }
+-- 
+2.55.0
+

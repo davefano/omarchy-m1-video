@@ -1,0 +1,18 @@
+# Rebuild the locally patched apple_avd (Apple Video Decoder) module for new
+# linux-asahi kernels. See https://github.com/iconidentify/omarchy-m1-video
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Type = Package
+Target = linux-asahi
+Target = linux-asahi-headers
+
+[Action]
+Description = Rebuilding patched apple_avd video decoder module...
+When = PostTransaction
+Exec = /usr/local/sbin/apple-avd-rebuild
+Depends = git
+Depends = make
+Depends = patch
+Depends = gcc

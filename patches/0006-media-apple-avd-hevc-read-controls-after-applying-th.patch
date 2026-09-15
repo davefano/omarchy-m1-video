@@ -1,0 +1,77 @@
+From e6182d074965505c9599da462a931da6e875e545 Mon Sep 17 00:00:00 2001
+From: iconidentify <303316+iconidentify@users.noreply.github.com>
+Date: Tue, 15 Sep 2026 07:40:24 -0700
+Subject: [PATCH] media: apple: avd: hevc: read controls after applying the
+ request
+
+avd_hevc_run_preamble() read the HEVC controls, including the number of
+slices and entry point offsets (ctrl->new_elems), before
+avd_run_preamble() applied the request with v4l2_ctrl_request_setup().
+
+new_elems is scratch space: setting controls on any request writes the
+count there. Userspace that queues requests ahead (FFmpeg through VA-API
+does) sets the next picture's controls while the current one is being
+prepared, so the current picture could be decoded with the next
+picture's slice count. In WPP_C_ericsson_MAIN_2, picture 12 has 16
+slices and picture 13 has one; picture 12 was sent with only its first
+slice and the firmware rejected it (H0 error), in 11 of 20 decodes.
+Reading elems at the same place is no better: before request setup it
+holds the previous picture's count (0 of 20 decodes correct).
+
+Apply the request first, then read the controls and their counts
+(elems). This also stops holding p_cur of a dynamic array across the
+setup, which can move the array's storage when it grows.
+
+---
+ drivers/media/platform/apple/avd/avd-hevc.c | 22 ++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/media/platform/apple/avd/avd-hevc.c b/drivers/media/platform/apple/avd/avd-hevc.c
+index be062bf..d72cba7 100644
+--- a/drivers/media/platform/apple/avd/avd-hevc.c
++++ b/drivers/media/platform/apple/avd/avd-hevc.c
+@@ -1250,13 +1250,25 @@ static int avd_hevc_run_preamble(struct avd_ctx *ctx, struct avd_hevc_run *run)
+ 	struct v4l2_ctrl *ctrl;
+ 	u32 dst_len, mv_color_len;
+ 
++	if (!v4l2_ctrl_find(&ctx->ctrl_hdl,
++			    V4L2_CID_STATELESS_HEVC_ENTRY_POINT_OFFSETS))
++		return -EINVAL;
++
++	/*
++	 * Apply the request's controls before reading them. Until then the
++	 * element counts of the dynamic arrays belong to the previous request
++	 * (elems) or to whoever set controls last (new_elems), and setting a
++	 * larger array can move their storage.
++	 */
++	avd_run_preamble(ctx, &run->base);
++
+ 	ctrl = v4l2_ctrl_find(&ctx->ctrl_hdl,
+ 			      V4L2_CID_STATELESS_HEVC_DECODE_PARAMS);
+ 	run->decode = ctrl ? ctrl->p_cur.p : NULL;
+ 	ctrl = v4l2_ctrl_find(&ctx->ctrl_hdl,
+ 			      V4L2_CID_STATELESS_HEVC_SLICE_PARAMS);
+ 	run->sl = ctrl ? ctrl->p_cur.p : NULL;
+-	run->num_slices = ctrl ? ctrl->new_elems : 0;
++	run->num_slices = ctrl ? ctrl->elems : 0;
+ 	ctrl = v4l2_ctrl_find(&ctx->ctrl_hdl, V4L2_CID_STATELESS_HEVC_SPS);
+ 	run->sps = ctrl ? ctrl->p_cur.p : NULL;
+ 	ctrl = v4l2_ctrl_find(&ctx->ctrl_hdl, V4L2_CID_STATELESS_HEVC_PPS);
+@@ -1267,12 +1279,8 @@ static int avd_hevc_run_preamble(struct avd_ctx *ctx, struct avd_hevc_run *run)
+ 
+ 	ctrl = v4l2_ctrl_find(&ctx->ctrl_hdl,
+ 			      V4L2_CID_STATELESS_HEVC_ENTRY_POINT_OFFSETS);
+-	run->entry_point_offsets = ctrl ? ctrl->p_cur.p : NULL;
+-	if (!run->entry_point_offsets)
+-		return -EINVAL;
+-	run->num_entry_point_offsets = ctrl ? ctrl->new_elems : 0;
+-
+-	avd_run_preamble(ctx, &run->base);
++	run->entry_point_offsets = ctrl->p_cur.p;
++	run->num_entry_point_offsets = ctrl->elems;
+ 
+ 	dst_len = run->base.bufs.dst->vb2_buf.planes[0].length;
+ 
+-- 
+2.55.0
+
