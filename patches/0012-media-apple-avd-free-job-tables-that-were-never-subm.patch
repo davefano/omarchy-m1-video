@@ -1,0 +1,60 @@
+From 3d581e65fa01e28707c6184449a291a2409d43b2 Mon Sep 17 00:00:00 2001
+From: iconidentify <303316+iconidentify@users.noreply.github.com>
+Date: Tue, 15 Sep 2026 11:49:47 -0700
+Subject: [PATCH 12/15] media: apple: avd: free job tables that were never
+ submitted
+
+avd_init_job() replaced ctx->job.segments without freeing it, and only
+avd_submit_job() ever freed a table. A frame that was started but not
+submitted leaked its table: for H.264 that is 4096 segments, about 8 MiB,
+each time a slice of a started frame was rejected (invalid references),
+on stream-off in the middle of a frame, or on close. A table left over
+across stream-off could also be appended to by the next stream.
+
+Free the old table in avd_init_job(), on OUTPUT stream-off and on
+release. Jobs run one at a time and stream-off and release wait for the
+running job, so no submission can be walking the table.
+---
+ drivers/media/platform/apple/avd/avd-drv.c  | 3 +++
+ drivers/media/platform/apple/avd/avd-v4l2.c | 4 ++++
+ 2 files changed, 7 insertions(+)
+
+diff --git a/drivers/media/platform/apple/avd/avd-drv.c b/drivers/media/platform/apple/avd/avd-drv.c
+index ef6b97d..c2c1601 100644
+--- a/drivers/media/platform/apple/avd/avd-drv.c
++++ b/drivers/media/platform/apple/avd/avd-drv.c
+@@ -139,6 +139,8 @@ int avd_init_job(struct avd_ctx *ctx, enum avd_codec codec, size_t segments)
+ 
+ 	job->codec = codec;
+ 	job->num = 0;
++	/* A table that was built but never submitted still belongs to us. */
++	kvfree(job->segments);
+ 	job->segments = kvcalloc(segments, sizeof(*job->segments), GFP_KERNEL);
+ 	if (!job->segments)
+ 		ret = -ENOMEM;
+@@ -510,6 +512,7 @@ static int avd_release(struct file *filp)
+ 	v4l2_ctrl_handler_free(&ctx->ctrl_hdl);
+ 	v4l2_fh_exit(&ctx->fh);
+ 	avd_buf_free(ctx->dev, &ctx->inst);
++	kvfree(ctx->job.segments);
+ 	kfree(ctx);
+ 
+ 	return 0;
+diff --git a/drivers/media/platform/apple/avd/avd-v4l2.c b/drivers/media/platform/apple/avd/avd-v4l2.c
+index f8b958b..2479ba9 100644
+--- a/drivers/media/platform/apple/avd/avd-v4l2.c
++++ b/drivers/media/platform/apple/avd/avd-v4l2.c
+@@ -908,6 +908,10 @@ static void avd_stop_streaming(struct vb2_queue *q)
+ 
+ 		if (desc->ops->stop)
+ 			desc->ops->stop(ctx);
++
++		/* Drop a job table left over from a frame that never finished. */
++		kvfree(ctx->job.segments);
++		ctx->job.segments = NULL;
+ 	}
+ 
+ 	avd_queue_cleanup(q, VB2_BUF_STATE_ERROR);
+-- 
+2.55.0
+

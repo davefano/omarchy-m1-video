@@ -1,0 +1,36 @@
+From 9df29299ea31172e98d37e880258f9ce449a298e Mon Sep 17 00:00:00 2001
+From: iconidentify <303316+iconidentify@users.noreply.github.com>
+Date: Tue, 15 Sep 2026 11:49:47 -0700
+Subject: [PATCH 14/15] media: apple: avd: h264: use the 10-bit grey value for
+ 10-bit 4:0:0
+
+10-bit 4:0:0 streams decode into P010, where filling chroma with 0x80
+bytes gives 0x8080 (514) instead of mid-grey 0x8000 (512).
+---
+ drivers/media/platform/apple/avd/avd-h264.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/media/platform/apple/avd/avd-h264.c b/drivers/media/platform/apple/avd/avd-h264.c
+index 8701d68..fdc3b4a 100644
+--- a/drivers/media/platform/apple/avd/avd-h264.c
++++ b/drivers/media/platform/apple/avd/avd-h264.c
+@@ -809,8 +809,15 @@ static void avd_h264_done(struct avd_ctx *ctx, struct vb2_v4l2_buffer *src_buf,
+ 			u8 *y = vb2_plane_vaddr(&dst_buf->vb2_buf, 0);
+ 			size_t luma = (size_t)pix->plane_fmt[0].bytesperline * pix->height;
+ 
+-			if (y)
++			if (y && ctx->image_fmt == AVD_IMG_FMT_420_10BIT) {
++				/* P010: 16-bit little-endian samples, 512 << 6 */
++				for (size_t i = 0; i + 1 < luma / 2; i += 2) {
++					y[luma + i] = 0x00;
++					y[luma + i + 1] = 0x80;
++				}
++			} else if (y) {
+ 				memset(y + luma, 0x80, luma / 2);
++			}
+ 		}
+ 	}
+ }
+-- 
+2.55.0
+

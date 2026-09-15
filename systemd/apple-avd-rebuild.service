@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: GPL-2.0-only
+# Build the patched apple_avd module for the running kernel if it is missing, e.g. when
+# the pacman hook could not fetch the driver source during a kernel update.
+# Part of omarchy-m1-video: https://github.com/iconidentify/omarchy-m1-video
+[Unit]
+Description=Build the patched apple_avd video decoder module if missing
+Documentation=https://github.com/iconidentify/omarchy-m1-video
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/usr/local/sbin/apple-avd-rebuild
+ConditionPathExists=!/usr/lib/modules/%v/updates/apple-avd.ko.patched-stamp
+
+[Service]
+# exec, not oneshot: do not hold up reaching multi-user.target while building
+Type=exec
+ExecStart=/usr/local/sbin/apple-avd-rebuild
+
+[Install]
+WantedBy=multi-user.target

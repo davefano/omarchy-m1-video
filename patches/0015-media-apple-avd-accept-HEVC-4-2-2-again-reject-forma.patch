@@ -1,0 +1,55 @@
+From 32a16acdd67d91fa77eac07e22d2fcb88f89bb5e Mon Sep 17 00:00:00 2001
+From: iconidentify <303316+iconidentify@users.noreply.github.com>
+Date: Tue, 15 Sep 2026 11:49:47 -0700
+Subject: [PATCH 15/15] media: apple: avd: accept HEVC 4:2:2 again, reject
+ formats without a capture format
+
+The previous HEVC SPS check rejected every chroma format but 4:2:0,
+although 8-bit 4:2:2 maps to NV16, and it made the zeroed default SPS
+invalid. Only reject what cannot be decoded into an offered format: bit
+depths other than 8 and 10, and 4:2:2 at 10 bit, which is mapped to
+P010 whose buffer is too small for 4:2:2 chroma (there is no P210). Do
+the same for H.264, which accepted 4:2:2 10-bit into P010 as well.
+---
+ drivers/media/platform/apple/avd/avd-h264.c | 6 ++++++
+ drivers/media/platform/apple/avd/avd-hevc.c | 7 +++++--
+ 2 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/platform/apple/avd/avd-h264.c b/drivers/media/platform/apple/avd/avd-h264.c
+index fdc3b4a..9bdf3d6 100644
+--- a/drivers/media/platform/apple/avd/avd-h264.c
++++ b/drivers/media/platform/apple/avd/avd-h264.c
+@@ -579,6 +579,12 @@ static int avd_h264_validate_sps(struct avd_ctx *ctx,
+ 	if (sps->bit_depth_luma_minus8 != sps->bit_depth_chroma_minus8)
+ 		/* Luma and chroma bit depth mismatch */
+ 		return -EINVAL;
++	if (sps->bit_depth_luma_minus8 != 0 && sps->bit_depth_luma_minus8 != 2)
++		/* Only 8 and 10 bit have capture formats */
++		return -EINVAL;
++	if (sps->chroma_format_idc == 2 && sps->bit_depth_luma_minus8 == 2)
++		/* 4:2:2 10 bit would need P210; P010 is too small for its chroma */
++		return -EINVAL;
+ 	if (!(sps->flags & V4L2_H264_SPS_FLAG_FRAME_MBS_ONLY))
+ 		/* no interlaced support */
+ 		return -EINVAL;
+diff --git a/drivers/media/platform/apple/avd/avd-hevc.c b/drivers/media/platform/apple/avd/avd-hevc.c
+index 6580f8a..cc71ac5 100644
+--- a/drivers/media/platform/apple/avd/avd-hevc.c
++++ b/drivers/media/platform/apple/avd/avd-hevc.c
+@@ -1020,8 +1020,11 @@ static int avd_hevc_validate_sps(struct avd_ctx *ctx,
+ 	if (sps->bit_depth_luma_minus8 != sps->bit_depth_chroma_minus8)
+ 		/* Luma and chroma bit depth mismatch: the firmware faults (H0 error) */
+ 		return -EINVAL;
+-	if (sps->chroma_format_idc != 1)
+-		/* Only 4:2:0 has a capture format */
++	if (sps->bit_depth_luma_minus8 != 0 && sps->bit_depth_luma_minus8 != 2)
++		/* Only 8 and 10 bit have capture formats */
++		return -EINVAL;
++	if (sps->chroma_format_idc == 2 && sps->bit_depth_luma_minus8 == 2)
++		/* 4:2:2 10 bit would need P210, which is not offered */
+ 		return -EINVAL;
+ 
+ 	return 0;
+-- 
+2.55.0
+

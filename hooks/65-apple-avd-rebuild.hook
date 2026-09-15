@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only
 # Rebuild the locally patched apple_avd (Apple Video Decoder) module for new
 # linux-asahi kernels. See https://github.com/iconidentify/omarchy-m1-video
 [Trigger]

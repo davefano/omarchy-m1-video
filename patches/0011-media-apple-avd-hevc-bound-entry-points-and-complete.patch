@@ -1,0 +1,105 @@
+From c541ef115c883122dad2dbda4b7fac4100b7e2d1 Mon Sep 17 00:00:00 2001
+From: iconidentify <303316+iconidentify@users.noreply.github.com>
+Date: Tue, 15 Sep 2026 11:49:47 -0700
+Subject: [PATCH 11/15] media: apple: avd: hevc: bound entry points and
+ complete the request on errors
+
+stream_slices() accepted slices claiming one entry point offset more than
+the request carried (> count + 1). With tiles that reads one offset past
+the array and pushes one segment past the job table, which is sized
+num_slices + num_entry_point_offsets + 1. Require the sum to fit, and
+fail the job instead of submitting a half-built one.
+
+avd_hevc_run() returned from compute_tiles, alloc_scratch and init_job
+failures without avd_run_postamble(), so the applied request was never
+completed and a client waiting on the request fd waited forever. It also
+freed tile_info pointers that were uninitialised when compute_tiles failed
+before allocating them. Zero the run and complete the request on every
+path.
+---
+ drivers/media/platform/apple/avd/avd-hevc.c | 27 +++++++++++++--------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/media/platform/apple/avd/avd-hevc.c b/drivers/media/platform/apple/avd/avd-hevc.c
+index b0bd8dc..6580f8a 100644
+--- a/drivers/media/platform/apple/avd/avd-hevc.c
++++ b/drivers/media/platform/apple/avd/avd-hevc.c
+@@ -819,7 +819,7 @@ struct sl_ctx {
+ };
+ 
+ /* TODO */
+-static void stream_slices(struct avd_ctx *ctx, struct avd_hevc_run *run)
++static int stream_slices(struct avd_ctx *ctx, struct avd_hevc_run *run)
+ {
+ 	const struct v4l2_ctrl_hevc_sps *sps = run->sps;
+ 	const struct v4l2_ctrl_hevc_pps *pps = run->pps;
+@@ -860,12 +860,12 @@ static void stream_slices(struct avd_ctx *ctx, struct avd_hevc_run *run)
+ 		to = tiles_enabled ? sl->num_entry_point_offsets + 1 : 1;
+ 		if (tiles_enabled &&
+ 		    sl->num_entry_point_offsets + entry_point_idx >
+-			    run->num_entry_point_offsets + 1) {
++			    run->num_entry_point_offsets) {
+ 			dev_err(ctx->dev->dev,
+-				"to few entry points! has: %d, needs > %d",
++				"too few entry points: has %d, needs %d",
+ 				run->num_entry_point_offsets,
+ 				sl->num_entry_point_offsets + entry_point_idx);
+-			return;
++			return -EINVAL;
+ 		}
+ 		for (i = 0; i < to; i++) {
+ 			first_segment = i == 0;
+@@ -966,6 +966,8 @@ static void stream_slices(struct avd_ctx *ctx, struct avd_hevc_run *run)
+ 	}
+ 
+ 	hevc_ctx->submit_num = pos;
++
++	return 0;
+ }
+ 
+ static void update_dec_buf_info(struct avd_decoded_buffer *buf,
+@@ -1313,7 +1315,7 @@ static int avd_hevc_run_preamble(struct avd_ctx *ctx, struct avd_hevc_run *run)
+ 
+ static int avd_hevc_run(struct avd_ctx *ctx)
+ {
+-	struct avd_hevc_run run;
++	struct avd_hevc_run run = {};
+ 	struct avd_decoded_buffer *dst;
+ 	int ret;
+ 
+@@ -1326,22 +1328,27 @@ static int avd_hevc_run(struct avd_ctx *ctx)
+ 
+ 	ret = avd_hevc_compute_tiles(ctx, &run);
+ 	if (ret)
+-		goto done;
++		goto complete;
+ 
+ 	ret = avd_hevc_alloc_scratch(ctx, &run);
+ 	if (ret)
+-		goto done;
++		goto complete;
+ 
+ 	ret = avd_init_job(ctx, AVD_CODEC_HEVC,
+ 			   run.num_slices + run.num_entry_point_offsets + 1);
+ 	if (ret)
+-		goto done;
++		goto complete;
+ 
+ 	set_header(ctx, &run);
+-	stream_slices(ctx, &run);
++	ret = stream_slices(ctx, &run);
+ 	avd_run_postamble(ctx, &run.base);
++	if (!ret)
++		ret = avd_submit_job(ctx);
++	goto done;
+ 
+-	ret = avd_submit_job(ctx);
++complete:
++	/* The request was applied; complete it on every way out. */
++	avd_run_postamble(ctx, &run.base);
+ done:
+ 	kfree(run.tile_info.ctb_addr_rs_to_ts);
+ 	kfree(run.tile_info.tile_ids);
+-- 
+2.55.0
+

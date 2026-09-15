@@ -1,0 +1,44 @@
+From 6592ea809b259be5f7b117a7a11f789ff6738662 Mon Sep 17 00:00:00 2001
+From: iconidentify <303316+iconidentify@users.noreply.github.com>
+Date: Tue, 15 Sep 2026 11:49:47 -0700
+Subject: [PATCH 13/15] media: apple: avd: h264: keep slice data and the job
+ table in bounds
+
+The job table holds a header segment plus one segment per slice, but was
+sized for MAX_SLICES segments, so the 4096th slice of a frame wrote one
+segment past the end.
+
+The scan for emulation prevention bytes in stream_slice() walked the
+slice data until it had counted header_bit_size bits, which comes from
+userspace, without looking at the slice length. Stop at the end of the
+slice data.
+---
+ drivers/media/platform/apple/avd/avd-h264.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/platform/apple/avd/avd-h264.c b/drivers/media/platform/apple/avd/avd-h264.c
+index ce0323e..8701d68 100644
+--- a/drivers/media/platform/apple/avd/avd-h264.c
++++ b/drivers/media/platform/apple/avd/avd-h264.c
+@@ -407,7 +407,7 @@ static void stream_slice(struct avd_ctx *ctx, struct avd_h264_run *run)
+ 	u32 off = 2;
+ 	u32 bytes_read = 2;
+ 
+-	while (bytes_read < min_off) {
++	while (bytes_read < min_off && off < payload_len) {
+ 		if (data[off - 2] != 0x00 || data[off - 1] != 0x00 ||
+ 		    data[off] != 0x03)
+ 			bytes_read++;
+@@ -769,7 +769,8 @@ static int avd_h264_run(struct avd_ctx *ctx)
+ 	}
+ 
+ 	if (is_new_frame(run.slice_params)) {
+-		ret = avd_init_job(ctx, AVD_CODEC_H264, MAX_SLICES);
++		/* the header segment plus one per slice */
++		ret = avd_init_job(ctx, AVD_CODEC_H264, MAX_SLICES + 1);
+ 		if (ret)
+ 			return ret;
+ 		stream_hdr(ctx, &run);
+-- 
+2.55.0
+

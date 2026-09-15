@@ -1,30 +1,74 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-2.0-only
 # Hardware video decoding (H.264/HEVC) for Omarchy on Apple Silicon Macs with the Asahi kernel.
-# Run as your normal user; it uses sudo where needed. See README.md.
+# Run as your normal user; it uses sudo where needed. Read README.md first.
 set -euo pipefail
+export LC_ALL=C
 cd "$(dirname "$0")"
 
 SHARE=/usr/local/share/apple-avd-patched
+KVER=$(uname -r)
 
 say() { echo "==> $*"; }
 die() { echo "==> ERROR: $*" >&2; exit 1; }
+
+accept=0
+for arg in "$@"; do
+	case $arg in
+		--i-accept-boot-risk) accept=1 ;;
+		*) die "unknown option '$arg' (usage: ./install.sh --i-accept-boot-risk)" ;;
+	esac
+done
+if [[ $accept -ne 1 ]]; then
+	cat <<'EOF'
+This installs an out-of-tree kernel module for the Mac's video decoder that loads at every
+boot. It is not reviewed or supported by Asahi Linux. On the test Mac, the machine hard-reset
+twice within about a minute of boot while these patches (0001-0005, unchanged since) were the
+module loaded at boot. The cause was not found, and loading at boot has not been retested
+since; later tests loaded the module by hand. Read "Before you install" and "If the Mac
+freezes or resets" in README.md.
+
+If you accept that risk, run:  ./install.sh --i-accept-boot-risk
+EOF
+	exit 2
+fi
 
 [[ $EUID -ne 0 ]] || die "run this as your normal user, not root"
 [[ $(uname -m) == aarch64 ]] || die "this is for aarch64 Apple Silicon Macs"
 compat=$(tr '\0' ' ' < /proc/device-tree/compatible 2>/dev/null || true)
 [[ $compat == *apple,* ]] || die "not an Apple Silicon Mac (device tree: ${compat:-none})"
-pacman -Q linux-asahi >/dev/null 2>&1 || die "needs the linux-asahi kernel package"
+kpkg=$(pacman -Q linux-asahi 2>/dev/null | awk '{print $2}') || true
+[[ -n $kpkg ]] || die "needs the linux-asahi kernel package"
 say "machine: $compat"
 [[ $compat == *t8103* ]] || say "NOTE: only tested on the M1 (t8103). Other chips use the same driver but are untested."
 
-if grep -rqs 'apple_avd' /etc/modprobe.d/; then
-	say "WARNING: /etc/modprobe.d blocks apple_avd:"
-	grep -rs 'apple_avd' /etc/modprobe.d/
-	say "Remove that line if you want hardware decoding; this script does not touch it."
+running_asahi=0
+[[ $(pacman -Qqo "/usr/lib/modules/$KVER/vmlinuz" 2>/dev/null || true) == linux-asahi ]] && running_asahi=1
+[[ $running_asahi -eq 1 ]] || say "NOTE: the running kernel $KVER is not the installed linux-asahi $kpkg (reboot pending after a kernel update?)"
+
+# Headers must match the installed kernel exactly; installing them from a newer
+# sync database would be a partial upgrade and cannot build for this kernel.
+if hpkg=$(pacman -Q linux-asahi-headers 2>/dev/null | awk '{print $2}') && [[ -n $hpkg ]]; then
+	[[ $hpkg == "$kpkg" ]] || die "linux-asahi is $kpkg but linux-asahi-headers is $hpkg: update the whole system (omarchy update, or sudo pacman -Syu), reboot, and run this again"
+	need_headers=
+else
+	repo=$(pacman -Si linux-asahi-headers 2>/dev/null | awk '/^Version/{print $3; exit}') || true
+	[[ $repo == "$kpkg" ]] || die "the package database offers linux-asahi-headers ${repo:-(none)} but linux-asahi $kpkg is installed: update the whole system, reboot, and run this again"
+	need_headers=linux-asahi-headers
+fi
+
+blocked=$(grep -rsE '^[[:space:]]*(blacklist|install)[[:space:]]+apple[-_]avd([[:space:]]|$)' /etc/modprobe.d /usr/lib/modprobe.d /run/modprobe.d || true)
+cmdline_block=$(grep -oE '(module_blacklist|modprobe\.blacklist)=[^ ]*apple[-_]avd' /proc/cmdline || true)
+if [[ -n $blocked || -n $cmdline_block ]]; then
+	say "NOTE: apple_avd is currently blocked from loading:"
+	[[ -n $blocked ]] && printf '       %s\n' "$blocked"
+	[[ -n $cmdline_block ]] && echo "       kernel command line: $cmdline_block"
+	say "This script does not change that. Hardware decoding stays off until you remove it."
 fi
 
 say "installing build dependencies"
-sudo pacman -S --needed --noconfirm base-devel git meson libdrm libva patch linux-asahi-headers
+# shellcheck disable=SC2086
+sudo pacman -S --needed --noconfirm base-devel git meson libdrm libva libva-utils patch $need_headers
 
 say "building and installing the VA-API driver (libva-v4l2_request-avd)"
 work=$(mktemp -d)
@@ -32,31 +76,53 @@ trap 'rm -rf "$work"' EXIT
 cp libva/PKGBUILD libva/libva-v4l2_request-avd.install "$work/"
 (cd "$work" && makepkg -si --noconfirm)
 
-say "installing kernel driver patches, rebuild script and pacman hooks"
+say "installing kernel driver patches, rebuild script, pacman hooks and boot service"
 sudo install -d "$SHARE/patches"
-sudo rm -f "$SHARE"/patches/0*.patch
+sudo find "$SHARE/patches" -maxdepth 1 -name '*.patch' -delete
 sudo install -m644 patches/*.patch "$SHARE/patches/"
 sudo install -Dm755 bin/apple-avd-rebuild /usr/local/sbin/apple-avd-rebuild
 sudo install -Dm644 -t /etc/pacman.d/hooks hooks/*.hook
+sudo install -Dm644 systemd/apple-avd-rebuild.service /etc/systemd/system/apple-avd-rebuild.service
+sudo systemctl daemon-reload
+sudo systemctl enable apple-avd-rebuild.service
 
 say "building the patched apple_avd module for the installed kernel(s)"
-sudo /usr/local/sbin/apple-avd-rebuild --force
+if ! sudo /usr/local/sbin/apple-avd-rebuild --force; then
+	die "building the patched module failed (messages above). The VA-API driver, hooks and boot service are installed; fix the problem and run ./install.sh --i-accept-boot-risk again"
+fi
 
 conf=${XDG_CONFIG_HOME:-$HOME/.config}/mpv/mpv.conf
 mkdir -p "$(dirname "$conf")"
 touch "$conf"
-if grep -qE '^\s*(hwdec|vo|gpu-api)\s*=' "$conf"; then
-	say "mpv: $conf already sets hwdec/vo/gpu-api; make sure it has:"
+if grep -qE '^[[:space:]]*(hwdec|vo|gpu-api)[[:space:]]*=' "$conf"; then
+	say "mpv: $conf already sets hwdec, vo or gpu-api; make sure the top of the file (before any [profile]) has:"
 	printf '       vo=gpu-next\n       gpu-api=opengl\n       hwdec=vaapi\n'
 else
-	printf '\n# omarchy-m1-video: hardware decoding; OpenGL output (Vulkan shows a green/pink ghost)\nvo=gpu-next\ngpu-api=opengl\nhwdec=vaapi\n' >> "$conf"
-	say "mpv: added vo=gpu-next, gpu-api=opengl, hwdec=vaapi to $conf"
+	# At the top: options after a [profile] header would only apply to that profile.
+	cp -p "$conf" "$conf.before-omarchy-m1-video"
+	{
+		printf '# omarchy-m1-video: hardware decoding; OpenGL output (Vulkan shows a green/pink ghost)\n'
+		printf 'vo=gpu-next\ngpu-api=opengl\nhwdec=vaapi\n\n'
+		cat "$conf.before-omarchy-m1-video"
+	} >"$conf"
+	say "mpv: added vo=gpu-next, gpu-api=opengl, hwdec=vaapi at the top of $conf (backup: $conf.before-omarchy-m1-video)"
 fi
 
-cat <<'EOF'
-==> Done. The patched module loads on the next boot.
-    To load it now instead, close every video (browser tabs too) and run:
+echo
+if [[ $running_asahi -ne 1 || ! -f /usr/lib/modules/$KVER/updates/apple-avd.ko ]]; then
+	say "Done. Reboot into the installed kernel; the patched module is built for it and loads at boot."
+elif [[ -n $blocked || -n $cmdline_block ]]; then
+	say "Done, but apple_avd is blocked from loading (see above)."
+else
+	cat <<'EOF'
+==> Done. The patched module loads at the next boot.
+    Test it before rebooting: save your work, close every video (browser tabs too), then run
         sudo modprobe -r apple_avd && sudo modprobe apple_avd
-==> Check:  vainfo --display drm              (lists H264 and HEVC profiles)
+    and play a video. If the Mac misbehaves, see "If the Mac freezes or resets" in README.md.
+EOF
+fi
+cat <<'EOF'
+==> Check:  sudo apple-avd-rebuild --status
+            vainfo --display drm                  (lists H264 and HEVC profiles)
             mpv -v --hwdec=vaapi video.mp4 | grep -i 'hardware decoding'
 EOF
