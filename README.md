@@ -31,14 +31,18 @@ With the stock `linux-asahi` 7.1.13 AVD driver and `libva-v4l2_request-avd` 1.3:
 | FFmpeg `hwdownload` can crash when context teardown races a frame download | VA-API driver 1.3.r6 |
 | Decode errors and failed buffer waits are ignored; malformed image/slice data is insufficiently checked | VA-API driver 1.3.r6 |
 | H.264 High 10 needs capability detection and FFmpeg quantizer correction | VA-API driver 1.3.r7, opt-in mode |
+| HEVC `RPS_B_qualcomm_5` has ten wrong pictures with VA reference-slot ordering | VA-API driver 1.3.r8, AVD reference ordering |
 
 Conformance on an M1 (bit-exact against the reference decoders):
 
 | Suite | Through VA-API (FFmpeg) | Through V4L2 (GStreamer) |
 |---|---|---|
-| HEVC `JCT-VC-HEVC_V1` (147 streams) | 143 one at a time, 141-143 with four at once | 143 |
+| HEVC `JCT-VC-HEVC_V1` (147 streams) | 144 serial; 144 with four test processes¹ | 143 |
 | H.264 `JVT-AVC_V1` (135 streams) | 73 | 77 |
 | H.264 FRExt `JVT-FR-EXT` (69 streams) | 25 by default; 27 with High 10 enabled | 35 |
+
+¹ Chrome held the decoder by completion of the concurrent run; historical intermittent
+concurrent mismatches remain open.
 
 Software FFmpeg also passes 143 of the HEVC streams, a different set. The H.264 streams that fail
 through VA-API are interlaced (not supported by the kernel driver) or Baseline/Extended profile
@@ -49,7 +53,8 @@ The FRExt VA-API totals above require actual hardware frames; Fluster alone also
 21 software-decoded 4:2:2 streams. Five Baseline/Extended AVC streams additionally pass
 with a per-file FFmpeg profile override. High 10 is opt-in because FFmpeg 9.0.1 needs a
 quantizer compatibility mode. See [codec status and usage](docs/CODEC_STATUS.md) for the
-718-frame High 10 validation and remaining HEVC/H.264 failures.
+718-frame High 10 conformance validation, 144 additional High 10/export comparisons,
+and remaining HEVC/H.264 failures.
 
 ## Tested on
 
@@ -150,11 +155,12 @@ afterwards, or add `IgnorePkg = libva-v4l2_request-avd` to `/etc/pacman.conf`.
   ffmpeg -i in.mp4 -c copy -bsf:v h264_metadata=video_full_range_flag=1:colour_primaries=6:transfer_characteristics=6:matrix_coefficients=6 out.mp4
   ```
 - **Interlaced H.264 is not supported** by the kernel driver: decoding fails, and players may or may
-  not fall back to software. H.264 4:2:2 and 10-bit play in software, because the VA-API driver
-  offers only Constrained Baseline, Main and High.
-- **A few HEVC conformance streams** decode some pictures wrongly: `RPS_B_qualcomm_5` and
-  `RPS_E_qualcomm_5` always, and `SLIST_B_Sony_9`, `SLIST_D_Sony_9` or `RAP_B_Bossen_2` now and
-  then when four streams decode at once. Not seen in real videos so far.
+  not fall back to software. H.264 4:2:2 still uses software through VA-API; High 10 is available
+  with the [explicit compatibility mode](docs/CODEC_STATUS.md).
+- **A few HEVC conformance streams** decode some pictures wrongly: `RPS_E_qualcomm_5` still fails; r8 fixes
+  `RPS_B_qualcomm_5`. Historical concurrent failures also include
+  `SLIST_B_Sony_9`, `SLIST_D_Sony_9` and `RAP_B_Bossen_2` when four streams decode at once.
+  Not seen in real videos so far.
 - **Firefox hardware decoding is untested.** Validate the normal sandbox before considering
   changes; disabling the RDD sandbox weakens isolation and is not a verified setup step.
 

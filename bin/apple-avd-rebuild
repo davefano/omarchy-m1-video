@@ -27,7 +27,7 @@ REPO=https://github.com/AsahiLinux/linux.git
 AVD_REL=drivers/media/platform/apple/avd
 STAMP=apple-avd.ko.patched-stamp
 LIBVA_SO=/usr/lib/dri/v4l2_request_drv_video.so
-LIBVA_MARKER='v4l2-request (omarchy-m1-video 1.3.r7)'
+LIBVA_MARKER='v4l2-request (omarchy-m1-video 1.3.r8)'
 STOCK_BUG='the stock driver stops every H.264 stream after 4096 slices (seconds to minutes of video)'
 
 say()  { echo "==> apple-avd: $*"; }
@@ -73,7 +73,7 @@ check_libva() {
 	if grep -aFq "$LIBVA_MARKER" "$LIBVA_SO"; then
 		say "VA-API driver: $ver"
 	else
-		warn "$ver does not contain the expected omarchy-m1-video 1.3.r7 build marker."
+		warn "$ver does not contain the expected omarchy-m1-video 1.3.r8 build marker."
 		warn "  It may lack playback and memory-safety fixes. Run install.sh from omarchy-m1-video again."
 		failed=1
 	fi
