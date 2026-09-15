@@ -8,11 +8,10 @@ post_install() {
 
         LIBVA_DRIVER_NAME=v4l2_request
 
-==> Check with:  vainfo
-==> mpv:         mpv --hwdec=vaapi video.mp4
-==> Firefox:     additionally needs MOZ_DISABLE_RDD_SANDBOX=1, because the RDD
-                 sandbox blocks the /dev/video* and /dev/media* access this
-                 driver requires. That weakens Firefox's media sandbox.
+==> Check with:  vainfo --display drm
+==> mpv:         mpv --gpu-api=opengl --hwdec=vaapi video.mp4
+==> Firefox hardware decoding has not been validated with this setup.
+    See omarchy-m1-video's known issues before changing sandbox settings.
 MSG
 }
 

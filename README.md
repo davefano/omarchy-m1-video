@@ -28,6 +28,8 @@ With the stock `linux-asahi` 7.1.13 AVD driver and `libva-v4l2_request-avd` 1.3:
 | HEVC streams with tiles or wavefront parallel processing hang | VA-API driver |
 | 10-bit HEVC decodes to blank (all-zero) frames | VA-API driver |
 | A crafted HEVC video can crash the process decoding it (stack overflow in the slice header parser) | VA-API driver |
+| FFmpeg `hwdownload` can crash when context teardown races a frame download | VA-API driver 1.3.r6 |
+| Decode errors and failed buffer waits are ignored; malformed image/slice data is insufficiently checked | VA-API driver 1.3.r6 |
 
 Conformance on an M1 (bit-exact against the reference decoders):
 
@@ -108,6 +110,10 @@ vainfo --display drm                     # lists H264 and HEVC profiles
 mpv -v --hwdec=vaapi video.mp4 | grep -i 'hardware decoding'
 ```
 
+The status command returns nonzero for a missing/wrong VA-API build or incompatible/unknown
+libva ABI. Its module path identifies the file selected for the next load; it does not prove
+which binary is already loaded. See [health-check semantics](docs/TESTING.md#health-check-semantics).
+
 In Chrome or Chromium, open `chrome://media-internals` while a video plays: the decoder should be
 `VaapiVideoDecoder`. Restart the browser if it was open before the module was loaded.
 
@@ -128,11 +134,11 @@ afterwards, or add `IgnorePkg = libva-v4l2_request-avd` to `/etc/pacman.conf`.
 
 ## Known issues
 
-- **Vulkan output in mpv** (`gpu-api=vulkan`, and `vo=gpu`) shows a green/pink ghost picture: Mesa's
+- **Vulkan output in mpv** (`gpu-api=vulkan`) shows a green/pink ghost picture: Mesa's
   Vulkan driver for Apple GPUs ignores the plane offsets of imported video frames. Use OpenGL.
 - **Washed-out video in Chrome** for full-range H.264 files without a colour description (common for
-  screen recordings). That is a Chromium bug. Adding the colour description fixes a file without
-  re-encoding:
+  screen recordings). The diagnosed recording is fixed by adding its BT.601 colour description
+  without re-encoding (use the actual colour metadata for other files):
   ```sh
   ffmpeg -i in.mp4 -c copy -bsf:v h264_metadata=video_full_range_flag=1:colour_primaries=6:transfer_characteristics=6:matrix_coefficients=6 out.mp4
   ```
@@ -142,8 +148,11 @@ afterwards, or add `IgnorePkg = libva-v4l2_request-avd` to `/etc/pacman.conf`.
 - **A few HEVC conformance streams** decode some pictures wrongly: `RPS_B_qualcomm_5` and
   `RPS_E_qualcomm_5` always, and `SLIST_B_Sony_9`, `SLIST_D_Sony_9` or `RAP_B_Bossen_2` now and
   then when four streams decode at once. Not seen in real videos so far.
-- **Firefox** (untested) likely needs `MOZ_DISABLE_RDD_SANDBOX=1`, because its media sandbox blocks
-  `/dev/video*` access (this weakens the sandbox).
+- **Firefox hardware decoding is untested.** Validate the normal sandbox before considering
+  changes; disabling the RDD sandbox weakens isolation and is not a verified setup step.
+
+See [gap status](docs/GAP_STATUS.md) for evidence, remaining investigations and the criteria
+for closing them, and [testing](docs/TESTING.md) for repeatable checks in both repositories.
 
 ## If the Mac freezes or resets
 
