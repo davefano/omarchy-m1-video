@@ -34,8 +34,8 @@ Kernel package: `linux-asahi 7.1.13.asahi3-1`; installed patch files match 0001â
 repository. Tests use the candidate userspace library via `LIBVA_DRIVERS_PATH`, on the
 existing boot; no kernel patch edits, module reloads, installations or reboots occurred.
 
-Final checks: 20/20 offline sanitizer cases and all 16 hardware pixel comparisons passed
-(480 output frames; H.264, HEVC Main and Main10). The final four-process HEVC run passed
+Final checks: 20/20 offline sanitizer cases and all 18 hardware pixel comparisons passed
+(540 output frames; H.264, HEVC Main/Main10 and VP9 profile 0). The final four-process HEVC run passed
 143/147; H.264 passed 73/135. Neither run logged kernel messages. Ubuntu x86_64 sanitizer CI
 also passed. The exact nonpassing vectors and profile totals are in [validation-2026-09-15.json](validation-2026-09-15.json).
 

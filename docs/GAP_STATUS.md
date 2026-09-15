@@ -17,7 +17,7 @@ This is a development validation record, not a claim that every video or boot is
 | No durable regression suite | Add Meson tests, hardware scripts and CI to the fork; offline Bash tests and CI to the installer | See [TESTING.md](TESTING.md) |
 | Health check silently successful | Nonzero exit on missing/wrong driver or incompatible/unknown libva ABI; identify the expected `1.3.r6` binary by its version marker | Mock driver/package tests |
 | Loaded-module provenance overstated | Label `modinfo` as the on-disk module selected for the next load | Read-only inspection: no loaded `srcversion` or build-ID note available on this Mac |
-| Unsupported test/documentation claims | Make VP9 hardware tests opt-in; enforce actual Main10 input; stop treating Firefox sandbox changes as a validated setup; distinguish mpv output API from renderer | Script and README review |
+| Unsupported test/documentation claims | Retain tested VP9 coverage; enforce actual Main10 input; stop treating Firefox sandbox changes as a validated setup; distinguish mpv output API from renderer | Script and README review |
 
 ### FFmpeg crash evidence
 
@@ -110,7 +110,14 @@ Use software decoding for affected files. Expanding advertised profiles requires
 kernel formats, capability negotiation and bit-exact format-specific suites. Do not merely
 add profile names or send unsupported streams to firmware.
 
-### C2 — Firefox and other machines remain unvalidated
+### C2 — VP9 coverage is limited
+
+The packaged-driver probe lists VP9 profiles 0 and 2 on the M1. Both ordinary and early-export
+readbacks of a generated 30-frame VP9 profile-0 clip match software byte for byte. Full VP9
+conformance and profile-2 (10-bit) output have not been validated in this audit. Those require
+separate bit-exact suites before extending the advertised test claims beyond this smoke test.
+
+### C3 — Firefox and other machines remain unvalidated
 
 No Firefox hardware/rendering run was performed. The old package message stated that
 disabling the RDD sandbox was required; this is now described as unvalidated rather than
@@ -124,7 +131,7 @@ Local evidence is in the companion `avd-lab/results` tree (ignored by Git):
 
 - `gaps-hwdownload/backtrace.txt`: the confirmed teardown/read race.
 - `gaps-final`: normal and forced-GetImage frame comparisons.
-- `gaps-early-export`: ordinary and export-before-decode comparisons.
+- `gaps-vp9-export`: ordinary and export-before-decode comparisons, including VP9.
 - `builds/gaps-sanitize/meson-logs/testlog.txt`: offline sanitizer results.
 - Dated `conformance-*` directories: per-vector JSON, complete logs and kernel-log windows.
 - The lab's `FINDINGS.md`: earlier HEVC control/reference comparisons and display experiments.

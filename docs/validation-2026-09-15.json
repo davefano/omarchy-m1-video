@@ -9,11 +9,12 @@
   "parser_random_inputs": 24000,
   "pixel_comparisons": {
     "hwdownload": 8,
-    "early_export": 8,
+    "early_export": 10,
     "frames_per_case": 30,
     "all_byte_exact": true,
     "local_evidence": [
-      "gaps-final"
+      "gaps-final",
+      "gaps-vp9-export"
     ]
   },
   "conformance": [
@@ -139,5 +140,7 @@
     }
   ],
   "driver_commit": "e159c628038fa16b8862a5070e9f363b4c441280",
-  "ci": "https://github.com/iconidentify/libva-v4l2_request/actions/runs/35022465329"
+  "ci": "https://github.com/iconidentify/libva-v4l2_request/actions/runs/35022465329",
+  "package_source_commit": "28af511352333bf5648765342b8fcda40f809b7f",
+  "package_source_note": "Driver sources unchanged from driver_commit; later commit restores VP9 in default hardware test and corrects docs."
 }
