@@ -18,7 +18,7 @@ The codec follow-up adds opt-in High 10 and stronger conformance checks. See
 | Image and buffer memory safety | Validate image dimensions and plane spans, copy complete odd-width UV pairs, reject truncated derived storage, zero-element resize and bitstream-size overflow | NV12/P010 tests under ASan/UBSan |
 | HEVC entry-point handling | Accept exactly full arrays, reject excessive counts/offset lengths, reset between request batches, reject invalid headers | Parser regressions, 24,000 deterministic random inputs, HEVC conformance |
 | No durable regression suite | Add Meson tests, hardware scripts and CI to the fork; offline Bash tests and CI to the installer | See [TESTING.md](TESTING.md) |
-| Health check silently successful | Nonzero exit on missing/wrong driver or incompatible/unknown libva ABI; identify the expected `1.3.r6` binary by its version marker | Mock driver/package tests |
+| Health check silently successful | Nonzero exit on missing/wrong driver or incompatible/unknown libva ABI; identify the expected `1.3.r8` binary by its version marker | Mock driver/package tests |
 | Loaded-module provenance overstated | Label `modinfo` as the on-disk module selected for the next load | Read-only inspection: no loaded `srcversion` or build-ID note available on this Mac |
 | Unsupported test/documentation claims | Retain tested VP9 coverage; enforce actual Main10 input; stop treating Firefox sandbox changes as a validated setup; distinguish mpv output API from renderer | Script and README review |
 
@@ -50,28 +50,27 @@ failure needs comparison with the module blacklisted. Save work before every reb
 module unload. Follow [recovery instructions](../README.md#if-the-mac-freezes-or-resets).
 No automatic reboot or module reload is part of this audit.
 
-### H2 — wrong HEVC reference pictures (high priority)
+### H2 — remaining HEVC reference-picture corruption (high priority)
 
-`RPS_B_qualcomm_5` fails through VA-API; `RPS_E_qualcomm_5` fails through VA-API and direct
-V4L2. Prior traces matched the controls, bitstream bytes and reference pictures by POC
-between stacks. `RPS_B` produced 10 wrong pictures out of 300, all B pictures using temporal
-motion-vector prediction. Several command streams matched apart from addresses and job
-IDs. Stale visible reference pixels, early export and DPB slot order did not explain it.
-The unresolved area includes firmware reference metadata and buffer lifetime/reuse.
-That is a hypothesis, not an established cause.
+**RPS_B is corrected in r8 through VA-API.** Reordering the DPB into decode order, with
+all slice/RPS indices remapped, makes all 300 frames match. The complete serial suite rises
+to 144/147. This workaround applies only to AVD streams without long-term references.
+Earlier POC-normalized comparisons missed this ordering dependence; rotating more physical
+buffers did not correct it.
 
-Follow-up: rotating private MMAP storage through 19 and 32 buffers did not change either
-wrong output checksum. Simply retaining more buffers is insufficient; the diagnostic
-rotation is not shipped. Next: compare firmware reference metadata and command interpretation
-at the first differing picture on the VA and direct V4L2 paths. Any
-kernel instrumentation belongs in a separate experimental branch, with the module-loading
-consent required by AGENTS.md. Close only after both vectors match the reference decoder
-repeatedly on both paths and the complete suites retain their existing passes.
+**RPS_E remains open** through both VA-API and direct V4L2. The unrestricted ordering
+experiment increased its wrong-frame count, so r8 preserves the original VA order for
+streams permitting long-term references. The firmware's reference
+metadata and command interpretation need investigation. See [codec evidence](CODEC_STATUS.md).
+Any kernel instrumentation belongs in a separate experimental branch, subject to AGENTS.md;
+the shipped patches remain unchanged. Close RPS_E only after repeatable reference matches
+on both paths and no regressions in the complete suites.
 
 ### H3 — intermittent HEVC mismatches with concurrent streams
 
 Historical four-process runs sometimes fail `SLIST_B_Sony_9`, `SLIST_D_Sony_9` or
 `RAP_B_Bossen_2` without a firmware error; full-suite results vary between 141 and 143/147.
+The r8 four-process run passes 144/147, but Chrome holds the decoder at completion.
 A passing four-process run is insufficient to close this. The known next-request control
 race is already fixed by kernel patch 0006; remaining pixel mismatches need separate proof.
 

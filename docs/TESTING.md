@@ -48,7 +48,7 @@ must compare rendered frames, not only decoded checksums.
 
 `apple-avd-rebuild --check-libva` and `--status` return nonzero when the expected userspace
 driver is missing or replaced, or its libva ABI cannot be established or is too new.
-An older driver entry point may load with a newer libva. The exact `1.3.r7` vendor marker
+An older driver entry point may load with a newer libva. The exact `1.3.r8` vendor marker
 is also visible through `vainfo --display drm`; a generic early-export log string is
 insufficient to identify these fixes.
 
@@ -67,3 +67,15 @@ resolution changes and exact crop windows. See [CODEC_STATUS.md](CODEC_STATUS.md
 The 22-case sanitizer suite adds H.264 malformed-input and High 10 capability/quantizer tests.
 Software CI validates the checksum helper with generated resolution/crop changes and truncated
 input. `LIBVA_V4L2_H264_HIGH10=ffmpeg` is an explicit compatibility mode, not an installer default.
+
+## HEVC reference-order follow-up (driver 1.3.r8)
+
+The strict serial HEVC suite passes 144/147 after the AVD-specific DPB ordering change.
+`RPS_B_qualcomm_5` now matches every frame; `RPS_E` remains wrong. The driver adds reference
+mapping and failed-picture sanitizer regressions, including unused unavailable references
+around random-access points. All 22 Meson cases pass.
+
+Run `sh tests/h264-high10.sh /path/to/build/src` from the driver checkout through the lab
+guard. It compares 144 hardware frames with software and checks stable early-export storage
+across six High 10 coding/quantizer combinations. See [codec status](CODEC_STATUS.md) and
+[the r8 record](codec-validation-r8-2026-09-15.json).

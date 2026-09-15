@@ -1,6 +1,6 @@
 # H.264 and HEVC follow-up — 2026-09-15
 
-Driver candidate: `1.3.r7`. Testing uses a local userspace build on the existing M1 boot,
+Driver candidate: `1.3.r8`. Testing uses a local userspace build on the existing M1 boot,
 with `linux-asahi 7.1.13.asahi3-1` and the same 15 kernel patches. No installation, module
 reload or reboot is part of this follow-up.
 
@@ -20,6 +20,11 @@ complete reference checksums match:
 
 A generated 30-frame 640x360 High 10 clip with CAVLC, four slices and B pictures also
 matched software through the packaged driver, including its cropped bottom edge.
+
+A further generated matrix passes 144 frame comparisons: six clips covering CABAC/CAVLC
+at QP 1, 21 and 51, four slices, B pictures and 640x360 cropping, each decoded normally
+and with export before decoding. Exported dma-buf identity and layout stay stable.
+The repeatable check is `tests/h264-high10.sh` in the driver fork.
 
 The fork offers `LIBVA_V4L2_H264_HIGH10=ffmpeg` for affected FFmpeg-based clients and
 `native` for clients that already submit the PPS syntax values. It stays disabled by
@@ -66,7 +71,9 @@ of a progressive-only stream. Interlacing needs kernel/firmware work.
 
 The other 13 default AVC failures are seven Baseline and six Extended streams. Five
 have the verified override above; the others include FMO, field coding and features
-the current FFmpeg/VA path does not implement. H.264 4:2:2 is still unavailable through
+the current FFmpeg/VA path does not implement. A complete header scan confirms
+`FM1_FT_E` changes from one slice group to FMO later in the stream; inspecting only its
+first packet missed that feature. H.264 4:2:2 is still unavailable through
 the VA fork. Direct GStreamer V4L2 has separate 4:2:2 coverage.
 
 Malformed H.264 headers now fail before submission. Slice-group parameters are rejected
@@ -91,17 +98,42 @@ remain wrapped by the lab's decoder preflight, finite deadline and wedge monitor
 
 ## HEVC: narrowed causes, unresolved decoder failures
 
-### RPS_B / RPS_E: retaining more buffers did not fix corruption
+### RPS_B: reference ordering corrects every picture
 
-A separate diagnostic userspace build forced private MMAP capture buffers and rotated
-them through pools of 19 and 32. Both vectors retained the same whole-output mismatches
-as the control run. A requested pool of 64 hit the kernel's 32-buffer allocation limit;
-that run is invalid for pixel comparison and is not evidence of a decoder fix.
+A controlled userspace experiment changed only DPB ordering and remapped every dependent
+slice/RPS index. The original VA order, POC order and CAPTURE-buffer order all failed.
+Decode order matched all 300 frames and the complete reference checksum
+`6d1ed392b067050ebd3a24a37281da03`. The full serial HEVC suite improves from 143 to **144/147**. A four-process run also
+passes 144/147; Chrome held the decoder by completion, so this does not establish an
+isolated concurrency result or close the historical intermittent issue.
 
-The rotation experiment is not shipped: display clients require stable exported storage.
-It weakens the hypothesis that simply retaining older physical buffers will fix the
-problem. Firmware reference metadata, command interpretation and the differing direct
-V4L2 paths still need investigation. `RPS_B` passes direct V4L2; `RPS_E` does not.
+Version r8 applies this workaround only when the selected V4L2 driver identifies itself as
+`avd` and the SPS disallows long-term references. It retains the preceding full DPB plus its current picture, preserving old long-term
+references without an expiring history ring. Surface ID and POC both identify a picture.
+All VA slice and RPS indices are translated to the reordered DPB; other decoders retain
+VA ordering. The underlying firmware ordering sensitivity remains unexplained.
+
+The earlier 19/32-buffer rotation experiments did not correct the pictures. Reference
+ordering is a distinct variable: comparisons normalized by POC had hidden it. No buffer
+rotation, kernel change or per-stream recognition is shipped.
+
+The unrestricted ordering experiment changed `RPS_E_qualcomm_5` from 26 wrong frames to
+30, with checksum `7cf27c519b9740be6867e41bf1ab9ff5`. Therefore r8 leaves VA ordering
+unchanged whenever the SPS permits long-term references. `RPS_E` keeps its baseline
+26 wrong frames and checksum `b09ac8e0bd31a96d8354505d7c2ebdd5`. It remains a kernel/firmware
+investigation alongside the intermittent concurrent failures.
+
+### Reject invalid HEVC references and incomplete pictures
+
+An invalid active reference previously became slot zero. The driver now rejects invalid
+indices, missing active reference storage and out-of-range collocated references. Random-access
+pictures may carry unavailable references that they never use; those are omitted, preserving
+`RAP_A_docomo_6` and `RAP_B_Bossen_2` compatibility.
+
+Malformed NAL headers, oversized/truncated slice data and invalid counts fail before a
+preceding full batch is submitted. A failed RenderPicture blocks EndPicture from submitting
+an incomplete picture. The sanitizer regressions cover these paths, index remapping, and
+long-term references retained across 200 picture updates.
 
 ### VPSSPSPPS_A_MainConcept_1: FFmpeg parser and output handling
 
@@ -134,5 +166,10 @@ Under the companion `avd-lab/results` directory:
 - `codec-strict/baseline-frext`: exact r6 baseline through the strict runner.
 - `codec-final`: final native-size/crop-aware conformance and hardware crop checks.
 - `builds/codec-sanitize/meson-logs/testlog.txt`: 22 passing sanitizer tests.
+- `codec-dpb-valid` and `codec-dpb-full`: controlled ordering experiment.
+- `codec-r8-final`: unrestricted ordering and High 10/export checks.
+- `codec-r8-scoped`: short-term-only ordering validation before the final history check.
+- `codec-r8-package`: final pinned, stripped package: 144/147 HEVC and 144 High 10 comparisons.
 
-The portable per-vector result summary is [codec-validation-2026-09-15.json](codec-validation-2026-09-15.json).
+The r7 baseline is [codec-validation-2026-09-15.json](codec-validation-2026-09-15.json);
+the r8 results are [codec-validation-r8-2026-09-15.json](codec-validation-r8-2026-09-15.json).

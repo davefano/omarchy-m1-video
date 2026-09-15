@@ -1,0 +1,1235 @@
+{
+  "date": "2026-09-15",
+  "driver_version": "1.3.r8",
+  "driver_commit": "f03b3c6d07b41e5f2f3f98327e12eab83927537a",
+  "machine": "Apple M1 T8103 / MacBookPro17,1",
+  "kernel_package": "linux-asahi 7.1.13.asahi3-1",
+  "scope": "Userspace builds; no kernel patch edits, module reload, installation or reboot.",
+  "ordering_workaround": "V4L2 driver avd only, and only when SPS long_term_ref_pics_present_flag is false. Preserve decode order and remap all slice/RPS references.",
+  "serial": {
+    "passed": 144,
+    "total": 147,
+    "results": [
+      {
+        "vector": "AMP_A_Samsung_7",
+        "expected": "93a5875d58072db5539c04e1e943ed9d",
+        "actual": "93a5875d58072db5539c04e1e943ed9d",
+        "frames": 17,
+        "success": true
+      },
+      {
+        "vector": "AMP_B_Samsung_7",
+        "expected": "4e051fad4145d5127e16ac2999500069",
+        "actual": "4e051fad4145d5127e16ac2999500069",
+        "frames": 17,
+        "success": true
+      },
+      {
+        "vector": "AMP_D_Hisilicon_3",
+        "expected": "277006085088cf68b9cafbbba0c19443",
+        "actual": "277006085088cf68b9cafbbba0c19443",
+        "frames": 100,
+        "success": true
+      },
+      {
+        "vector": "AMP_E_Hisilicon_3",
+        "expected": "1a301e997917128420e3c33e6c14693a",
+        "actual": "1a301e997917128420e3c33e6c14693a",
+        "frames": 100,
+        "success": true
+      },
+      {
+        "vector": "AMP_F_Hisilicon_3",
+        "expected": "6be6b5fb49a9514914f4ea812f737076",
+        "actual": "6be6b5fb49a9514914f4ea812f737076",
+        "frames": 100,
+        "success": true
+      },
+      {
+        "vector": "AMVP_A_MTK_4",
+        "expected": "5dd1b1099391ad659225fbf94965a6c7",
+        "actual": "5dd1b1099391ad659225fbf94965a6c7",
+        "frames": 30,
+        "success": true
+      },
+      {
+        "vector": "AMVP_B_MTK_4",
+        "expected": "7fecb4fe8ee4d4838f4a9873b062b819",
+        "actual": "7fecb4fe8ee4d4838f4a9873b062b819",
+        "frames": 41,
+        "success": true
+      },
+      {
+        "vector": "AMVP_C_Samsung_7",
+        "expected": "75155ad034919a2846bbdcba13b5f733",
+        "actual": "75155ad034919a2846bbdcba13b5f733",
+        "frames": 60,
+        "success": true
+      },
+      {
+        "vector": "BUMPING_A_ericsson_1",
+        "expected": "64f213eb1cf45614f0eeb50fd1b725bf",
+        "actual": "64f213eb1cf45614f0eeb50fd1b725bf",
+        "frames": 49,
+        "success": true
+      },
+      {
+        "vector": "CAINIT_A_SHARP_4",
+        "expected": "550c5a918fecda6a284aa5f44c0e2f33",
+        "actual": "550c5a918fecda6a284aa5f44c0e2f33",
+        "frames": 50,
+        "success": true
+      },
+      {
+        "vector": "CAINIT_B_SHARP_4",
+        "expected": "0c633f8ee5a4c5779cff48ca86273685",
+        "actual": "0c633f8ee5a4c5779cff48ca86273685",
+        "frames": 50,
+        "success": true
+      },
+      {
+        "vector": "CAINIT_C_SHARP_3",
+        "expected": "9c6c5363724a8bad54e2869b655fbf3b",
+        "actual": "9c6c5363724a8bad54e2869b655fbf3b",
+        "frames": 50,
+        "success": true
+      },
+      {
+        "vector": "CAINIT_D_SHARP_3",
+        "expected": "0231e327044e45971fc30a43a1bd8275",
+        "actual": "0231e327044e45971fc30a43a1bd8275",
+        "frames": 50,
+        "success": true
+      },
+      {
+        "vector": "CAINIT_E_SHARP_3",
+        "expected": "55af76d5527af999d12ccc37b1f6b7ae",
+        "actual": "55af76d5527af999d12ccc37b1f6b7ae",
+        "frames": 50,
+        "success": true
+      },
+      {
+        "vector": "CAINIT_F_SHARP_3",
+        "expected": "88d8cd2d303b662f0a92a25256957b69",
+        "actual": "88d8cd2d303b662f0a92a25256957b69",
+        "frames": 50,
+        "success": true
+      },
+      {
+        "vector": "CAINIT_G_SHARP_3",
+        "expected": "a7036eac7798f6e8691f0975786d6811",
+        "actual": "a7036eac7798f6e8691f0975786d6811",
+        "frames": 50,
+        "success": true
+      },
+      {
+        "vector": "CAINIT_H_SHARP_3",
+        "expected": "cfdd3ce0f4cf1eafd012dcb266311d06",
+        "actual": "cfdd3ce0f4cf1eafd012dcb266311d06",
+        "frames": 50,
+        "success": true
+      },
+      {
+        "vector": "CIP_A_Panasonic_3",
+        "expected": "4cbf601ba98d63f642defab5eaa12c8d",
+        "actual": "4cbf601ba98d63f642defab5eaa12c8d",
+        "frames": 2,
+        "success": true
+      },
+      {
+        "vector": "cip_B_NEC_3",
+        "expected": "1315714c7b3f3237b469259f66d9b7aa",
+        "actual": "1315714c7b3f3237b469259f66d9b7aa",
+        "frames": 5,
+        "success": true
+      },
+      {
+        "vector": "CIP_C_Panasonic_2",
+        "expected": "ed985932fef2aa8a74ded970070bdab2",
+        "actual": "ed985932fef2aa8a74ded970070bdab2",
+        "frames": 2,
+        "success": true
+      },
+      {
+        "vector": "CONFWIN_A_Sony_1",
+        "expected": "a3ce3f936ff69ff1ec2621a622dd37ac",
+        "actual": "a3ce3f936ff69ff1ec2621a622dd37ac",
+        "frames": 60,
+        "success": true
+      },
+      {
+        "vector": "DBLK_A_MAIN10_VIXS_4",
+        "expected": "c4594956bb9e8303f1662f9eb1bcdf50",
+        "actual": "c4594956bb9e8303f1662f9eb1bcdf50",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "DBLK_A_SONY_3",
+        "expected": "42486a48ea12d5ab6cd98ed2e2807cfe",
+        "actual": "42486a48ea12d5ab6cd98ed2e2807cfe",
+        "frames": 30,
+        "success": true
+      },
+      {
+        "vector": "DBLK_B_SONY_3",
+        "expected": "cf5de25a94a33e2d4237b8d1c773db06",
+        "actual": "cf5de25a94a33e2d4237b8d1c773db06",
+        "frames": 30,
+        "success": true
+      },
+      {
+        "vector": "DBLK_C_SONY_3",
+        "expected": "41f89edc63b1175ffc1fae909f4fed82",
+        "actual": "41f89edc63b1175ffc1fae909f4fed82",
+        "frames": 30,
+        "success": true
+      },
+      {
+        "vector": "DBLK_D_VIXS_2",
+        "expected": "f6f3075edca573f5dfe4e352d26170f1",
+        "actual": "f6f3075edca573f5dfe4e352d26170f1",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "DBLK_E_VIXS_2",
+        "expected": "1f94d56d9e462967cad73284ed0f43f9",
+        "actual": "1f94d56d9e462967cad73284ed0f43f9",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "DBLK_F_VIXS_2",
+        "expected": "c94d0c0d80c93a2edd372a1fd12f93a1",
+        "actual": "c94d0c0d80c93a2edd372a1fd12f93a1",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "DBLK_G_VIXS_2",
+        "expected": "1f94d56d9e462967cad73284ed0f43f9",
+        "actual": "1f94d56d9e462967cad73284ed0f43f9",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "DELTAQP_A_BRCM_4",
+        "expected": "1ceef83183197fd1f21472c17b53cbff",
+        "actual": "1ceef83183197fd1f21472c17b53cbff",
+        "frames": 96,
+        "success": true
+      },
+      {
+        "vector": "DELTAQP_B_SONY_3",
+        "expected": "f02fa96633c63bd5e1ce0f103447d1ed",
+        "actual": "f02fa96633c63bd5e1ce0f103447d1ed",
+        "frames": 30,
+        "success": true
+      },
+      {
+        "vector": "DELTAQP_C_SONY_3",
+        "expected": "1c2be685b1ae953787e0e93c656ee502",
+        "actual": "1c2be685b1ae953787e0e93c656ee502",
+        "frames": 30,
+        "success": true
+      },
+      {
+        "vector": "DSLICE_A_HHI_5",
+        "expected": "c7caf3164b0a316549ac7244f66f1294",
+        "actual": "c7caf3164b0a316549ac7244f66f1294",
+        "frames": 50,
+        "success": true
+      },
+      {
+        "vector": "DSLICE_B_HHI_5",
+        "expected": "2e072130f116a4d0f7fc69fa76cfcdfb",
+        "actual": "2e072130f116a4d0f7fc69fa76cfcdfb",
+        "frames": 50,
+        "success": true
+      },
+      {
+        "vector": "DSLICE_C_HHI_5",
+        "expected": "505a47c5ce4bc66ef5661aeb778b0f1f",
+        "actual": "505a47c5ce4bc66ef5661aeb778b0f1f",
+        "frames": 50,
+        "success": true
+      },
+      {
+        "vector": "ENTP_A_QUALCOMM_1",
+        "expected": "25f3c7facf9e7b75e81247206b4fc60d",
+        "actual": "25f3c7facf9e7b75e81247206b4fc60d",
+        "frames": 24,
+        "success": true
+      },
+      {
+        "vector": "ENTP_B_Qualcomm_1",
+        "expected": "6577f102b93577eb899e0bff1a20a401",
+        "actual": "6577f102b93577eb899e0bff1a20a401",
+        "frames": 24,
+        "success": true
+      },
+      {
+        "vector": "ENTP_C_Qualcomm_1",
+        "expected": "0b607e6e7946e6e8d0f92a1a294d135d",
+        "actual": "0b607e6e7946e6e8d0f92a1a294d135d",
+        "frames": 24,
+        "success": true
+      },
+      {
+        "vector": "EXT_A_ericsson_4",
+        "expected": "5797b3114fe12daf1ce522ed70ce4078",
+        "actual": "5797b3114fe12daf1ce522ed70ce4078",
+        "frames": 3,
+        "success": true
+      },
+      {
+        "vector": "FILLER_A_Sony_1",
+        "expected": "f92a928770a41b63e7cfc89ea198790f",
+        "actual": "f92a928770a41b63e7cfc89ea198790f",
+        "frames": 60,
+        "success": true
+      },
+      {
+        "vector": "HRD_A_Fujitsu_3",
+        "expected": "f6d04dba2ef09bcadbea7b8ab5c8c917",
+        "actual": "f6d04dba2ef09bcadbea7b8ab5c8c917",
+        "frames": 96,
+        "success": true
+      },
+      {
+        "vector": "INITQP_A_Sony_1",
+        "expected": "2716af552e71ef61221b86130ad3d444",
+        "actual": "2716af552e71ef61221b86130ad3d444",
+        "frames": 60,
+        "success": true
+      },
+      {
+        "vector": "INITQP_B_Main10_Sony_1",
+        "expected": "f63c71e5f6b9c6ddf2b080524f9f14b1",
+        "actual": "f63c71e5f6b9c6ddf2b080524f9f14b1",
+        "frames": 90,
+        "success": true
+      },
+      {
+        "vector": "ipcm_A_NEC_3",
+        "expected": "8049988c383486e076ea2494edda3831",
+        "actual": "8049988c383486e076ea2494edda3831",
+        "frames": 1,
+        "success": true
+      },
+      {
+        "vector": "ipcm_B_NEC_3",
+        "expected": "23a3b7024fd9bc64b946b9961ab0f51e",
+        "actual": "23a3b7024fd9bc64b946b9961ab0f51e",
+        "frames": 1,
+        "success": true
+      },
+      {
+        "vector": "ipcm_C_NEC_3",
+        "expected": "c3e74c399b73a5ab2dbd20523f583464",
+        "actual": "c3e74c399b73a5ab2dbd20523f583464",
+        "frames": 1,
+        "success": true
+      },
+      {
+        "vector": "ipcm_D_NEC_3",
+        "expected": "aa64a16240064bc2a90fadf979a62a7b",
+        "actual": "aa64a16240064bc2a90fadf979a62a7b",
+        "frames": 1,
+        "success": true
+      },
+      {
+        "vector": "ipcm_E_NEC_2",
+        "expected": "e1cd7a16d3f6a342855044ccba3e41f5",
+        "actual": "e1cd7a16d3f6a342855044ccba3e41f5",
+        "frames": 1,
+        "success": true
+      },
+      {
+        "vector": "IPRED_A_docomo_2",
+        "expected": "0e4e9bd00b74e30e400de46ee7ad8023",
+        "actual": "0e4e9bd00b74e30e400de46ee7ad8023",
+        "frames": 20,
+        "success": true
+      },
+      {
+        "vector": "IPRED_B_Nokia_3",
+        "expected": "ec3bcad4f9174404e52d132206b6617b",
+        "actual": "ec3bcad4f9174404e52d132206b6617b",
+        "frames": 1,
+        "success": true
+      },
+      {
+        "vector": "IPRED_C_Mitsubishi_3",
+        "expected": "6043c04fecc60ee88f4247aaca96441f",
+        "actual": "6043c04fecc60ee88f4247aaca96441f",
+        "frames": 4,
+        "success": true
+      },
+      {
+        "vector": "LS_A_Orange_2",
+        "expected": "e14f82958f87a87be73a6f51e76ffdab",
+        "actual": "e14f82958f87a87be73a6f51e76ffdab",
+        "frames": 9,
+        "success": true
+      },
+      {
+        "vector": "LS_B_Orange_4",
+        "expected": "05ac9b36977c98001cc6c5a45e363662",
+        "actual": "05ac9b36977c98001cc6c5a45e363662",
+        "frames": 25,
+        "success": true
+      },
+      {
+        "vector": "LTRPSPS_A_Qualcomm_1",
+        "expected": "e925d467c20180090c09c02d02c3aa25",
+        "actual": "e925d467c20180090c09c02d02c3aa25",
+        "frames": 500,
+        "success": true
+      },
+      {
+        "vector": "MAXBINS_A_TI_5",
+        "expected": "1386fb149ddc11bd5a1d9111879acfa4",
+        "actual": "1386fb149ddc11bd5a1d9111879acfa4",
+        "frames": 2,
+        "success": true
+      },
+      {
+        "vector": "MAXBINS_B_TI_5",
+        "expected": "21d6910760ea4963eab28b26709471fe",
+        "actual": "21d6910760ea4963eab28b26709471fe",
+        "frames": 3,
+        "success": true
+      },
+      {
+        "vector": "MAXBINS_C_TI_5",
+        "expected": "7a7e51fdd40c57d70af418f5082416fa",
+        "actual": "7a7e51fdd40c57d70af418f5082416fa",
+        "frames": 3,
+        "success": true
+      },
+      {
+        "vector": "MERGE_A_TI_3",
+        "expected": "3a15886a0158ef1aaf557869b2e9c522",
+        "actual": "3a15886a0158ef1aaf557869b2e9c522",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "MERGE_B_TI_3",
+        "expected": "83b4dc9f229a8fba3777d9f4f87ce144",
+        "actual": "83b4dc9f229a8fba3777d9f4f87ce144",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "MERGE_C_TI_3",
+        "expected": "216f0cc869e3989c8fb2cf261243160b",
+        "actual": "216f0cc869e3989c8fb2cf261243160b",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "MERGE_D_TI_3",
+        "expected": "104cccf2b8441862624777955d6ecdc4",
+        "actual": "104cccf2b8441862624777955d6ecdc4",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "MERGE_E_TI_3",
+        "expected": "6e74dbd450123246c22bf01b389bbe11",
+        "actual": "6e74dbd450123246c22bf01b389bbe11",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "MERGE_F_MTK_4",
+        "expected": "a8f0982f026dfda1c02b4d4d3eb88132",
+        "actual": "a8f0982f026dfda1c02b4d4d3eb88132",
+        "frames": 41,
+        "success": true
+      },
+      {
+        "vector": "MERGE_G_HHI_4",
+        "expected": "c82f4c88d9b2c73fabbeac8944da35a1",
+        "actual": "c82f4c88d9b2c73fabbeac8944da35a1",
+        "frames": 2,
+        "success": true
+      },
+      {
+        "vector": "MVCLIP_A_qualcomm_3",
+        "expected": "78b398c201089b6b17bcbda2bbccf3ae",
+        "actual": "78b398c201089b6b17bcbda2bbccf3ae",
+        "frames": 5,
+        "success": true
+      },
+      {
+        "vector": "MVDL1ZERO_A_docomo_4",
+        "expected": "593d1936f6fc2e1775ea2a691a601c34",
+        "actual": "593d1936f6fc2e1775ea2a691a601c34",
+        "frames": 500,
+        "success": true
+      },
+      {
+        "vector": "MVEDGE_A_qualcomm_3",
+        "expected": "101c5bfe16ff1739909161794af29a2d",
+        "actual": "101c5bfe16ff1739909161794af29a2d",
+        "frames": 17,
+        "success": true
+      },
+      {
+        "vector": "NoOutPrior_A_Qualcomm_1",
+        "expected": "1c5f20a08ab8dfa0f44d9a0ca23d174d",
+        "actual": "1c5f20a08ab8dfa0f44d9a0ca23d174d",
+        "frames": 40,
+        "success": true
+      },
+      {
+        "vector": "NoOutPrior_B_Qualcomm_1",
+        "expected": "048bca0ec216a3f88cf9fbb4bb5a61ac",
+        "actual": "048bca0ec216a3f88cf9fbb4bb5a61ac",
+        "frames": 47,
+        "success": true
+      },
+      {
+        "vector": "NUT_A_ericsson_5",
+        "expected": "9dbe33badd0cc6dfcd1b53e546968fbd",
+        "actual": "9dbe33badd0cc6dfcd1b53e546968fbd",
+        "frames": 34,
+        "success": true
+      },
+      {
+        "vector": "OPFLAG_A_Qualcomm_1",
+        "expected": "35eeeca175938ee262f72b7485146f94",
+        "actual": "35eeeca175938ee262f72b7485146f94",
+        "frames": 500,
+        "success": true
+      },
+      {
+        "vector": "OPFLAG_B_Qualcomm_1",
+        "expected": "516811eeff3ae5ee056dda290dcf2735",
+        "actual": "516811eeff3ae5ee056dda290dcf2735",
+        "frames": 98,
+        "success": true
+      },
+      {
+        "vector": "OPFLAG_C_Qualcomm_1",
+        "expected": "a82c4f6ee843150067bba60b9342fc50",
+        "actual": "a82c4f6ee843150067bba60b9342fc50",
+        "frames": 96,
+        "success": true
+      },
+      {
+        "vector": "PICSIZE_A_Bossen_1",
+        "expected": "910ff0e6b3739af0b4aba4f6aa6704f8",
+        "actual": "910ff0e6b3739af0b4aba4f6aa6704f8",
+        "frames": 10,
+        "success": true
+      },
+      {
+        "vector": "PICSIZE_B_Bossen_1",
+        "expected": "e5c4c20a8871aa446a344efb1755bcf9",
+        "actual": "e5c4c20a8871aa446a344efb1755bcf9",
+        "frames": 10,
+        "success": true
+      },
+      {
+        "vector": "PICSIZE_C_Bossen_1",
+        "expected": "674f9f11eb956257d86782949ec00399",
+        "actual": "674f9f11eb956257d86782949ec00399",
+        "frames": 10,
+        "success": true
+      },
+      {
+        "vector": "PICSIZE_D_Bossen_1",
+        "expected": "5b76e0591618f5affe8b15b03d9c0bef",
+        "actual": "5b76e0591618f5affe8b15b03d9c0bef",
+        "frames": 10,
+        "success": true
+      },
+      {
+        "vector": "PMERGE_A_TI_3",
+        "expected": "6e74dbd450123246c22bf01b389bbe11",
+        "actual": "6e74dbd450123246c22bf01b389bbe11",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "PMERGE_B_TI_3",
+        "expected": "7d0e57ebdbbc6633c972083a17d97550",
+        "actual": "7d0e57ebdbbc6633c972083a17d97550",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "PMERGE_C_TI_3",
+        "expected": "7e23d874b198ec7a9f6086a20de0db76",
+        "actual": "7e23d874b198ec7a9f6086a20de0db76",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "PMERGE_D_TI_3",
+        "expected": "9771b8c8a71e41547f14032e07be7d61",
+        "actual": "9771b8c8a71e41547f14032e07be7d61",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "PMERGE_E_TI_3",
+        "expected": "26aed56afdb6cb7011fd5c3303379a9d",
+        "actual": "26aed56afdb6cb7011fd5c3303379a9d",
+        "frames": 8,
+        "success": true
+      },
+      {
+        "vector": "POC_A_Bossen_3",
+        "expected": "faf33bec64d3e58c426ed2772903a0bf",
+        "actual": "faf33bec64d3e58c426ed2772903a0bf",
+        "frames": 5,
+        "success": true
+      },
+      {
+        "vector": "PPS_A_qualcomm_7",
+        "expected": "bccf29fab6744215fe007ea3a5d6da42",
+        "actual": "bccf29fab6744215fe007ea3a5d6da42",
+        "frames": 81,
+        "success": true
+      },
+      {
+        "vector": "PS_B_VIDYO_3",
+        "expected": "eb85521ee103333eac61a8253637eac4",
+        "actual": "eb85521ee103333eac61a8253637eac4",
+        "frames": 25,
+        "success": true
+      },
+      {
+        "vector": "RAP_A_docomo_6",
+        "expected": "8a536a80ed42b37b1ac5810bc046f82a",
+        "actual": "8a536a80ed42b37b1ac5810bc046f82a",
+        "frames": 86,
+        "success": true
+      },
+      {
+        "vector": "RAP_B_Bossen_2",
+        "expected": "f38befcc280f2fd0d23f48f807f843c2",
+        "actual": "f38befcc280f2fd0d23f48f807f843c2",
+        "frames": 80,
+        "success": true
+      },
+      {
+        "vector": "RPLM_A_qualcomm_4",
+        "expected": "011794872709c341880ee42ade036ed3",
+        "actual": "011794872709c341880ee42ade036ed3",
+        "frames": 300,
+        "success": true
+      },
+      {
+        "vector": "RPLM_B_qualcomm_4",
+        "expected": "653ac7c46fa7b9d7d966e3db317eb938",
+        "actual": "653ac7c46fa7b9d7d966e3db317eb938",
+        "frames": 300,
+        "success": true
+      },
+      {
+        "vector": "RPS_A_docomo_5",
+        "expected": "7f4ad6c6b3de54558b0db59629b87db9",
+        "actual": "7f4ad6c6b3de54558b0db59629b87db9",
+        "frames": 44,
+        "success": true
+      },
+      {
+        "vector": "RPS_B_qualcomm_5",
+        "expected": "6d1ed392b067050ebd3a24a37281da03",
+        "actual": "6d1ed392b067050ebd3a24a37281da03",
+        "frames": 300,
+        "success": true
+      },
+      {
+        "vector": "RPS_C_ericsson_5",
+        "expected": "0306b9e3ec365115ccb7060c0a437b32",
+        "actual": "0306b9e3ec365115ccb7060c0a437b32",
+        "frames": 40,
+        "success": true
+      },
+      {
+        "vector": "RPS_D_ericsson_6",
+        "expected": "d0fcd71e6266b1ae1f66b9cb1802ea03",
+        "actual": "d0fcd71e6266b1ae1f66b9cb1802ea03",
+        "frames": 68,
+        "success": true
+      },
+      {
+        "vector": "RPS_E_qualcomm_5",
+        "expected": "c30d38bbd7ea483dc7ffe81325118e16",
+        "actual": "b09ac8e0bd31a96d8354505d7c2ebdd5",
+        "frames": 300,
+        "success": false
+      },
+      {
+        "vector": "RPS_F_docomo_2",
+        "expected": "fd6e6d973d39622d197dbdf4543643f2",
+        "actual": "fd6e6d973d39622d197dbdf4543643f2",
+        "frames": 50,
+        "success": true
+      },
+      {
+        "vector": "RQT_A_HHI_4",
+        "expected": "aa7f6ef07bf76ebddd52f7e528cd6ab8",
+        "actual": "aa7f6ef07bf76ebddd52f7e528cd6ab8",
+        "frames": 2,
+        "success": true
+      },
+      {
+        "vector": "RQT_B_HHI_4",
+        "expected": "a63f4f4e966e77a5eb4e65dcdcc488a4",
+        "actual": "a63f4f4e966e77a5eb4e65dcdcc488a4",
+        "frames": 2,
+        "success": true
+      },
+      {
+        "vector": "RQT_C_HHI_4",
+        "expected": "c82f4c88d9b2c73fabbeac8944da35a1",
+        "actual": "c82f4c88d9b2c73fabbeac8944da35a1",
+        "frames": 2,
+        "success": true
+      },
+      {
+        "vector": "RQT_D_HHI_4",
+        "expected": "33b58b954fa82753526fda9e9e6bc8cb",
+        "actual": "33b58b954fa82753526fda9e9e6bc8cb",
+        "frames": 2,
+        "success": true
+      },
+      {
+        "vector": "RQT_E_HHI_4",
+        "expected": "65f22431d0eb149e04c327f881ce6581",
+        "actual": "65f22431d0eb149e04c327f881ce6581",
+        "frames": 2,
+        "success": true
+      },
+      {
+        "vector": "RQT_F_HHI_4",
+        "expected": "56ba354d919d06a33b44862dd18e9437",
+        "actual": "56ba354d919d06a33b44862dd18e9437",
+        "frames": 2,
+        "success": true
+      },
+      {
+        "vector": "RQT_G_HHI_4",
+        "expected": "2fb67256014a6840b69ca6dad2426304",
+        "actual": "2fb67256014a6840b69ca6dad2426304",
+        "frames": 2,
+        "success": true
+      },
+      {
+        "vector": "SAO_A_MediaTek_4",
+        "expected": "272e694a2262a2b34f6248f787a4431d",
+        "actual": "272e694a2262a2b34f6248f787a4431d",
+        "frames": 60,
+        "success": true
+      },
+      {
+        "vector": "SAO_B_MediaTek_5",
+        "expected": "90cc57237e3ce47eb3b4c901e200112d",
+        "actual": "90cc57237e3ce47eb3b4c901e200112d",
+        "frames": 60,
+        "success": true
+      },
+      {
+        "vector": "SAO_C_Samsung_5",
+        "expected": "962290491f2f1a1e70ab7aa63d2264bc",
+        "actual": "962290491f2f1a1e70ab7aa63d2264bc",
+        "frames": 5,
+        "success": true
+      },
+      {
+        "vector": "SAO_D_Samsung_5",
+        "expected": "6db9575a7737816b1d7a3a3bf3ba126c",
+        "actual": "6db9575a7737816b1d7a3a3bf3ba126c",
+        "frames": 5,
+        "success": true
+      },
+      {
+        "vector": "SAO_E_Canon_4",
+        "expected": "0b04a1378274a6ffbb8f6121e027290c",
+        "actual": "0b04a1378274a6ffbb8f6121e027290c",
+        "frames": 16,
+        "success": true
+      },
+      {
+        "vector": "SAO_F_Canon_3",
+        "expected": "5c295ecba132d1e68a12dd8209e86a02",
+        "actual": "5c295ecba132d1e68a12dd8209e86a02",
+        "frames": 16,
+        "success": true
+      },
+      {
+        "vector": "SAO_G_Canon_3",
+        "expected": "1f743a3e28617b8bae3e348096edcf76",
+        "actual": "1f743a3e28617b8bae3e348096edcf76",
+        "frames": 16,
+        "success": true
+      },
+      {
+        "vector": "SAO_H_Parabola_1",
+        "expected": "7e23c16898b14831b25d7857b69a9a9a",
+        "actual": "7e23c16898b14831b25d7857b69a9a9a",
+        "frames": 4,
+        "success": true
+      },
+      {
+        "vector": "SAODBLK_A_MainConcept_4",
+        "expected": "b9c98937bcb6be445348fdc89c208f1e",
+        "actual": "b9c98937bcb6be445348fdc89c208f1e",
+        "frames": 500,
+        "success": true
+      },
+      {
+        "vector": "SAODBLK_B_MainConcept_4",
+        "expected": "031043495e9b9f4ce120afa316aa5705",
+        "actual": "031043495e9b9f4ce120afa316aa5705",
+        "frames": 500,
+        "success": true
+      },
+      {
+        "vector": "SDH_A_Orange_4",
+        "expected": "0a1a6a76a86dbdc7ca479e4235f5b822",
+        "actual": "0a1a6a76a86dbdc7ca479e4235f5b822",
+        "frames": 2,
+        "success": true
+      },
+      {
+        "vector": "SLICES_A_Rovi_3",
+        "expected": "c2d63a4d145a5713afecd822032ec271",
+        "actual": "c2d63a4d145a5713afecd822032ec271",
+        "frames": 9,
+        "success": true
+      },
+      {
+        "vector": "SLIST_A_Sony_5",
+        "expected": "b00bc5362e6fad1a0e704aad8e69b863",
+        "actual": "b00bc5362e6fad1a0e704aad8e69b863",
+        "frames": 65,
+        "success": true
+      },
+      {
+        "vector": "SLIST_B_Sony_9",
+        "expected": "312b4ebb3e885587d5e12b78aa95977a",
+        "actual": "312b4ebb3e885587d5e12b78aa95977a",
+        "frames": 65,
+        "success": true
+      },
+      {
+        "vector": "SLIST_C_Sony_4",
+        "expected": "61024c25cbd60e9bf86dbe3bc5b9b48b",
+        "actual": "61024c25cbd60e9bf86dbe3bc5b9b48b",
+        "frames": 65,
+        "success": true
+      },
+      {
+        "vector": "SLIST_D_Sony_9",
+        "expected": "8d38ce43b17627ff1f86e526bfb7ffc4",
+        "actual": "8d38ce43b17627ff1f86e526bfb7ffc4",
+        "frames": 65,
+        "success": true
+      },
+      {
+        "vector": "SLPPLP_A_VIDYO_2",
+        "expected": "99e13916ede2bc9b77718787579104a9",
+        "actual": "99e13916ede2bc9b77718787579104a9",
+        "frames": 33,
+        "success": true
+      },
+      {
+        "vector": "STRUCT_A_Samsung_7",
+        "expected": "02f02cc9a67222004ae18ee6bebd475a",
+        "actual": "02f02cc9a67222004ae18ee6bebd475a",
+        "frames": 60,
+        "success": true
+      },
+      {
+        "vector": "STRUCT_B_Samsung_7",
+        "expected": "1f472e014aff120681e8482c8a04ef93",
+        "actual": "1f472e014aff120681e8482c8a04ef93",
+        "frames": 60,
+        "success": true
+      },
+      {
+        "vector": "TILES_A_Cisco_2",
+        "expected": "946f0771fa87d49f684f96871c9c3c88",
+        "actual": "946f0771fa87d49f684f96871c9c3c88",
+        "frames": 100,
+        "success": true
+      },
+      {
+        "vector": "TILES_B_Cisco_1",
+        "expected": "3382291f2b19ee2d760647d4cc756e95",
+        "actual": "3382291f2b19ee2d760647d4cc756e95",
+        "frames": 100,
+        "success": true
+      },
+      {
+        "vector": "TMVP_A_MS_3",
+        "expected": "168f8096e56b8a8c1aa03fa5fffdfd23",
+        "actual": "168f8096e56b8a8c1aa03fa5fffdfd23",
+        "frames": 17,
+        "success": true
+      },
+      {
+        "vector": "TSCL_A_VIDYO_5",
+        "expected": "27cbe23eabe1b174d745c286cc2ed8ff",
+        "actual": "27cbe23eabe1b174d745c286cc2ed8ff",
+        "frames": 73,
+        "success": true
+      },
+      {
+        "vector": "TSCL_B_VIDYO_4",
+        "expected": "95e7910b85c08a01e2e9ce72c92d7d62",
+        "actual": "95e7910b85c08a01e2e9ce72c92d7d62",
+        "frames": 73,
+        "success": true
+      },
+      {
+        "vector": "TSKIP_A_MS_3",
+        "expected": "4280cb848219176f4fcad51f3290210d",
+        "actual": "4280cb848219176f4fcad51f3290210d",
+        "frames": 17,
+        "success": true
+      },
+      {
+        "vector": "TSUNEQBD_A_MAIN10_Technicolor_2",
+        "expected": "1bed23df7253170eeb8efc3fd1b740a3",
+        "actual": null,
+        "frames": 0,
+        "success": false
+      },
+      {
+        "vector": "TUSIZE_A_Samsung_1",
+        "expected": "5e6c198c852e92cdcca0e137fc2610c4",
+        "actual": "5e6c198c852e92cdcca0e137fc2610c4",
+        "frames": 5,
+        "success": true
+      },
+      {
+        "vector": "VPSID_A_VIDYO_2",
+        "expected": "99e13916ede2bc9b77718787579104a9",
+        "actual": "99e13916ede2bc9b77718787579104a9",
+        "frames": 33,
+        "success": true
+      },
+      {
+        "vector": "VPSSPSPPS_A_MainConcept_1",
+        "expected": "1ddf74263cb4953cfdfcf99c563d88ea",
+        "actual": "ec9f5857591ac4c215d194deaf52167c",
+        "frames": 2,
+        "success": false
+      },
+      {
+        "vector": "WP_A_MAIN10_Toshiba_3",
+        "expected": "c48e853010a234786dc87790d053b03a",
+        "actual": "c48e853010a234786dc87790d053b03a",
+        "frames": 256,
+        "success": true
+      },
+      {
+        "vector": "WP_A_Toshiba_3",
+        "expected": "127b99d0c11c930b6f248750b5848a0b",
+        "actual": "127b99d0c11c930b6f248750b5848a0b",
+        "frames": 256,
+        "success": true
+      },
+      {
+        "vector": "WP_B_Toshiba_3",
+        "expected": "82d39f8cd09e532b8fa9d35894c96258",
+        "actual": "82d39f8cd09e532b8fa9d35894c96258",
+        "frames": 256,
+        "success": true
+      },
+      {
+        "vector": "WP_MAIN10_B_Toshiba_3",
+        "expected": "ed891c60a17f5cbc64e1848f0ea9cf45",
+        "actual": "ed891c60a17f5cbc64e1848f0ea9cf45",
+        "frames": 256,
+        "success": true
+      },
+      {
+        "vector": "WPP_A_ericsson_MAIN10_2",
+        "expected": "e68b9d75ff9cf1d9486e964051351f69",
+        "actual": "e68b9d75ff9cf1d9486e964051351f69",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_A_ericsson_MAIN_2",
+        "expected": "cd7e815eb47e8138fec2185d4de84304",
+        "actual": "cd7e815eb47e8138fec2185d4de84304",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_B_ericsson_MAIN10_2",
+        "expected": "d8290fc1eec3a196aa796c92e71a779b",
+        "actual": "d8290fc1eec3a196aa796c92e71a779b",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_B_ericsson_MAIN_2",
+        "expected": "e37c7e561a1226640a7bf98e81df78b1",
+        "actual": "e37c7e561a1226640a7bf98e81df78b1",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_C_ericsson_MAIN10_2",
+        "expected": "aadac4d468d5950551d606c1016abc9c",
+        "actual": "aadac4d468d5950551d606c1016abc9c",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_C_ericsson_MAIN_2",
+        "expected": "e067aa3a6a12cd5743849ded793c8d3f",
+        "actual": "e067aa3a6a12cd5743849ded793c8d3f",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_D_ericsson_MAIN10_2",
+        "expected": "dde9aa65b78a8ca5602d834f234655d4",
+        "actual": "dde9aa65b78a8ca5602d834f234655d4",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_D_ericsson_MAIN_2",
+        "expected": "f710612103f386c415be3e6300693451",
+        "actual": "f710612103f386c415be3e6300693451",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_E_ericsson_MAIN10_2",
+        "expected": "f12e746306c59544d6162de0b62c4649",
+        "actual": "f12e746306c59544d6162de0b62c4649",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_E_ericsson_MAIN_2",
+        "expected": "485798dbf95ad61232075df2f294aa3f",
+        "actual": "485798dbf95ad61232075df2f294aa3f",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_F_ericsson_MAIN10_2",
+        "expected": "210055a33d7d912fda6a3c40764b0482",
+        "actual": "210055a33d7d912fda6a3c40764b0482",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_F_ericsson_MAIN_2",
+        "expected": "2aaf16274fe8e799d72fa08a4963850d",
+        "actual": "2aaf16274fe8e799d72fa08a4963850d",
+        "frames": 48,
+        "success": true
+      }
+    ],
+    "driver_commit": "f03b3c6d07b41e5f2f3f98327e12eab83927537a",
+    "log": "codec-r8-package/hevc"
+  },
+  "parallel": {
+    "jobs": 4,
+    "passed": 144,
+    "total": 147,
+    "log": "conformance-20260915-151131-FFmpeg-H.265-VAAPI-JCT-VC-HEVC_V1",
+    "limitation": "Preflight was idle, but Chrome held the decoder at completion. This run does not close the historical concurrent-corruption issue.",
+    "driver_commit": "16b2fa3f5136390628eebae75f8aa414b385189e"
+  },
+  "frame_comparison": {
+    "RPS_B_qualcomm_5": {
+      "total": 300,
+      "wrong_before": 10,
+      "wrong_after": 0
+    },
+    "RPS_E_qualcomm_5": {
+      "total": 300,
+      "wrong_before": 26,
+      "wrong_unrestricted_experiment": 30,
+      "wrong_after_scoped_workaround": 26
+    }
+  },
+  "high10": {
+    "command": "sh tests/h264-high10.sh BUILD/src",
+    "cabac": [
+      0,
+      1
+    ],
+    "qp": [
+      1,
+      21,
+      51
+    ],
+    "slices": 4,
+    "bframes": 2,
+    "dimensions": [
+      640,
+      360
+    ],
+    "frames_per_clip": 12,
+    "modes": [
+      "normal",
+      "early-export"
+    ],
+    "matching_frame_comparisons": 144,
+    "stable_early_exports": 72,
+    "mode": "LIBVA_V4L2_H264_HIGH10=ffmpeg"
+  },
+  "ordering_experiments": {
+    "off": [
+      {
+        "vector": "RPS_B_qualcomm_5",
+        "actual": "23c207d0df170abbaefe71385c944e28",
+        "frames": 300,
+        "success": false
+      },
+      {
+        "vector": "RPS_E_qualcomm_5",
+        "actual": "b09ac8e0bd31a96d8354505d7c2ebdd5",
+        "frames": 300,
+        "success": false
+      },
+      {
+        "vector": "WPP_D_ericsson_MAIN10_2",
+        "actual": "dde9aa65b78a8ca5602d834f234655d4",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_D_ericsson_MAIN_2",
+        "actual": "f710612103f386c415be3e6300693451",
+        "frames": 48,
+        "success": true
+      }
+    ],
+    "decode": [
+      {
+        "vector": "RPS_B_qualcomm_5",
+        "actual": "6d1ed392b067050ebd3a24a37281da03",
+        "frames": 300,
+        "success": true
+      },
+      {
+        "vector": "RPS_E_qualcomm_5",
+        "actual": "7cf27c519b9740be6867e41bf1ab9ff5",
+        "frames": 300,
+        "success": false
+      },
+      {
+        "vector": "WPP_D_ericsson_MAIN10_2",
+        "actual": "dde9aa65b78a8ca5602d834f234655d4",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_D_ericsson_MAIN_2",
+        "actual": "f710612103f386c415be3e6300693451",
+        "frames": 48,
+        "success": true
+      }
+    ],
+    "poc": [
+      {
+        "vector": "RPS_B_qualcomm_5",
+        "actual": "679bb3969593c98a23b5b1d5fb0f49e3",
+        "frames": 300,
+        "success": false
+      },
+      {
+        "vector": "RPS_E_qualcomm_5",
+        "actual": "211db1f4d59bfac2dda785114e435408",
+        "frames": 300,
+        "success": false
+      },
+      {
+        "vector": "WPP_D_ericsson_MAIN10_2",
+        "actual": "dde9aa65b78a8ca5602d834f234655d4",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_D_ericsson_MAIN_2",
+        "actual": "f710612103f386c415be3e6300693451",
+        "frames": 48,
+        "success": true
+      }
+    ],
+    "capture": [
+      {
+        "vector": "RPS_B_qualcomm_5",
+        "actual": "f816c4f438c51ec72a3f0d0144314b94",
+        "frames": 300,
+        "success": false
+      },
+      {
+        "vector": "RPS_E_qualcomm_5",
+        "actual": "a59f5e3e47c2b5cabe9f9f87cebb9a1a",
+        "frames": 300,
+        "success": false
+      },
+      {
+        "vector": "WPP_D_ericsson_MAIN10_2",
+        "actual": "dde9aa65b78a8ca5602d834f234655d4",
+        "frames": 48,
+        "success": true
+      },
+      {
+        "vector": "WPP_D_ericsson_MAIN_2",
+        "actual": "f710612103f386c415be3e6300693451",
+        "frames": 48,
+        "success": true
+      }
+    ]
+  },
+  "h264_classification": {
+    "FM1_FT_E": "Full-stream trace reveals later FMO PPSs; first-packet-only inspection missed them."
+  },
+  "offline": {
+    "sanitizers": "ASan+UBSan",
+    "passed": 22,
+    "software_frame_check": "resolution change, crop and truncated-input checks passed"
+  },
+  "package": {
+    "filename": "libva-v4l2_request-avd-1.3.r8-1-aarch64.pkg.tar.xz",
+    "sha256": "73da36556bd492c420d4e9a987e780dfb18618e00128f85c1331416c65a13475",
+    "checks_passed": 22,
+    "archive_checks": [
+      "all entries owned by root",
+      "asahi alias points to driver",
+      "r8 vendor marker",
+      "aarch64 metadata"
+    ],
+    "installed": false,
+    "installed_version": "1.3.r5-1",
+    "hardware_validation": {
+      "hevc_passed": 144,
+      "hevc_total": 147,
+      "high10_matching_frames": 144,
+      "log": "codec-r8-package"
+    }
+  },
+  "kernel_log": "No avd, oops, watchdog or BUG messages in the 14:50 through validation-completion kernel-log window.",
+  "open": [
+    "RPS_E_qualcomm_5 corruption",
+    "Unequal HEVC bit depths unsupported by kernel/FFmpeg",
+    "VPSSPSPPS_A_MainConcept_1 FFmpeg parameter-set handling",
+    "Historical concurrent HEVC mismatches",
+    "H.264 interlace/FMO/Extended/VA 4:2:2 limits",
+    "Boot-reset and display investigations in GAP_STATUS.md"
+  ]
+}

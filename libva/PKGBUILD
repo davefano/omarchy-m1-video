@@ -8,15 +8,15 @@
 # (tag 1.3), Igor Ryzhkov's and Ante042's early-export fix for Chrome's green
 # frames, plus fixes for H.264 multi-slice hangs, HEVC slice header parsing,
 # 10-bit HEVC, crafted headers, frame lifetime, error propagation and opt-in
-# H.264 High 10 with strict hardware conformance checks.
+# H.264 High 10, AVD short-term HEVC reference ordering and strict conformance checks.
 #
 # AVD is a stateless decoder, which almost no desktop software speaks directly;
 # this driver is what lets mpv, Chrome and FFmpeg use it through VA-API.
 
 pkgname=libva-v4l2_request-avd
-pkgver=1.3.r7
+pkgver=1.3.r8
 pkgrel=1
-_commit=8c0138c19ddcc12ceefab072264f6c8371c6d8b1
+_commit=f03b3c6d07b41e5f2f3f98327e12eab83927537a
 pkgdesc='VA-API driver for V4L2 stateless decoders, with Apple Video Decoder (AVD) fixes (omarchy-m1-video)'
 arch=('aarch64')
 url='https://github.com/iconidentify/libva-v4l2_request'
