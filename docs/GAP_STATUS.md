@@ -18,9 +18,11 @@ The codec follow-up adds opt-in High 10 and stronger conformance checks. See
 | Image and buffer memory safety | Validate image dimensions and plane spans, copy complete odd-width UV pairs, reject truncated derived storage, zero-element resize and bitstream-size overflow | NV12/P010 tests under ASan/UBSan |
 | HEVC entry-point handling | Accept exactly full arrays, reject excessive counts/offset lengths, reset between request batches, reject invalid headers | Parser regressions, 24,000 deterministic random inputs, HEVC conformance |
 | No durable regression suite | Add Meson tests, hardware scripts and CI to the fork; offline Bash tests and CI to the installer | See [TESTING.md](TESTING.md) |
-| Health check silently successful | Nonzero exit on missing/wrong driver or incompatible/unknown libva ABI; identify the expected `1.3.r8` binary by its version marker | Mock driver/package tests |
+| Health check silently successful | Nonzero exit on missing/wrong driver or incompatible/unknown libva ABI; identify the expected `1.3.r9` binary by its version marker | Mock driver/package tests |
 | Loaded-module provenance overstated | Label `modinfo` as the on-disk module selected for the next load | Read-only inspection: no loaded `srcversion` or build-ID note available on this Mac |
 | Unsupported test/documentation claims | Retain tested VP9 coverage; enforce actual Main10 input; stop treating Firefox sandbox changes as a validated setup; distinguish mpv output API from renderer | Script and README review |
+| H.264 incomplete-picture submission and invalid reference mapping | Reject EndPicture with unconsumed slice parameters; validate active references and slice type before flushing a pending slice; prevent missing surfaces matching through timestamp zero | Three new fake-submission cases fail before the fix and pass afterward; AVC/FRExt and High 10 hardware checks |
+| H.264 slice-count overflow | Reject wrapped counts before allocation or copying | ASan reproduces an out-of-bounds write with the counter boundary injected; fixed case rejects it without submitting hardware work |
 
 ### FFmpeg crash evidence
 
@@ -73,6 +75,12 @@ Historical four-process runs sometimes fail `SLIST_B_Sony_9`, `SLIST_D_Sony_9` o
 The r8 four-process run passes 144/147, but Chrome holds the decoder at completion.
 A passing four-process run is insufficient to close this. The known next-request control
 race is already fixed by kernel patch 0006; remaining pixel mismatches need separate proof.
+
+The r9 package passes three consecutive complete four-process suites at 144/147, with
+no unrelated browser/player decoder clients observed by the half-second monitor and an
+idle decoder after every run. All three retain exactly the known serial failures. No AVD
+kernel messages occur. This improves the isolated evidence but does not establish the cause
+of the earlier intermittent failures or close the investigation.
 
 Next: repeat fixed vector pairs and full suites with no unrelated decoder clients; record
 first differing pictures and correlate command/reference metadata as in H2. Acceptance:
