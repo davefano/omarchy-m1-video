@@ -19,6 +19,9 @@ With the stock `linux-asahi` 7.1.13 AVD driver and `libva-v4l2_request-avd` 1.3:
 | A 16 MiB contiguous allocation per frame that fails once memory is fragmented | kernel patch 0003 |
 | A job-completion race that can oops the kernel and lock `/dev/video0` until reboot | kernel patch 0005 |
 | Several HEVC videos at once (and some single HEVC streams) fail with firmware "H0 error" | kernel patch 0006 |
+| Monochrome (4:0:0) H.264 video shows green | kernel patch 0008 |
+| An HEVC stream with different luma and chroma bit depths crashes the decoder firmware and resets it, disturbing other videos | kernel patch 0009 |
+| 4:2:2 H.264 with P or B frames decodes wrongly (affects apps that use V4L2 directly, such as GStreamer) | kernel patch 0007 |
 | Chrome shows solid green video | VA-API driver |
 | H.264 videos with several CAVLC slices per picture hang | VA-API driver |
 | HEVC streams with tiles or wavefront parallel processing hang | VA-API driver |
@@ -135,6 +138,9 @@ Applied to `drivers/media/platform/apple/avd` of the matching AsahiLinux/linux t
 | 0004 | Aaron (aquarat) | H.264: reset `slice_num` after each frame |
 | 0005 | iconidentify | track the running job's state so a completion IRQ or the watchdog cannot finish a job that is still being built or submitted |
 | 0006 | iconidentify | HEVC: read controls after applying the request, so a queued-ahead next picture cannot change the current picture's slice count |
+| 0007 | iconidentify | size the compressed reference chroma plane for 4:2:2 (it was sized for 4:2:0) |
+| 0008 | iconidentify | H.264: fill chroma with grey for monochrome (4:0:0) pictures, which the firmware leaves at zero |
+| 0009 | iconidentify | HEVC: reject streams with unequal luma/chroma bit depth or non-4:2:0 chroma before they reach the firmware |
 
 ## Credits
 

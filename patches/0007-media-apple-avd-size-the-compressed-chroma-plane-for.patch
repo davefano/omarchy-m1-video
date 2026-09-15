@@ -1,0 +1,41 @@
+From baf37d338a73609a265ea085e3ca89b5f699a9bb Mon Sep 17 00:00:00 2001
+From: iconidentify <303316+iconidentify@users.noreply.github.com>
+Date: Tue, 15 Sep 2026 10:38:22 -0700
+Subject: [PATCH 7/9] media: apple: avd: size the compressed chroma plane for
+ 4:2:2
+
+fill_comp() sized the compressed chroma plane for half-height chroma
+whatever the image format. 4:2:2 chroma is full height, so reference
+chroma did not fit: 4:2:2 intra streams decoded, every 4:2:2 stream with
+P or B slices decoded wrong.
+
+JVT-FR-EXT through GStreamer: FREXT1-3_TANDBERG_A, Hi422FR2-4_SONY_A and
+Hi422FR11-12_SONY_A now pass (8-bit 4:2:2; 10-bit 4:2:2 still has no
+P210 capture format).
+
+---
+ drivers/media/platform/apple/avd/avd-drv.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/media/platform/apple/avd/avd-drv.c b/drivers/media/platform/apple/avd/avd-drv.c
+index aa04fe4..ef6b97d 100644
+--- a/drivers/media/platform/apple/avd/avd-drv.c
++++ b/drivers/media/platform/apple/avd/avd-drv.c
+@@ -56,9 +56,11 @@ void fill_comp(struct avd_comp *comp, enum avd_image_fmt image_fmt, u32 width,
+ 
+ 	/* y has 32x32 tiles and 32 bytes of metadata per tile */
+ 	calc_tile_meta(width, height, bit_depth, 32, 32, &y, &y_meta);
+-	/* uv has 16x16 tiles and 8 bytes of metadata per tile */
+-	calc_tile_meta(width / 2, height / 2, bit_depth * 2, 16, 8, &uv,
+-		       &uv_meta);
++	/* uv has 16x16 tiles and 8 bytes of metadata per tile; 4:2:2 chroma is full height */
++	calc_tile_meta(width / 2,
++		       (image_fmt == AVD_IMG_FMT_422_8BIT ||
++			image_fmt == AVD_IMG_FMT_422_10BIT) ? height : height / 2,
++		       bit_depth * 2, 16, 8, &uv, &uv_meta);
+ 
+ 	/* output like DCP driver expects */
+ 	comp->offsets[0] = y;
+-- 
+2.55.0
+

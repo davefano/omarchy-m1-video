@@ -1,0 +1,36 @@
+From 4c1e5c9a91a1fc8ed11c89718536fd59263a7fce Mon Sep 17 00:00:00 2001
+From: iconidentify <303316+iconidentify@users.noreply.github.com>
+Date: Tue, 15 Sep 2026 10:38:22 -0700
+Subject: [PATCH 9/9] media: apple: avd: hevc: reject unequal bit depths and
+ non-4:2:0 SPS
+
+An SPS with different luma and chroma bit depth (TSUNEQBD_A_MAIN10_
+Technicolor_2: 10-bit luma, 9-bit chroma) was accepted and ended in a
+firmware H0 error and a watchdog reset of the VP, which disturbs every
+other decoding context. Only 4:2:0 has a capture format. H.264 already
+rejects both; do the same for HEVC so such streams fail at once.
+
+---
+ drivers/media/platform/apple/avd/avd-hevc.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/media/platform/apple/avd/avd-hevc.c b/drivers/media/platform/apple/avd/avd-hevc.c
+index d72cba7..0acb18e 100644
+--- a/drivers/media/platform/apple/avd/avd-hevc.c
++++ b/drivers/media/platform/apple/avd/avd-hevc.c
+@@ -1015,6 +1015,12 @@ static int avd_hevc_validate_sps(struct avd_ctx *ctx,
+ 	if (sps->pic_width_in_luma_samples > ctx->coded_fmt.fmt.pix_mp.width ||
+ 	    sps->pic_height_in_luma_samples > ctx->coded_fmt.fmt.pix_mp.height)
+ 		return -EINVAL;
++	if (sps->bit_depth_luma_minus8 != sps->bit_depth_chroma_minus8)
++		/* Luma and chroma bit depth mismatch: the firmware faults (H0 error) */
++		return -EINVAL;
++	if (sps->chroma_format_idc != 1)
++		/* Only 4:2:0 has a capture format */
++		return -EINVAL;
+ 
+ 	return 0;
+ }
+-- 
+2.55.0
+
