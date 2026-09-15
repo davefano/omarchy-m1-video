@@ -32,6 +32,7 @@ With the stock `linux-asahi` 7.1.13 AVD driver and `libva-v4l2_request-avd` 1.3:
 | Decode errors and failed buffer waits are ignored; malformed image/slice data is insufficiently checked | VA-API driver 1.3.r6 |
 | H.264 High 10 needs capability detection and FFmpeg quantizer correction | VA-API driver 1.3.r7, opt-in mode |
 | HEVC `RPS_B_qualcomm_5` has ten wrong pictures with VA reference-slot ordering | VA-API driver 1.3.r8, AVD reference ordering |
+| H.264 accepts incomplete pictures and invalid active references; slice-count arithmetic can overflow | VA-API driver 1.3.r9 |
 
 Conformance on an M1 (bit-exact against the reference decoders):
 
@@ -41,8 +42,8 @@ Conformance on an M1 (bit-exact against the reference decoders):
 | H.264 `JVT-AVC_V1` (135 streams) | 73 | 77 |
 | H.264 FRExt `JVT-FR-EXT` (69 streams) | 25 by default; 27 with High 10 enabled | 35 |
 
-¹ Chrome held the decoder by completion of the concurrent run; historical intermittent
-concurrent mismatches remain open.
+¹ The r9 package passed three consecutive four-process runs with no unrelated video clients
+observed. Historical intermittent concurrent mismatches remain open.
 
 Software FFmpeg also passes 143 of the HEVC streams, a different set. The H.264 streams that fail
 through VA-API are interlaced (not supported by the kernel driver) or Baseline/Extended profile

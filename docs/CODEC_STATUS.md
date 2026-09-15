@@ -1,10 +1,39 @@
 # H.264 and HEVC follow-up — 2026-09-15
 
-Driver candidate: `1.3.r8`. Testing uses a local userspace build on the existing M1 boot,
+Driver candidate: `1.3.r9`. Testing uses a local userspace build on the existing M1 boot,
 with `linux-asahi 7.1.13.asahi3-1` and the same 15 kernel patches. No installation, module
 reload or reboot is part of this follow-up.
 
 ## H.264: verified progress
+
+### r9: reject incomplete pictures and invalid references before submission
+
+EndPicture previously accepted a picture with additional slice parameters whose data had
+never arrived. H.264 also allowed invalid active reference indices through to the kernel;
+two unavailable surfaces could match because both resolved to timestamp zero. Version r9
+rejects these inputs, checks that the VA slice type agrees with the parsed NAL, and validates
+the next slice's references before flushing the preceding slice. Unavailable references
+that no active slice list uses remain allowed.
+
+A third fix rejects overflow when accumulating slice-parameter counts. The offline test
+injects the counter boundary and reproduces an out-of-bounds write in the old copy operation.
+It does not allocate billions of slices or establish a practical malicious-video exploit.
+
+All three new regression cases fail against the preceding implementation and pass after
+the fixes. The complete ASan/UBSan suite now contains 25 cases. Full hardware conformance
+retains AVC 73/135 and FRExt 27/69 with High 10 enabled, and all five profile-override streams
+still pass. All 144 generated High 10 comparisons match, including early export. These
+are input-validation fixes; they add no interlacing, FMO or 4:2:2 support.
+
+The pinned, stripped r9 package also passes strict HEVC at 144/147 and all 144 High 10
+comparisons. Three consecutive full HEVC suites with four processes each pass 144/147,
+with exactly the known serial failures. A half-second monitor observes no unrelated
+browser/player decoder clients, and the decoder is idle after each run. No AVD messages
+appear in the kernel log (one unrelated firewall message occurs). The historical concurrent
+corruption remains open because its cause and triggering schedule are still unknown.
+
+See [the r9 validation record](codec-validation-r9-2026-09-15.json) for commands, checksums,
+per-vector results and package identity.
 
 ### High 10: 718 frames now match with an explicit compatibility mode
 
