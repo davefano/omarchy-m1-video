@@ -46,7 +46,7 @@ LIBVA_SO=$work/driver.so
 pacman() {
     case "$*" in
         '-Q libva') echo 'libva 2.24.1-1' ;;
-        '-Q libva-v4l2_request-avd') echo 'libva-v4l2_request-avd 1.3.r9-1' ;;
+        '-Q libva-v4l2_request-avd') echo 'libva-v4l2_request-avd 1.3.r10-1' ;;
         *) return 1 ;;
     esac
 }

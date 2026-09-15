@@ -1,6 +1,6 @@
-# H.264 and HEVC follow-up — 2026-09-15
+# H.264, HEVC and VP9 follow-up — 2026-09-15
 
-Driver candidate: `1.3.r9`. Testing uses a local userspace build on the existing M1 boot,
+Driver candidate: `1.3.r10`. Testing uses a local userspace build on the existing M1 boot,
 with `linux-asahi 7.1.13.asahi3-1` and the same 15 kernel patches. No installation, module
 reload or reboot is part of this follow-up.
 
@@ -202,3 +202,60 @@ Under the companion `avd-lab/results` directory:
 
 The r7 baseline is [codec-validation-2026-09-15.json](codec-validation-2026-09-15.json);
 the r8 results are [codec-validation-r8-2026-09-15.json](codec-validation-r8-2026-09-15.json).
+
+## VP9: validation and remaining gaps
+
+Version r10 rejects incomplete pictures, invalid frame markers/sync codes, inconsistent
+header boundaries, unsupported profile/bit-depth combinations, exhausted probability headers
+and absent tile data. It preserves the full-range flag across inter frames, and keeps range,
+loop-filter and segmentation changes pending until submission succeeds. Parse, append and
+submission errors leave the previously committed state intact; a later asynchronous hardware
+failure is outside that rollback guarantee.
+
+Inter pictures must have all three reference slots backed by buffers in the same decoder
+context. Two official resize streams (`vp90-2-05-resize.ivf` and `vp90-2-18-resize.ivf`)
+triggered firmware H3 errors and two-second timeouts with r9 after FFmpeg replaced the context.
+Both now fail in userspace with unavailable-reference errors before the offending submission,
+with no new kernel messages. This closes the observed timeout path; decoding these streams
+still needs support for reference pictures across size/context changes.
+
+Four new Meson cases cover malformed submissions, state persistence/rollback, reference
+validation and 24,000 deterministic parser inputs. All 29 cases pass under ASan/UBSan.
+The new malformed/state/reference regressions fail against r9. The random-input case already
+passed before the changes; it adds coverage rather than reproducing a new memory-safety bug.
+The total of 72,000 generated H.264/HEVC/VP9 inputs belongs to three parser cases, not 72,000
+independent Meson tests.
+
+The final package also rejects all 25 previously wrong-output resize/scalable streams for
+unavailable references. They no longer return successful decode with corrupted output in
+this runner, but still fail conformance. Correct cross-size reference handling remains open.
+
+### Hardware evidence
+
+The strict runner requires actual VA-API frames and hashes the native output dimensions.
+The r9 baseline passed **216/305 VP9 vectors**, covering 3,334 output frames. The pinned, stripped r10 package
+preserves every one of those passes in a complete 305-vector rerun, with no new AVD kernel
+messages (one unrelated SMC message occurs). The official 10-bit 4:2:0 vector also passes all ten
+frames, MD5 `a16b99df180c584e8db2ffeda987d293`. The five other high-bit-depth-suite vectors
+use 12-bit or 4:2:2/4:4:4 output and are outside this result.
+
+The new `tests/vp9-matrix.sh` checks eight generated 640x360 clips: 8/10-bit, full/limited range
+and lossy/lossless, each decoded normally and with export before decoding. All **384 hardware
+frame comparisons** match software. Encoded pixel format/range are checked explicitly, and
+early-export backing is checked after each decode. These checks also pass using the final stripped
+r10 package. Pixel comparisons do not establish correct
+colour management in Chrome, mpv or another display path.
+
+| Baseline failure group | Count | Current interpretation |
+|---|---:|---|
+| A width or height below 64 pixels | 60 | AVD kernel minimum; software passes |
+| Profile 1, 4:2:2 / 4:4:4 | 2 | Outside advertised profiles 0/2; software passes |
+| Context-changing resize streams | 2 | r10 rejects missing references before hardware submission; software passes |
+| `vp90-2-21-resize_inter_*` | 24 | r9 gives wrong pixels; r10 rejects missing references; software matches reference |
+| `vp90-2-22-svc_1280x720_3.ivf` | 1 | r9 and software both miss reference with different digests; r10 rejects missing references |
+
+The full baseline exposed two firmware timeouts without a lasting wedge or kernel oops.
+Subsequent candidate runs monitor new AVD journal errors as well as child deadlines and stuck
+tasks. Do not repeat a firmware failure without a concrete fix to test. Refer to
+[the r10 validation record](codec-validation-r10-2026-09-15.json) for source/package identity,
+commands, individual results and separate baseline/candidate kernel-log windows.
