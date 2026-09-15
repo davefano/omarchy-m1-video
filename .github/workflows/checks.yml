@@ -1,0 +1,11 @@
+name: Checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash -n install.sh uninstall.sh bin/apple-avd-rebuild tests/rebuild.sh libva/PKGBUILD libva/libva-v4l2_request-avd.install
+      - run: bash tests/rebuild.sh
