@@ -8,7 +8,8 @@ This repository sets up hardware video decoding on Apple Silicon Macs running Om
    this repository does not apply.
 2. **Get the user's explicit consent before installing.** Explain in your own words that this
    installs an out-of-tree kernel module that loads at every boot, that the test Mac hard-reset
-   twice shortly after boot with these patches loaded at boot (cause unknown, not retested at boot),
+   twice shortly after boot with these patches loaded at boot (cause unknown; one later boot with all
+   patches was fine),
    and summarize "If the Mac freezes or resets" from `README.md`. Also say it installs pacman hooks,
    a boot service, a replacement VA-API driver package and mpv settings. Only continue after the
    user clearly agrees; do not pass `--i-accept-boot-risk` on your own.

@@ -59,9 +59,11 @@ kernel. It is not reviewed or supported by Asahi Linux.
 On the test Mac, the machine **hard-reset twice within about a minute of boot** while kernel
 patches 0001-0005 (unchanged since) were the module loaded at boot. The cause was not found and
 may not be the module. Since then the patches passed parallel decode stress tests, 30-minute idle
-soaks and device probe soaks with the module loaded by hand, but **loading at boot has not been
-retested**. Read [If the Mac freezes or resets](#if-the-mac-freezes-or-resets) before installing,
-and test with `modprobe` before you reboot (below).
+soaks and device probe soaks with the module loaded by hand. With all 15 patches, loading at boot
+has been retested **once** so far: the test Mac booted normally, decoded bit-exact and ran without
+kernel or decoder errors for the following 10 minutes. That is one boot, not proof. Read
+[If the Mac freezes or resets](#if-the-mac-freezes-or-resets) before installing, and test with
+`modprobe` before you reboot (below).
 
 ## Install
 

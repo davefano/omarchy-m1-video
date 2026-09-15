@@ -24,9 +24,9 @@ if [[ $accept -ne 1 ]]; then
 This installs an out-of-tree kernel module for the Mac's video decoder that loads at every
 boot. It is not reviewed or supported by Asahi Linux. On the test Mac, the machine hard-reset
 twice within about a minute of boot while these patches (0001-0005, unchanged since) were the
-module loaded at boot. The cause was not found, and loading at boot has not been retested
-since; later tests loaded the module by hand. Read "Before you install" and "If the Mac
-freezes or resets" in README.md.
+module loaded at boot. The cause was not found. With all patches, loading at boot has been
+retested once so far (a normal boot and 10 minutes without errors). Read "Before you install"
+and "If the Mac freezes or resets" in README.md.
 
 If you accept that risk, run:  ./install.sh --i-accept-boot-risk
 EOF
