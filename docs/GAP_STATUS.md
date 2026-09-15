@@ -1,9 +1,12 @@
 # Gap status — 2026-09-15
 
 Scope: the Omarchy installer and `iconidentify/libva-v4l2_request` fork, their tests/docs,
-and investigation of remaining hardware/display failures. The fixes below are on
-`fix/playback-gaps` in both repositories. Kernel patches 0001–0015 are unchanged.
+and investigation of remaining hardware/display failures. The initial fixes were merged
+in PR #1 in both repositories. Kernel patches 0001–0015 are unchanged.
 This is a development validation record, not a claim that every video or boot is safe.
+
+The codec follow-up adds opt-in High 10 and stronger conformance checks. See
+[CODEC_STATUS.md](CODEC_STATUS.md) for the verified gains, workarounds and remaining causes.
 
 ## Closed in the userspace driver and installer
 
@@ -57,8 +60,10 @@ IDs. Stale visible reference pixels, early export and DPB slot order did not exp
 The unresolved area includes firmware reference metadata and buffer lifetime/reuse.
 That is a hypothesis, not an established cause.
 
-Next: trace the first differing picture with compressed-reference and motion-vector tail
-contents as well as visible pixels, and compare buffer-allocation/reuse schedules. Any
+Follow-up: rotating private MMAP storage through 19 and 32 buffers did not change either
+wrong output checksum. Simply retaining more buffers is insufficient; the diagnostic
+rotation is not shipped. Next: compare firmware reference metadata and command interpretation
+at the first differing picture on the VA and direct V4L2 paths. Any
 kernel instrumentation belongs in a separate experimental branch, with the module-loading
 consent required by AGENTS.md. Close only after both vectors match the reference decoder
 repeatedly on both paths and the complete suites retain their existing passes.
@@ -101,14 +106,16 @@ workaround; the recorded test worsened the output.
 
 ### C1 — unsupported H.264 formats
 
-Interlaced H.264 requires further AVD firmware/driver work. The VA-API fork exposes only
-Constrained Baseline, Main and High; H.264 10-bit/4:2:2 therefore uses software. Baseline
-FMO/ASO and Extended features are not fully covered by FFmpeg's VA-API path. This explains
-much of the 73/135 suite result; it is not an all-profile success claim.
+Interlaced H.264 requires further AVD firmware/driver work: all 49 failing Main vectors
+declare non-frame-only SPSs. The VA-API fork exposes Constrained Baseline, Main and High
+by default. Version r7 adds opt-in High 10 with a separate FFmpeg quantizer compatibility
+mode; both High 10 conformance streams (718 frames) match the reference. H.264 4:2:2 still
+uses software through VA-API. Five progressive Baseline/Extended streams also pass with an
+explicit FFmpeg profile override. See [codec details](CODEC_STATUS.md).
 
-Use software decoding for affected files. Expanding advertised profiles requires verified
-kernel formats, capability negotiation and bit-exact format-specific suites. Do not merely
-add profile names or send unsupported streams to firmware.
+FMO/ASO and Extended features remain incomplete. Use software for affected files. Expanding
+profiles requires verified kernel formats, capability negotiation and bit-exact format-specific
+suites. The new checksum runner rejects software fallback, which inflated Fluster's FRExt total.
 
 ### C2 — VP9 coverage is limited
 

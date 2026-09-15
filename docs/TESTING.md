@@ -18,7 +18,7 @@ It does not install or load an out-of-tree module on CI runners.
 
 ## Userspace driver
 
-The companion fork contains `tests/README.md`, a 20-case Meson sanitizer suite and hardware
+The companion fork contains `tests/README.md`, a 22-case Meson sanitizer suite and hardware
 pixel-comparison scripts. Build and test the candidate there before updating
 `libva/PKGBUILD`. Use a commit available from the configured Git source and update the
 package version and `LIBVA_MARKER` together. A release tag is optional; the source commit
@@ -28,7 +28,7 @@ is the reproducibility anchor.
 Inspect its file list and metadata. Installation is a separate operation requiring the
 informed consent described in [AGENTS.md](../AGENTS.md).
 
-## Hardware validation record (M1, 2026-09-15)
+## Initial hardware validation record (M1, 2026-09-15, driver 1.3.r6)
 
 Kernel package: `linux-asahi 7.1.13.asahi3-1`; installed patch files match 0001–0015 in this
 repository. Tests use the candidate userspace library via `LIBVA_DRIVERS_PATH`, on the
@@ -48,10 +48,22 @@ must compare rendered frames, not only decoded checksums.
 
 `apple-avd-rebuild --check-libva` and `--status` return nonzero when the expected userspace
 driver is missing or replaced, or its libva ABI cannot be established or is too new.
-An older driver entry point may load with a newer libva. The exact `1.3.r6` vendor marker
+An older driver entry point may load with a newer libva. The exact `1.3.r7` vendor marker
 is also visible through `vainfo --display drm`; a generic early-export log string is
 insufficient to identify these fixes.
 
 `--status` prints installed kernel build stamps and the module selected on disk for the
 next load. It cannot certify which binary was loaded earlier, verify every patch is active,
 or prove hardware/boot stability. Use a documented load/boot record for that provenance.
+
+## Codec follow-up (driver 1.3.r7)
+
+The strict native-size checksum runner in the companion fork verifies VA-API frames before
+counting hardware passes. Fluster's FFmpeg VA-API FRExt decoder counts 21 software-decoded
+4:2:2 streams as successes, so use `tests/conformance.py` for that comparison. It also handles
+resolution changes and exact crop windows. See [CODEC_STATUS.md](CODEC_STATUS.md) and
+[codec-validation-2026-09-15.json](codec-validation-2026-09-15.json) for the new results.
+
+The 22-case sanitizer suite adds H.264 malformed-input and High 10 capability/quantizer tests.
+Software CI validates the checksum helper with generated resolution/crop changes and truncated
+input. `LIBVA_V4L2_H264_HIGH10=ffmpeg` is an explicit compatibility mode, not an installer default.

@@ -30,6 +30,7 @@ With the stock `linux-asahi` 7.1.13 AVD driver and `libva-v4l2_request-avd` 1.3:
 | A crafted HEVC video can crash the process decoding it (stack overflow in the slice header parser) | VA-API driver |
 | FFmpeg `hwdownload` can crash when context teardown races a frame download | VA-API driver 1.3.r6 |
 | Decode errors and failed buffer waits are ignored; malformed image/slice data is insufficiently checked | VA-API driver 1.3.r6 |
+| H.264 High 10 needs capability detection and FFmpeg quantizer correction | VA-API driver 1.3.r7, opt-in mode |
 
 Conformance on an M1 (bit-exact against the reference decoders):
 
@@ -37,12 +38,18 @@ Conformance on an M1 (bit-exact against the reference decoders):
 |---|---|---|
 | HEVC `JCT-VC-HEVC_V1` (147 streams) | 143 one at a time, 141-143 with four at once | 143 |
 | H.264 `JVT-AVC_V1` (135 streams) | 73 | 77 |
-| H.264 FRExt `JVT-FR-EXT` (69 streams) | not run | 35 |
+| H.264 FRExt `JVT-FR-EXT` (69 streams) | 25 by default; 27 with High 10 enabled | 35 |
 
 Software FFmpeg also passes 143 of the HEVC streams, a different set. The H.264 streams that fail
 through VA-API are interlaced (not supported by the kernel driver) or Baseline/Extended profile
 features FFmpeg does not hand to VA-API. The first 1200 frames of four real H.264 recordings, up to
 2560x1600, decoded bit-exact.
+
+The FRExt VA-API totals above require actual hardware frames; Fluster alone also counts
+21 software-decoded 4:2:2 streams. Five Baseline/Extended AVC streams additionally pass
+with a per-file FFmpeg profile override. High 10 is opt-in because FFmpeg 9.0.1 needs a
+quantizer compatibility mode. See [codec status and usage](docs/CODEC_STATUS.md) for the
+718-frame High 10 validation and remaining HEVC/H.264 failures.
 
 ## Tested on
 
