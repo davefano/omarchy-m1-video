@@ -18,11 +18,14 @@ The codec follow-up adds opt-in High 10 and stronger conformance checks. See
 | Image and buffer memory safety | Validate image dimensions and plane spans, copy complete odd-width UV pairs, reject truncated derived storage, zero-element resize and bitstream-size overflow | NV12/P010 tests under ASan/UBSan |
 | HEVC entry-point handling | Accept exactly full arrays, reject excessive counts/offset lengths, reset between request batches, reject invalid headers | Parser regressions, 24,000 deterministic random inputs, HEVC conformance |
 | No durable regression suite | Add Meson tests, hardware scripts and CI to the fork; offline Bash tests and CI to the installer | See [TESTING.md](TESTING.md) |
-| Health check silently successful | Nonzero exit on missing/wrong driver or incompatible/unknown libva ABI; identify the expected `1.3.r9` binary by its version marker | Mock driver/package tests |
+| Health check silently successful | Nonzero exit on missing/wrong driver or incompatible/unknown libva ABI; identify the expected `1.3.r10` binary by its version marker | Mock driver/package tests |
 | Loaded-module provenance overstated | Label `modinfo` as the on-disk module selected for the next load | Read-only inspection: no loaded `srcversion` or build-ID note available on this Mac |
 | Unsupported test/documentation claims | Retain tested VP9 coverage; enforce actual Main10 input; stop treating Firefox sandbox changes as a validated setup; distinguish mpv output API from renderer | Script and README review |
 | H.264 incomplete-picture submission and invalid reference mapping | Reject EndPicture with unconsumed slice parameters; validate active references and slice type before flushing a pending slice; prevent missing surfaces matching through timestamp zero | Three new fake-submission cases fail before the fix and pass afterward; AVC/FRExt and High 10 hardware checks |
 | H.264 slice-count overflow | Reject wrapped counts before allocation or copying | ASan reproduces an out-of-bounds write with the counter boundary injected; fixed case rejects it without submitting hardware work |
+| VP9 malformed/incomplete submission | Validate both headers and declared boundaries; reject absent tile data and failed pictures | Malformed-input regression and sanitizer parser coverage |
+| VP9 colour range and persistent state | Inherit range on inter frames; commit range/filter/segmentation state only after successful submission | State inheritance and parse/append/submission-failure tests |
+| VP9 references from a replaced context reach firmware | Require reference buffers in the current decoder context | Missing/detached/cross-context regressions; both observed resize timeout paths now reject in userspace with a clean kernel-log window |
 
 ### FFmpeg crash evidence
 
@@ -124,12 +127,26 @@ FMO/ASO and Extended features remain incomplete. Use software for affected files
 profiles requires verified kernel formats, capability negotiation and bit-exact format-specific
 suites. The new checksum runner rejects software fallback, which inflated Fluster's FRExt total.
 
-### C2 — VP9 coverage is limited
+### C2 — VP9 resize and format gaps
 
-The packaged-driver probe lists VP9 profiles 0 and 2 on the M1. Both ordinary and early-export
-readbacks of a generated 30-frame VP9 profile-0 clip match software byte for byte. Full VP9
-conformance and profile-2 (10-bit) output have not been validated in this audit. Those require
-separate bit-exact suites before extending the advertised test claims beyond this smoke test.
+r10 adds strict header/submission/reference validation and persistent-state fixes, with four
+new Meson cases. The 216 baseline passing official vectors still pass, as does the official
+10-bit 4:2:0 vector. Eight generated clips pass all 384 ordinary/early-export comparisons,
+covering 8/10-bit and full/limited range. These results replace the earlier profile-0 smoke
+coverage claim; they do not establish full VP9 support.
+
+The baseline's two context-changing resize streams caused firmware H3/timeouts. r10 rejects
+their cross-context references before hardware submission, with no new kernel messages in
+the guarded rerun. The final package also rejects the
+24 previously wrong-output inter-frame-resize streams and one scalable-video stream for
+unavailable references. Correct decoding remains open for all 27 streams. Sixty sub-64-dimension streams hit the
+kernel's minimum; two profile-1 streams are outside advertised formats. Software passes
+88 of the 89 baseline failures; the scalable stream also misses its software checksum.
+
+Next: preserve/reconstruct the reference pictures needed across size changes, investigate
+reference scaling against software, then repeat the exact failing vectors and complete
+suite. Keep firmware-error monitoring enabled and stop on the first new fault. See
+[codec details](CODEC_STATUS.md#vp9-validation-and-remaining-gaps).
 
 ### C3 — Firefox and other machines remain unvalidated
 

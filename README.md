@@ -1,6 +1,6 @@
 # omarchy-m1-video
 
-Hardware video decoding (H.264 and HEVC) for [Omarchy](https://omarchy.org) on Apple Silicon
+Hardware video decoding (H.264, HEVC and VP9) for [Omarchy](https://omarchy.org) on Apple Silicon
 Macs running the Asahi Linux kernel. mpv, Chrome and Chromium decode video on the Mac's built-in
 video decoder (AVD) instead of the CPU.
 
@@ -33,6 +33,8 @@ With the stock `linux-asahi` 7.1.13 AVD driver and `libva-v4l2_request-avd` 1.3:
 | H.264 High 10 needs capability detection and FFmpeg quantizer correction | VA-API driver 1.3.r7, opt-in mode |
 | HEVC `RPS_B_qualcomm_5` has ten wrong pictures with VA reference-slot ordering | VA-API driver 1.3.r8, AVD reference ordering |
 | H.264 accepts incomplete pictures and invalid active references; slice-count arithmetic can overflow | VA-API driver 1.3.r9 |
+| VP9 accepts malformed/incomplete pictures, loses inter-frame colour range and changes persistent state before submission succeeds | VA-API driver 1.3.r10 |
+| Two VP9 resize streams trigger firmware timeouts after decoder-context replacement | VA-API driver 1.3.r10 rejects unavailable references before hardware submission; resize support remains incomplete |
 
 Conformance on an M1 (bit-exact against the reference decoders):
 
@@ -41,9 +43,16 @@ Conformance on an M1 (bit-exact against the reference decoders):
 | HEVC `JCT-VC-HEVC_V1` (147 streams) | 144 serial; 144 with four test processes¹ | 143 |
 | H.264 `JVT-AVC_V1` (135 streams) | 73 | 77 |
 | H.264 FRExt `JVT-FR-EXT` (69 streams) | 25 by default; 27 with High 10 enabled | 35 |
+| VP9 `VP9-TEST-VECTORS` (305 streams) | 216 | Not checked |
+| VP9 high-bit-depth suite, 10-bit 4:2:0 subset (1 stream) | 1 | Not checked |
 
 ¹ The r9 package passed three consecutive four-process runs with no unrelated video clients
 observed. Historical intermittent concurrent mismatches remain open.
+
+The VP9 high-bit-depth result covers only the suite's one 10-bit 4:2:0 stream (10 frames),
+not its five 12-bit or 4:2:2/4:4:4 streams. An additional 384 generated VP9 frame comparisons
+cover 8/10-bit, full/limited range, lossless/lossy and ordinary/early-export paths.
+See [VP9 results and limitations](docs/CODEC_STATUS.md#vp9-validation-and-remaining-gaps).
 
 Software FFmpeg also passes 143 of the HEVC streams, a different set. The H.264 streams that fail
 through VA-API are interlaced (not supported by the kernel driver) or Baseline/Extended profile
@@ -162,6 +171,9 @@ afterwards, or add `IgnorePkg = libva-v4l2_request-avd` to `/etc/pacman.conf`.
   `RPS_B_qualcomm_5`. Historical concurrent failures also include
   `SLIST_B_Sony_9`, `SLIST_D_Sony_9` and `RAP_B_Bossen_2` when four streams decode at once.
   Not seen in real videos so far.
+- **VP9 remains incomplete:** sub-64-pixel dimensions, inter-frame resizing and some scalable-video
+  vectors fail. Version r10 rejects cross-context references in two resize streams before they
+  trigger the firmware timeouts seen with r9. See [codec status](docs/CODEC_STATUS.md).
 - **Firefox hardware decoding is untested.** Validate the normal sandbox before considering
   changes; disabling the RDD sandbox weakens isolation and is not a verified setup step.
 

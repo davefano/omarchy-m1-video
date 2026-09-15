@@ -18,7 +18,7 @@ It does not install or load an out-of-tree module on CI runners.
 
 ## Userspace driver
 
-The companion fork contains `tests/README.md`, a 25-case Meson sanitizer suite and hardware
+The companion fork contains `tests/README.md`, a 29-case Meson sanitizer suite and hardware
 pixel-comparison scripts. Build and test the candidate there before updating
 `libva/PKGBUILD`. Use a commit available from the configured Git source and update the
 package version and `LIBVA_MARKER` together. A release tag is optional; the source commit
@@ -48,7 +48,7 @@ must compare rendered frames, not only decoded checksums.
 
 `apple-avd-rebuild --check-libva` and `--status` return nonzero when the expected userspace
 driver is missing or replaced, or its libva ABI cannot be established or is too new.
-An older driver entry point may load with a newer libva. The exact `1.3.r9` vendor marker
+An older driver entry point may load with a newer libva. The exact `1.3.r10` vendor marker
 is also visible through `vainfo --display drm`; a generic early-export log string is
 insufficient to identify these fixes.
 
@@ -89,3 +89,22 @@ The boundary test sets the accumulated count directly; it checks arithmetic with
 multi-terabyte allocation. Full AVC and FRExt results retain 73/135 and 27/69 respectively
 (High 10 enabled for FRExt), with all five explicit profile overrides still passing.
 See [the r9 record](codec-validation-r9-2026-09-15.json).
+
+## VP9 follow-up (driver 1.3.r10)
+
+Run `sh tests/vp9-matrix.sh /path/to/build/src` from the driver checkout through the lab
+guard. It requires 8/10-bit libvpx-vp9 encoding and FFmpeg development libraries. Eight clips,
+two export paths and 24 output frames per path produce 384 comparisons. Full-range metadata
+and actual 10-bit pixel formats are verified before decoding; software fallback is rejected.
+
+Use `tests/conformance.py` with Fluster's `test_suites/vp9/VP9-TEST-VECTORS.json` for the
+305-vector suite. The `VP9-TEST-VECTORS-HIGH.json` result here selects only
+`--vectors vp92-2-20-10bit-yuv420.webm`; it does not represent all six high-bit-depth vectors.
+Preserve per-vector results and baseline failures, even when rerunning only known passes.
+
+The baseline exposed two firmware timeouts that returned before the outer child deadline.
+In addition to `wedge_monitor`, monitor the kernel journal during each run and abort on new
+AVD errors/timeouts. Check the final journal window too, since a short-lived child can exit
+between monitor polls. The r10 reference fix lets both triggering resize streams reject
+without reaching the bad hardware submission. See [codec status](CODEC_STATUS.md) and
+[the r10 record](codec-validation-r10-2026-09-15.json).
