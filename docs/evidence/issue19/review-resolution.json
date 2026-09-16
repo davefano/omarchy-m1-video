@@ -1,0 +1,25 @@
+{
+  "review_run_id": "20260916-163029-82b30dd8",
+  "review_status": "complete",
+  "reviewed_commit": "aa93ec291ce08298c88a001fb63654859f427c06",
+  "fix_commit": "4dc143ff55bb36ecdb7dd4542e07738190b64530",
+  "applied_findings": [
+    2,
+    6
+  ],
+  "unapplied_actionable_findings": [],
+  "additional_fix": "Reject incompatible ELF machine, type, class and endianness in the installed health helper; pre-existing acceptance reproduced before fix.",
+  "verification": {
+    "provenance_tests": 19,
+    "h264_scanner_tests": 12,
+    "rebuild_suite": "pass",
+    "installer_suite": "pass",
+    "bash_syntax": "pass",
+    "two_package_builds": "35/35 each; complete archives and stripped drivers byte-identical"
+  },
+  "red_evidence": [
+    "Before fix: real ELF __vaDriverInit_1_024 accepted by inspector and schema accepted 00/024 suffixes.",
+    "Before header fix: wrong-machine ELF accepted by check_libva."
+  ],
+  "scope_limit": "Original review receipt covers aa93ec2. Targeted fixes and regression tests were integrated and verified afterward; no claim of another full review."
+}

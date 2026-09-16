@@ -1,18 +1,18 @@
 {
   "build": {
-    "buildinfo_sha256": "9b1d349f5cbfb9d68ac088b531380058226b5fbc9564392aa0530dc450b9f062",
+    "buildinfo_sha256": "7579ed28dc69987db02d967f63dcf6e167dc8975b3794b541f939cc5b0da6a37",
     "inspection_tools": {
       "python": "3.14.7",
       "readelf": "GNU readelf (GNU Binutils) 2.46.0",
-      "script_sha256": "2b903542da9584ee6715d3ac97b17ca21c2da561409631be07df75bb5c629046"
+      "script_sha256": "6c119148d39d27d2124304d7740a19e3f98461fc48547e6a8d0fc8f7e2494f6d"
     },
     "makepkg_config": {
-      "path": "/tmp/issue19-repro-aa93ec2/two/makepkg.conf",
+      "path": "/tmp/issue19-repro-reviewed/two/makepkg.conf",
       "sha256": "ca29dadee21b9f0afae27eb4d699530b0162d531332df7e349cbe44d537ec6f7"
     },
     "metadata": {
       "builddate": [
-        "1789590567"
+        "1789592330"
       ],
       "builddir": [
         "/build"
@@ -1032,7 +1032,7 @@
         "/build"
       ]
     },
-    "pkginfo_sha256": "9c50f0f6a2db8f7b38bedfe6a3299813666febe1fd83c881a2a166dae74d2fbf"
+    "pkginfo_sha256": "ec0942b6246e0148f2f44964f55f48dc1151ddf6217c718ce5c49c0700fd8b93"
   },
   "driver": {
     "elf_machine": "AArch64",
@@ -1101,7 +1101,7 @@
         "link": null,
         "mode": "0o644",
         "path": ".MTREE",
-        "size": 676,
+        "size": 674,
         "type": "file",
         "uid": 0
       },
@@ -1255,7 +1255,7 @@
         "aarch64"
       ],
       "builddate": [
-        "1789590567"
+        "1789592330"
       ],
       "conflict": [
         "libva-v4l2_request"
@@ -1302,7 +1302,7 @@
       ]
     },
     "root_ownership_verified": true,
-    "sha256": "3a5ecffebd4a07219b4e10d49bc7d78c93212de341c43b623eb388ff5ced1969"
+    "sha256": "2801e222b7407b80e1d553bfc6002210ce459f4a054ec9a8a9055ced86da04f2"
   },
   "patches": [
     {
@@ -1373,6 +1373,6 @@
     "driver_commit": "db3014f9499694c6f186af7e023de07bd5bc3564",
     "identity_scope": "Declared source pin in recipe matched by .BUILDINFO hash; build metadata is not authenticated.",
     "pkgbuild_sha256": "2eafd41355e5b235df0ea7191a2adabdf2fcec5795a26b4a911eb4b16628ff83",
-    "repository_commit": "aa93ec291ce08298c88a001fb63654859f427c06"
+    "repository_commit": "4dc143ff55bb36ecdb7dd4542e07738190b64530"
   }
 }
