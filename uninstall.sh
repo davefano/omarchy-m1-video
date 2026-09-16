@@ -7,17 +7,26 @@ shopt -s nullglob
 
 say() { echo "==> $*"; }
 
+SYSROOT=${OMARCHY_M1_VIDEO_SYSROOT:-}
+[[ -z $SYSROOT || $SYSROOT == /* ]] || { echo "==> ERROR: OMARCHY_M1_VIDEO_SYSROOT must be an absolute path" >&2; exit 1; }
+[[ -z $SYSROOT || ${OMARCHY_M1_VIDEO_TEST_MODE:-0} == 1 ]] || \
+	{ echo "==> ERROR: OMARCHY_M1_VIDEO_SYSROOT is only available with OMARCHY_M1_VIDEO_TEST_MODE=1" >&2; exit 1; }
+[[ -z $SYSROOT || $SYSROOT != / ]] || { echo "==> ERROR: refusing to use / as a test sysroot" >&2; exit 1; }
+[[ -z $SYSROOT || -f $SYSROOT/.omarchy-m1-video-test-root ]] || \
+	{ echo "==> ERROR: test sysroot is missing .omarchy-m1-video-test-root" >&2; exit 1; }
+sys() { printf '%s%s' "$SYSROOT" "$1"; }
+
 say "removing the boot service, pacman hooks, rebuild script and patches"
 sudo systemctl disable apple-avd-rebuild.service 2>/dev/null || true
-sudo rm -f /etc/systemd/system/apple-avd-rebuild.service
+sudo rm -f "$(sys /etc/systemd/system/apple-avd-rebuild.service)"
 sudo systemctl daemon-reload
-sudo rm -f /etc/pacman.d/hooks/65-apple-avd-rebuild.hook /etc/pacman.d/hooks/65-apple-avd-libva-check.hook
-sudo rm -f /usr/local/sbin/apple-avd-rebuild
-sudo rm -rf /usr/local/share/apple-avd-patched/patches
-sudo rmdir /usr/local/share/apple-avd-patched 2>/dev/null || true
+sudo rm -f "$(sys /etc/pacman.d/hooks/65-apple-avd-rebuild.hook)" "$(sys /etc/pacman.d/hooks/65-apple-avd-libva-check.hook)"
+sudo rm -f "$(sys /usr/local/sbin/apple-avd-rebuild)"
+sudo rm -rf "$(sys /usr/local/share/apple-avd-patched/patches)"
+sudo rmdir "$(sys /usr/local/share/apple-avd-patched)" 2>/dev/null || true
 
 say "removing patched apple_avd modules"
-for stamp in /usr/lib/modules/*/updates/apple-avd.ko.patched-stamp; do
+for stamp in "$(sys /usr/lib/modules)"/*/updates/apple-avd.ko.patched-stamp; do
 	dir=${stamp%/*}
 	kver=$(basename "$(dirname "$dir")")
 	sudo rm -f "$dir/apple-avd.ko" "$stamp"

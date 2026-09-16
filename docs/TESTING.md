@@ -3,12 +3,24 @@
 ## Offline installer checks
 
 ```sh
-bash -n install.sh uninstall.sh bin/apple-avd-rebuild tests/rebuild.sh
+bash -n install.sh uninstall.sh bin/apple-avd-rebuild tests/rebuild.sh tests/installer.sh
 bash tests/rebuild.sh
+bash tests/installer.sh
 ```
 
 These need Bash, Git's usual Unix utilities and `patch`; they make no package, module or
-system configuration changes. The actual patch-preparation helper runs on synthetic
+system configuration changes. `tests/installer.sh` uses a disposable sysroot and command
+shims to run the real installer and uninstaller through consent, first-install, rerun,
+header-mismatch, dependency/package/system-file/service/rebuild failures, symlink safety and
+repeated uninstall. It also runs the actual rebuild helper through an offline fetch failure.
+The shims reject unexpected privileged commands, and the test asserts that existing modules,
+stamps, unrelated hooks/files and mpv content survive the applicable failure or removal paths.
+
+`OMARCHY_M1_VIDEO_SYSROOT`, gated by `OMARCHY_M1_VIDEO_TEST_MODE=1`, is an integration-test
+seam for system filesystem paths. It must be absolute and is not an installation prefix or a
+supported user option. The root must contain `.omarchy-m1-video-test-root`, and `/` is always
+rejected. Normal runs leave both variables unset and retain the production paths.
+The actual patch-preparation helper runs on synthetic
 ordered patches with upstream prefixes 0, 4, 9 and 15, then an incompatible tree. Mock
 package/driver data exercises build-marker and ABI failures. The installer is invoked
 without the risk flag to verify it exits before installing anything.
