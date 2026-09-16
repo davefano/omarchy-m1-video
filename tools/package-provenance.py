@@ -138,7 +138,7 @@ def inspect_driver(data, marker):
             continue
         _, _, _, kind, binding, visibility, index, name = fields
         if (kind == 'FUNC' and binding in ('GLOBAL', 'WEAK') and visibility in ('DEFAULT', 'PROTECTED')
-                and index != 'UND' and re.fullmatch(r'__vaDriverInit_1_\d+', name)):
+                and index != 'UND' and re.fullmatch(r'__vaDriverInit_1_(0|[1-9][0-9]*)', name)):
             entrypoints.add(name)
     if len(entrypoints) != 1:
         raise ValueError('expected one defined exported VA ABI 1 entrypoint')

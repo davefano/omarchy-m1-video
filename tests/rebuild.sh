@@ -52,9 +52,12 @@ pacman() {
     esac
 }
 # Compile real ELF fixtures: a string or undefined symbol is not an entry point.
+# Set the target machine for static inspection on non-AArch64 test hosts too.
+# These synthetic objects must never be loaded or executed.
 make_driver() {
     printf 'const char marker[] = "%s";\n%s\n' "$LIBVA_MARKER" "$1" >"$work/driver.c"
     cc -shared -fPIC -o "$LIBVA_SO" "$work/driver.c"
+    printf '\267\000' | dd of="$LIBVA_SO" bs=1 seek=18 conv=notrunc status=none
 }
 reject_driver() {
     if check_libva >"$work/check.log" 2>&1; then
@@ -70,6 +73,22 @@ rm "$LIBVA_SO"
 reject_driver 'missing file' 'Run install.sh from omarchy-m1-video again'
 make_driver 'int __vaDriverInit_1_24(void) { return 0; }'
 check_libva >"$work/check.log" 2>&1
+# A matching marker and export cannot make an incompatible ELF loadable.
+for header in machine unknown-machine type unknown-type class unknown-class endian unknown-endian; do
+    make_driver 'int __vaDriverInit_1_24(void) { return 0; }'
+    case "$header" in
+        machine) offset=18; bytes='\076\000' ;;
+        unknown-machine) offset=18; bytes='\000\000' ;;
+        type) offset=16; bytes='\002\000' ;;
+        unknown-type) offset=16; bytes='\000\000' ;;
+        class) offset=4; bytes='\001' ;;
+        unknown-class) offset=4; bytes='\000' ;;
+        endian) offset=5; bytes='\002' ;;
+        unknown-endian) offset=5; bytes='\000' ;;
+    esac
+    printf '%b' "$bytes" | dd of="$LIBVA_SO" bs=1 seek="$offset" conv=notrunc status=none
+    reject_driver "incompatible ELF $header" 'Run install.sh from omarchy-m1-video again'
+done
 make_driver 'int __vaDriverInit_1_23(void) { return 0; }'
 check_libva >"$work/check.log" 2>&1
 make_driver 'int __vaDriverInit_1_25(void) { return 0; }'

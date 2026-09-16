@@ -98,12 +98,26 @@ check_libva() {
 		warn "  It may lack playback and memory-safety fixes. Run install.sh from omarchy-m1-video again after reviewing its installation/boot-risk instructions."
 		failed=1
 	fi
-	# Read the dynamic symbol table without loading the driver. Embedded names,
-	# undefined imports and hidden symbols cannot satisfy libva's dlsym lookup.
-	if ! symbols=$(readelf --dyn-syms --wide "$LIBVA_SO" 2>/dev/null); then
+	# Inspect the ELF header and dynamic symbols without loading the driver.
+	# A usable export also needs the platform's shared-object format.
+	if ! symbols=$(readelf --file-header --dyn-syms --wide "$LIBVA_SO" 2>/dev/null); then
 		warn "cannot inspect VA-API dynamic symbols in $LIBVA_SO; check the driver file and install binutils (readelf)."
+		warn "  Run install.sh from omarchy-m1-video again after reviewing its installation/boot-risk instructions."
 		return 1
 	fi
+	if ! awk '
+		$1 == "Class:" { class = $2 }
+		/Data: +2.s complement, little endian$/ { little = 1 }
+		$1 == "Type:" { type = $2 }
+		$1 == "Machine:" { machine = $2 }
+		END { exit !(class == "ELF64" && little && type == "DYN" && machine == "AArch64") }
+		' <<<"$symbols"; then
+		warn "$LIBVA_SO is not a little-endian ELF64 AArch64 shared object."
+		warn "  Run install.sh from omarchy-m1-video again after reviewing its installation/boot-risk instructions."
+		return 1
+	fi
+	# Embedded names, undefined imports and hidden symbols cannot satisfy
+	# libva's dlsym lookup.
 	have=$(awk '$4 == "FUNC" && ($5 == "GLOBAL" || $5 == "WEAK") &&
 		($6 == "DEFAULT" || $6 == "PROTECTED") && $7 != "UND" &&
 		$8 ~ /^__vaDriverInit_1_(0|[1-9][0-9]*)(@@[^@]+)?$/ {

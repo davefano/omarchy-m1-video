@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Offline archive fixtures; never install or load the generated test ELF."""
 import hashlib
+from contextlib import contextmanager
 import importlib.util
 import io
 import json
@@ -10,6 +11,7 @@ import subprocess
 import tarfile
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('provenance', ROOT / 'tools/package-provenance.py')
@@ -139,6 +141,108 @@ class ProvenanceTest(unittest.TestCase):
         elf[18:20] = struct.pack('<H', 183)
         with self.assertRaisesRegex(ValueError, 'entrypoint'):
             self.manifest(driver=bytes(elf))
+
+    def test_noncanonical_entrypoint_is_rejected(self):
+        source = self.root / 'noncanonical.c'
+        source.write_text('const char marker[] = "v4l2-request (omarchy-m1-video 1.3.r11)";\n'
+                          'int __vaDriverInit_1_024(void) { return 0; }\n')
+        binary = self.root / 'noncanonical.so'
+        subprocess.run(['cc', '-shared', '-fPIC', '-o', str(binary), str(source)], check=True)
+        subprocess.run(['strip', '--strip-unneeded', str(binary)], check=True)
+        elf = bytearray(binary.read_bytes())
+        elf[18:20] = struct.pack('<H', 183)
+        with self.assertRaisesRegex(ValueError, 'entrypoint'):
+            self.manifest(driver=bytes(elf))
+
+    def test_schema_requires_canonical_entrypoints(self):
+        import jsonschema
+        doc = self.manifest()
+        for suffix in ('0', '24'):
+            with self.subTest(suffix=suffix):
+                doc['driver']['entrypoints'] = ['__vaDriverInit_1_' + suffix]
+                self.validate_schema(doc)
+        for suffix in ('00', '024'):
+            with self.subTest(suffix=suffix):
+                doc['driver']['entrypoints'] = ['__vaDriverInit_1_' + suffix]
+                with self.assertRaises(jsonschema.ValidationError):
+                    self.validate_schema(doc)
+
+    @contextmanager
+    def host_environment(self, *, kernel='linux-asahi 7.1.13-1',
+                         headers='linux-asahi-headers 7.1.13-1', module=None, loaded=False):
+        responses = {('pacman', '-Q', 'linux-asahi'): kernel,
+                     ('pacman', '-Q', 'linux-asahi-headers'): headers,
+                     ('modinfo', '-k', 'fixture-release', '-n', 'apple_avd'): module}
+
+        def loaded_module_present(path):
+            self.assertEqual(path, Path('/sys/module/apple_avd'))
+            return loaded
+
+        with mock.patch.object(provenance.platform, 'release', return_value='fixture-release'), \
+                mock.patch.object(provenance, 'optional_command', side_effect=lambda *args: responses[args]), \
+                mock.patch.object(Path, 'is_dir', autospec=True, side_effect=loaded_module_present):
+            yield
+
+    def test_host_kernel_package_versions(self):
+        cases = [('linux-asahi 7.1.13-1', 'linux-asahi-headers 7.1.13-1', True),
+                 ('linux-asahi 7.1.13-1', 'linux-asahi-headers 7.1.14-1', False),
+                 (None, 'linux-asahi-headers 7.1.13-1', None),
+                 ('linux-asahi 7.1.13-1', None, None),
+                 (None, None, None)]
+        for kernel, headers, matches in cases:
+            with self.subTest(kernel=kernel, headers=headers), \
+                    self.host_environment(kernel=kernel, headers=headers):
+                observed = provenance.host_kernel()
+                self.assertEqual(observed['observation'], 'read_only_build_host')
+                self.assertEqual(observed['running_release'], 'fixture-release')
+                self.assertEqual(observed['kernel_package'], kernel)
+                self.assertEqual(observed['headers_package'], headers)
+                self.assertIs(observed['package_versions_match'], matches)
+
+    def test_host_kernel_selected_module_hash(self):
+        module = self.root / 'apple_avd.ko'
+        module.write_bytes(b'selected on-disk module fixture')
+        with self.host_environment(module=str(module)):
+            observed = provenance.host_kernel()
+        self.assertEqual(observed['selected_module'], {
+            'path': str(module), 'sha256': hashlib.sha256(module.read_bytes()).hexdigest(),
+            'identity': 'on_disk_only'})
+        self.assertEqual(observed['loaded_module']['identity'], 'unknown')
+
+    def test_host_kernel_selected_module_hash_failure(self):
+        module = self.root / 'unreadable.ko'
+        module.write_bytes(b'fixture')
+        with self.host_environment(module=str(module)), \
+                mock.patch.object(provenance, 'file_hash', side_effect=PermissionError('unreadable')) as digest:
+            observed = provenance.host_kernel()
+        digest.assert_called_once_with(str(module))
+        self.assertEqual(observed['selected_module'], {
+            'path': str(module), 'sha256': None, 'identity': 'unknown'})
+
+    def test_host_kernel_missing_selected_module(self):
+        for module in (None, str(self.root / 'missing.ko')):
+            with self.subTest(module=module), self.host_environment(module=module), \
+                    mock.patch.object(provenance, 'file_hash') as digest:
+                observed = provenance.host_kernel()
+            digest.assert_not_called()
+            self.assertEqual(observed['selected_module'], {
+                'path': None, 'sha256': None, 'identity': 'unknown'})
+
+    def test_generate_observes_host_without_claiming_loaded_identity(self):
+        module = self.root / 'integration.ko'
+        module.write_bytes(b'integration module fixture')
+        package = self.package()
+        for loaded in (True, False):
+            with self.subTest(loaded=loaded), self.host_environment(module=str(module), loaded=loaded):
+                doc = provenance.generate(self.repo, package, observe_host=True)
+            self.assertEqual(doc['kernel']['observation'], 'read_only_build_host')
+            self.assertEqual(doc['kernel']['running_release'], 'fixture-release')
+            self.assertTrue(doc['kernel']['package_versions_match'])
+            self.assertEqual(doc['kernel']['selected_module']['sha256'], hashlib.sha256(module.read_bytes()).hexdigest())
+            self.assertEqual(doc['kernel']['selected_module']['identity'], 'on_disk_only')
+            self.assertIs(doc['kernel']['loaded_module']['present'], loaded)
+            self.assertEqual(doc['kernel']['loaded_module']['identity'], 'unknown')
+            self.validate_schema(doc)
 
     def test_hardware_hash_and_source_link(self):
         path = self.package()
