@@ -1,0 +1,259 @@
+==> WARNING: PACKAGER should have the format 'Example Name <email@address.invalid>'
+==> Making package: libva-v4l2_request-avd 1.3.r11-2 (Wed Sep 16 20:30:04 2026)
+==> Checking runtime dependencies...
+==> Checking buildtime dependencies...
+==> Retrieving sources...
+==> Validating source files with sha256sums...
+    libva-v4l2_request ... Skipped
+==> Extracting sources...
+  -> Creating working copy of libva-v4l2_request git repo...
+Cloning into 'libva-v4l2_request'...
+done.
+Switched to a new branch 'makepkg'
+==> Starting build()...
+The Meson build system
+Version: 1.12.0
+Source dir: /build/src/libva-v4l2_request
+Build dir: /build/src/build
+Build type: native build
+Project name: libva-v4l2_request
+Project version: 1.3.r11
+C compiler for the host machine: cc (gcc 16.1.1 "cc (GCC) 16.1.1 20260430")
+C linker for the host machine: cc ld.bfd 2.46.0
+Host machine cpu family: aarch64
+Host machine cpu: aarch64
+Found pkg-config: YES (/usr/bin/pkg-config) 3.0.7
+Run-time dependency libva found: YES 1.24.0
+Run-time dependency libdrm found: YES 2.4.134
+Run-time dependency threads found: YES
+Checking if "kernel supports stateless h264" compiles: YES 
+Checking if "kernel supports stateless hevc" compiles: YES 
+Checking if "kernel supports stateless mpeg2" compiles: YES 
+Checking if "kernel supports stateless vp8" compiles: YES 
+Checking if "kernel supports stateless vp9" compiles: YES 
+Checking if "kernel supports stateless av1" compiles: YES 
+Checking whether type "struct v4l2_ctrl_hevc_decode_params" has member "num_delta_pocs_of_ref_rps_idx" : YES 
+Configuring config.h using configuration
+Build targets in project: 8
+
+libva-v4l2_request 1.3.r11
+
+  User defined options
+    buildtype: plain
+    prefix   : /usr
+    wrap_mode: nodownload
+
+Found ninja-1.13.2 at /usr/bin/ninja
+
+Generating targets:   0%|          | 0/8 eta ?
+                                              
+
+Writing build.ninja:   0%|          | 0/164 eta ?
+                                                 
+ninja: Entering directory `/build/src/build'
+[1/135] Compiling C object src/v4l2_request_drv_video.so.p/api.c.o
+[2/135] Compiling C object src/v4l2_request_drv_video.so.p/codec_mpeg2.c.o
+[3/135] Compiling C object src/v4l2_request_drv_video.so.p/buffer.c.o
+[4/135] Compiling C object src/v4l2_request_drv_video.so.p/image.c.o
+[5/135] Compiling C object src/v4l2_request_drv_video.so.p/decode.c.o
+[6/135] Compiling C object src/v4l2_request_drv_video.so.p/handles.c.o
+[7/135] Compiling C object src/v4l2_request_drv_video.so.p/surface.c.o
+[8/135] Compiling C object src/v4l2_request_drv_video.so.p/codec_vp8.c.o
+[9/135] Compiling C object src/v4l2_request_drv_video.so.p/convert.c.o
+[10/135] Compiling C object tests/regression.p/.._src_api.c.o
+[11/135] Compiling C object tests/regression.p/.._src_handles.c.o
+[12/135] Compiling C object src/v4l2_request_drv_video.so.p/driver.c.o
+[13/135] Compiling C object tests/regression.p/.._src_driver.c.o
+[14/135] Compiling C object src/v4l2_request_drv_video.so.p/context.c.o
+[15/135] Compiling C object tests/regression.p/regression.c.o
+[16/135] Compiling C object src/v4l2_request_drv_video.so.p/codec_av1.c.o
+[17/135] Compiling C object tests/regression.p/.._src_buffer.c.o
+[18/135] Compiling C object tests/regression.p/.._src_codec_mpeg2.c.o
+[19/135] Compiling C object tests/regression.p/.._src_decode.c.o
+[20/135] Compiling C object tests/regression.p/.._src_surface.c.o
+[21/135] Compiling C object tests/regression.p/.._src_convert.c.o
+[22/135] Compiling C object tests/regression.p/.._src_codec_vp8.c.o
+[23/135] Compiling C object tests/regression.p/.._src_context.c.o
+[24/135] Compiling C object tests/regression.p/.._src_image.c.o
+[25/135] Compiling C object src/v4l2_request_drv_video.so.p/codec_vp9.c.o
+[26/135] Compiling C object tests/hevc-parser.p/.._src_api.c.o
+[27/135] Compiling C object tests/hevc-parser.p/.._src_handles.c.o
+[28/135] Compiling C object tests/regression.p/.._src_codec_av1.c.o
+[29/135] Compiling C object tests/hevc-parser.p/.._src_driver.c.o
+[30/135] Compiling C object tests/hevc-parser.p/.._src_decode.c.o
+[31/135] Compiling C object tests/hevc-parser.p/.._src_convert.c.o
+[32/135] Compiling C object tests/hevc-parser.p/.._src_buffer.c.o
+[33/135] Compiling C object tests/hevc-parser.p/.._src_codec_mpeg2.c.o
+[34/135] Compiling C object tests/hevc-parser.p/.._src_context.c.o
+[35/135] Compiling C object tests/hevc-parser.p/.._src_surface.c.o
+[36/135] Compiling C object tests/hevc-parser.p/.._src_image.c.o
+[37/135] Compiling C object src/v4l2_request_drv_video.so.p/codec_h264.c.o
+[38/135] Compiling C object tests/hevc-parser.p/.._src_codec_vp8.c.o
+[39/135] Compiling C object tests/hevc-parser.p/.._src_codec_av1.c.o
+[40/135] Compiling C object tests/vp9.p/vp9.c.o
+[41/135] Compiling C object src/v4l2_request_drv_video.so.p/codec_hevc.c.o
+[42/135] Compiling C object tests/vp9.p/.._src_driver.c.o
+[43/135] Compiling C object tests/hevc-parser.p/.._src_codec_vp9.c.o
+[44/135] Compiling C object tests/hevc-parser.p/hevc-parser.c.o
+[45/135] Compiling C object tests/vp9.p/.._src_api.c.o
+[46/135] Compiling C object tests/vp9.p/.._src_handles.c.o
+[47/135] Compiling C object tests/vp9.p/.._src_buffer.c.o
+[48/135] Compiling C object tests/vp9.p/.._src_decode.c.o
+[49/135] Compiling C object tests/regression.p/.._src_codec_vp9.c.o
+[50/135] Compiling C object tests/vp9.p/.._src_codec_mpeg2.c.o
+[51/135] Compiling C object tests/vp9.p/.._src_convert.c.o
+[52/135] Compiling C object tests/vp9.p/.._src_image.c.o
+[53/135] Compiling C object tests/regression.p/.._src_codec_hevc.c.o
+[54/135] Compiling C object tests/vp9.p/.._src_surface.c.o
+[55/135] Compiling C object tests/vp9.p/.._src_codec_vp8.c.o
+[56/135] Compiling C object tests/vp9.p/.._src_context.c.o
+[57/135] Compiling C object tests/hevc-parser.p/.._src_codec_h264.c.o
+[58/135] Compiling C object tests/h264-submission.p/.._src_api.c.o
+[59/135] Compiling C object tests/h264-submission.p/.._src_handles.c.o
+[60/135] Compiling C object tests/vp9.p/.._src_codec_av1.c.o
+[61/135] Compiling C object tests/h264-submission.p/.._src_convert.c.o
+[62/135] Compiling C object tests/h264-submission.p/.._src_context.c.o
+[63/135] Compiling C object tests/h264-submission.p/.._src_buffer.c.o
+[64/135] Compiling C object tests/hevc-parser.p/.._src_codec_hevc.c.o
+[65/135] Compiling C object tests/h264-submission.p/.._src_surface.c.o
+[66/135] Compiling C object tests/h264-submission.p/.._src_decode.c.o
+[67/135] Compiling C object tests/h264-submission.p/.._src_codec_mpeg2.c.o
+[68/135] Compiling C object tests/h264-submission.p/.._src_image.c.o
+[69/135] Compiling C object tests/h264-submission.p/.._src_driver.c.o
+[70/135] Compiling C object tests/h264-submission.p/.._src_codec_vp8.c.o
+[71/135] Compiling C object tests/vp9.p/.._src_codec_vp9.c.o
+[72/135] Compiling C object tests/regression.p/.._src_codec_h264.c.o
+[73/135] Compiling C object tests/h264-parser.p/.._src_api.c.o
+[74/135] Compiling C object tests/h264-submission.p/.._src_codec_av1.c.o
+[75/135] Compiling C object tests/h264-parser.p/.._src_driver.c.o
+[76/135] Compiling C object tests/h264-parser.p/.._src_handles.c.o
+[77/135] Compiling C object tests/h264-parser.p/.._src_convert.c.o
+[78/135] Compiling C object tests/h264-parser.p/.._src_decode.c.o
+[79/135] Compiling C object tests/h264-parser.p/.._src_surface.c.o
+[80/135] Compiling C object tests/h264-parser.p/.._src_buffer.c.o
+[81/135] Compiling C object tests/h264-parser.p/.._src_context.c.o
+[82/135] Compiling C object tests/h264-submission.p/h264-submission.c.o
+[83/135] Compiling C object tests/h264-parser.p/.._src_codec_mpeg2.c.o
+[84/135] Compiling C object tests/h264-parser.p/.._src_image.c.o
+[85/135] Compiling C object tests/h264-parser.p/.._src_codec_vp8.c.o
+[86/135] Compiling C object tests/h264-submission.p/.._src_codec_vp9.c.o
+[87/135] Compiling C object tests/h264-parser.p/.._src_codec_av1.c.o
+[88/135] Compiling C object tests/h264-profile.p/h264-profile.c.o
+[89/135] Compiling C object tests/h264-parser.p/h264-parser.c.o
+[90/135] Compiling C object tests/h264-submission.p/.._src_codec_h264.c.o
+[91/135] Compiling C object tests/h264-profile.p/.._src_api.c.o
+[92/135] Compiling C object tests/h264-profile.p/.._src_handles.c.o
+[93/135] Compiling C object tests/h264-profile.p/.._src_driver.c.o
+[94/135] Compiling C object tests/h264-profile.p/.._src_surface.c.o
+[95/135] Compiling C object tests/h264-profile.p/.._src_convert.c.o
+[96/135] Compiling C object tests/h264-profile.p/.._src_decode.c.o
+[97/135] Compiling C object tests/h264-profile.p/.._src_buffer.c.o
+[98/135] Compiling C object tests/vp9.p/.._src_codec_h264.c.o
+[99/135] Compiling C object tests/h264-profile.p/.._src_codec_mpeg2.c.o
+[100/135] Compiling C object tests/h264-parser.p/.._src_codec_vp9.c.o
+[101/135] Compiling C object tests/h264-profile.p/.._src_image.c.o
+[102/135] Compiling C object tests/h264-profile.p/.._src_codec_vp8.c.o
+[103/135] Compiling C object tests/h264-profile.p/.._src_context.c.o
+[104/135] Compiling C object tests/picture.p/picture.c.o
+[105/135] Compiling C object tests/h264-parser.p/.._src_codec_h264.c.o
+[106/135] Compiling C object tests/picture.p/.._src_api.c.o
+[107/135] Compiling C object tests/h264-profile.p/.._src_codec_av1.c.o
+[108/135] Compiling C object tests/picture.p/.._src_handles.c.o
+[109/135] Compiling C object tests/vp9.p/.._src_codec_hevc.c.o
+[110/135] Compiling C object tests/picture.p/.._src_driver.c.o
+[111/135] Compiling C object tests/picture.p/.._src_context.c.o
+[112/135] Compiling C object tests/picture.p/.._src_buffer.c.o
+[113/135] Compiling C object tests/picture.p/.._src_convert.c.o
+[114/135] Compiling C object tests/picture.p/.._src_image.c.o
+[115/135] Compiling C object tests/picture.p/.._src_codec_mpeg2.c.o
+[116/135] Compiling C object tests/picture.p/.._src_decode.c.o
+[117/135] Compiling C object tests/picture.p/.._src_codec_vp8.c.o
+[118/135] Compiling C object tests/picture.p/.._src_surface.c.o
+[119/135] Linking target src/v4l2_request_drv_video.so
+[120/135] Linking target tests/regression
+[121/135] Compiling C object tests/h264-parser.p/.._src_codec_hevc.c.o
+[122/135] Linking target tests/hevc-parser
+[123/135] Linking target tests/vp9
+[124/135] Linking target tests/h264-parser
+[125/135] Compiling C object tests/h264-profile.p/.._src_codec_hevc.c.o
+[126/135] Compiling C object tests/h264-submission.p/.._src_codec_hevc.c.o
+[127/135] Linking target tests/h264-submission
+[128/135] Compiling C object tests/h264-profile.p/.._src_codec_h264.c.o
+[129/135] Compiling C object tests/picture.p/.._src_codec_av1.c.o
+[130/135] Compiling C object tests/h264-profile.p/.._src_codec_vp9.c.o
+[131/135] Linking target tests/h264-profile
+[132/135] Compiling C object tests/picture.p/.._src_codec_vp9.c.o
+[133/135] Compiling C object tests/picture.p/.._src_codec_h264.c.o
+[134/135] Compiling C object tests/picture.p/.._src_codec_hevc.c.o
+[135/135] Linking target tests/picture
+INFO: autodetecting backend as ninja
+INFO: calculating backend command to run: /usr/bin/ninja -C /build/src/build
+==> Starting check()...
+ninja: Entering directory `/build/src/build'
+ninja: no work to do.
+ 1/35 libva-v4l2_request:decode-error               OK              0.02s
+ 2/35 libva-v4l2_request:submission-error           OK              0.02s
+ 3/35 libva-v4l2_request:export-error               OK              0.02s
+ 4/35 libva-v4l2_request:reader-timeout             OK              0.01s
+ 5/35 libva-v4l2_request:flush-error                OK              0.00s
+ 6/35 libva-v4l2_request:reuse-timeout              OK              0.03s
+ 7/35 libva-v4l2_request:refwait-timeout            OK              0.02s
+ 8/35 libva-v4l2_request:export-timeout             OK              0.02s
+ 9/35 libva-v4l2_request:image-dimensions           OK              0.02s
+10/35 libva-v4l2_request:odd-image-copy             OK              0.02s
+11/35 libva-v4l2_request:image-bounds               OK              0.02s
+12/35 libva-v4l2_request:buffer-zero                OK              0.01s
+13/35 libva-v4l2_request:context-lifetime           OK              0.01s
+14/35 libva-v4l2_request:context-error              OK              0.02s
+15/35 libva-v4l2_request:output-grown               OK              0.01s
+16/35 libva-v4l2_request:context-timeout            OK              0.02s
+17/35 libva-v4l2_request:request-timeout            OK              0.02s
+18/35 libva-v4l2_request:bitstream-overflow         OK              0.01s
+19/35 libva-v4l2_request:derive-bounds              OK              0.01s
+20/35 libva-v4l2_request:hevc-parser                OK              0.01s
+21/35 libva-v4l2_request:invalid-poll               OK              0.02s
+22/35 libva-v4l2_request:vp9-malformed              OK              0.02s
+23/35 libva-v4l2_request:vp9-state                  OK              0.01s
+24/35 libva-v4l2_request:h264-incomplete            OK              0.01s
+25/35 libva-v4l2_request:h264-slice-count           OK              0.01s
+26/35 libva-v4l2_request:h264-references            OK              0.01s
+27/35 libva-v4l2_request:vp9-references             OK              0.02s
+28/35 libva-v4l2_request:h264-profile               OK              0.01s
+29/35 libva-v4l2_request:picture-render-errors      OK              0.01s
+30/35 libva-v4l2_request:h264-parser                OK              0.01s
+31/35 libva-v4l2_request:picture-begin-errors       OK              0.01s
+32/35 libva-v4l2_request:picture-target-lifetime    OK              0.01s
+33/35 libva-v4l2_request:picture-reference-owner    OK              0.01s
+34/35 libva-v4l2_request:picture-context-parameters OK              0.00s
+35/35 libva-v4l2_request:vp9-parser                 OK              0.06s
+
+Ok:                35  
+Fail:              0   
+
+Full log written to /build/src/build/meson-logs/testlog.txt
+==> Entering fakeroot environment...
+==> WARNING: PACKAGER should have the format 'Example Name <email@address.invalid>'
+==> Starting package()...
+ninja: Entering directory `/build/src/build'
+ninja: no work to do.
+Installing src/v4l2_request_drv_video.so to /build/pkg/libva-v4l2_request-avd/usr/lib/dri
+==> Tidying install...
+  -> Removing libtool files...
+  -> Purging unreproducible ruby files...
+  -> Removing static library files...
+  -> Purging unwanted files...
+  -> Stripping unneeded symbols from binaries and libraries...
+  -> Compressing man and info pages...
+==> Checking for packaging issues...
+==> WARNING: Package contains reference to $srcdir
+usr/share/doc/libva-v4l2_request-avd/tests/README.md
+usr/share/doc/libva-v4l2_request-avd/README.md
+usr/share/doc/libva-v4l2_request-avd/README
+==> Creating package "libva-v4l2_request-avd"...
+  -> Generating .PKGINFO file...
+  -> Generating .BUILDINFO file...
+  -> Adding install file...
+  -> Generating .MTREE file...
+  -> Compressing package...
+==> Leaving fakeroot environment.
+==> Finished making: libva-v4l2_request-avd 1.3.r11-2 (Wed Sep 16 20:30:14 2026)

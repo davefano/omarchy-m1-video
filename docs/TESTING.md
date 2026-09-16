@@ -163,7 +163,7 @@ identity, commands, per-vector results and offline evidence.
 
 `tools/reproduce-package.sh NEW_OUTPUT_DIRECTORY` builds the pinned driver twice on
 an aarch64 Arch host with `base-devel`, Git, Meson, libdrm, libva, Python and Bubblewrap
-already available. It downloads a source mirror, then builds without network access in
+already available (Python 3.11 or newer). It downloads a source mirror, then builds without network access in
 separate disposable writable trees, with the same `/build` path, `SOURCE_DATE_EPOCH`,
 locale and copied makepkg configuration. `/usr`, `/etc` and the pacman database are
 read-only. It neither installs the resulting packages nor opens a decoder.
