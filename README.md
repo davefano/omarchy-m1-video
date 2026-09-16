@@ -15,6 +15,12 @@ See the [roadmap and ticket index](docs/ROADMAP.md) for planned codec, reliabili
 client/display and release work across both repositories. Agents and contributors should
 read the [claim and execution workflow](docs/AGENT_WORKFLOW.md) before taking a ticket.
 
+## Contributing and reporting
+
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) for repository ownership, offline checks
+and PR evidence. Use [SECURITY.md](SECURITY.md) for suspected vulnerabilities, and
+[maintenance and handoff](docs/MAINTENANCE.md) for triage, review and release decisions.
+
 ## What it fixes
 
 With the stock `linux-asahi` 7.1.13 AVD driver and `libva-v4l2_request-avd` 1.3:
