@@ -4,6 +4,7 @@
 [Trigger]
 Operation = Install
 Operation = Upgrade
+Operation = Remove
 Type = Package
 Target = libva-v4l2_request-avd
 Target = libva

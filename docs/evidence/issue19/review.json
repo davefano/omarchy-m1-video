@@ -1,0 +1,205 @@
+{
+  "status": "complete",
+  "verdict": "Ready with fixes",
+  "verdict_reason": "Two confirmed P2 findings: reject noncanonical initializer names (#2), then cover host observation (#6). No P0/P1 findings or unresolved gates remain.",
+  "scope": {
+    "base": "05a9a0b5d414e4ed29f84abc7a2f799e3f33c9d3",
+    "branch": "agent/19-package-provenance",
+    "head_sha": "aa93ec291ce08298c88a001fb63654859f427c06",
+    "pr_url": null,
+    "files_changed": 10
+  },
+  "intent": "Automate offline package provenance and kernel compatibility checks for issue19: trace source, recipe, package and stripped driver; validate ownership/aliases/dependency bounds and real ELF entrypoints; repeat disposable builds and fail wrong or unknown installed ABI states. Retain r11 source and support claims, and distinguish on-disk next-load identity from loaded-module provenance.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "maintainability",
+    "security",
+    "reliability",
+    "adversarial-claude"
+  ],
+  "findings": [
+    {
+      "#": 2,
+      "autofix_class": "gated_auto",
+      "confidence": 100,
+      "evidence": [
+        "tools/package-provenance.py:141 --                 and index != 'UND' and re.fullmatch(r'__vaDriverInit_1_\\d+', name)):",
+        "At aa93ec2, the validator reproduced package acceptance and check_libva rejection of the same ELF fixture with mocked libva 2.24.1-1; Python 3.14.7, Bash 5.3.15, readelf 2.46.0."
+      ],
+      "file": "tools/package-provenance.py",
+      "first_evidence": "tools/package-provenance.py:141 --                 and index != 'UND' and re.fullmatch(r'__vaDriverInit_1_\\d+', name)):",
+      "independent_reviewers": [
+        "correctness"
+      ],
+      "line": 141,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "correctness"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Use __vaDriverInit_1_(0|[1-9][0-9]*) in the inspector and schema; add a real ELF fixture exporting only __vaDriverInit_1_024 and assert rejection.",
+      "title": "Reject noncanonical entrypoint names during package inspection",
+      "why_it_matters": "A stripped driver exporting only __vaDriverInit_1_024 passes package inspection but fails the installed health check. Converting 024 to an integer hides the invalid symbol spelling.",
+      "validation_status": "confirmed",
+      "protected_subject": "public-contract"
+    },
+    {
+      "#": 6,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "tools/package-provenance.py:184 -- def host_kernel():",
+        "At aa93ec2, successful generation tests set observe_host=False at tests/package-provenance-test.py:78,148,152,158; CLI negative tests fail before host observation."
+      ],
+      "file": "tools/package-provenance.py",
+      "first_evidence": "tools/package-provenance.py:184 -- def host_kernel():",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 184,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Mock command and filesystem boundaries to test matching/mismatching/missing kernel and header packages, selected-module hashing and hash failure, loaded/absent module state, and generate(..., observe_host=True) integration.",
+      "title": "Host observation path has no behavioral coverage",
+      "why_it_matters": "The new kernel/header and module-identity evidence path has no behavioral tests. Regressions in version matching, module hashing or loaded-state reporting would escape the suite; no incorrect current host report was established.",
+      "validation_status": "confirmed",
+      "protected_subject": null
+    }
+  ],
+  "actionable_findings": [
+    {
+      "#": 2,
+      "autofix_class": "gated_auto",
+      "confidence": 100,
+      "evidence": [
+        "tools/package-provenance.py:141 --                 and index != 'UND' and re.fullmatch(r'__vaDriverInit_1_\\d+', name)):",
+        "At aa93ec2, the validator reproduced package acceptance and check_libva rejection of the same ELF fixture with mocked libva 2.24.1-1; Python 3.14.7, Bash 5.3.15, readelf 2.46.0."
+      ],
+      "file": "tools/package-provenance.py",
+      "first_evidence": "tools/package-provenance.py:141 --                 and index != 'UND' and re.fullmatch(r'__vaDriverInit_1_\\d+', name)):",
+      "independent_reviewers": [
+        "correctness"
+      ],
+      "line": 141,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "correctness"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Use __vaDriverInit_1_(0|[1-9][0-9]*) in the inspector and schema; add a real ELF fixture exporting only __vaDriverInit_1_024 and assert rejection.",
+      "title": "Reject noncanonical entrypoint names during package inspection",
+      "why_it_matters": "A stripped driver exporting only __vaDriverInit_1_024 passes package inspection but fails the installed health check. Converting 024 to an integer hides the invalid symbol spelling.",
+      "validation_status": "confirmed",
+      "protected_subject": "public-contract"
+    },
+    {
+      "#": 6,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "tools/package-provenance.py:184 -- def host_kernel():",
+        "At aa93ec2, successful generation tests set observe_host=False at tests/package-provenance-test.py:78,148,152,158; CLI negative tests fail before host observation."
+      ],
+      "file": "tools/package-provenance.py",
+      "first_evidence": "tools/package-provenance.py:184 -- def host_kernel():",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 184,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Mock command and filesystem boundaries to test matching/mismatching/missing kernel and header packages, selected-module hashing and hash failure, loaded/absent module state, and generate(..., observe_host=True) integration.",
+      "title": "Host observation path has no behavioral coverage",
+      "why_it_matters": "The new kernel/header and module-identity evidence path has no behavioral tests. Regressions in version matching, module hashing or loaded-state reporting would escape the suite; no incorrect current host report was established.",
+      "validation_status": "confirmed",
+      "protected_subject": null
+    }
+  ],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "The disposable AArch64/bubblewrap build is syntax-checked in CI; target build execution remains manual."
+  ],
+  "testing_gaps": [
+    "Package rejection fixtures do not cover invalid required-member types or sizes, unstripped ELF, multiple initializers, or incorrect provides/conflicts."
+  ],
+  "coverage": {
+    "depth": "full",
+    "reviewer_reasons": {
+      "correctness": "always-on",
+      "project-standards": "root AGENTS.md fallback applies",
+      "testing": "changed offline fixtures and CI",
+      "maintainability": "442 executable non-test changed lines and new tooling",
+      "security": "user-supplied archive parsing and disposable build isolation",
+      "reliability": "health checks and failure behavior"
+    },
+    "standards": "Root AGENTS.md instruction-file fallback; no governing CODING_STANDARDS.md.",
+    "suppressed_by_confidence": {
+      "50": 3
+    },
+    "mode_aware_demotions": 1,
+    "first_evidence_backfilled": 0,
+    "first_evidence_demoted": 0,
+    "malformed_findings": 0,
+    "malformed_returns": 0,
+    "failed_reviewers": [],
+    "compound_packs": {
+      "roots": [],
+      "warnings": [],
+      "errors": []
+    },
+    "peer_outcome": "folded",
+    "peer": "Cross-model adversarial pass completed via claude; model_requested=claude-opus-5; effort_requested=high; receipt_supported=true; model_actual=claude-opus-5; effort_actual=unverified; independence_verified=true.",
+    "validator": {
+      "outcome": "verdicts received within bound",
+      "confirmed": 2,
+      "rejected": 2,
+      "unresolved": 0,
+      "malformed": 0,
+      "failed": 0,
+      "shortcut_skipped": 0,
+      "shortcut_basis": "No retained candidate had qualifying independent local-plus-peer corroboration; caller evidence did not qualify.",
+      "rejections": [
+        {
+          "#": 1,
+          "reason": "The claimed authorization guarantee contradicts the identity-only contract at aa93ec2 tools/package-provenance.py:215-218,234,237-238; citations independently checked."
+        },
+        {
+          "#": 3,
+          "reason": "Validator reproduced identical acceptance at base 05a9a0b5 and aa93ec2; read-only history inspection confirms unchanged pre-existing behavior."
+        }
+      ],
+      "protected_subject_reclassifications": []
+    },
+    "notes": [
+      "No source edits, installs, module operations or hardware tests performed by this review.",
+      "Review is frozen to the ten implementation files at aa93ec2; supporting docs/evidence/issue19/ and later evidence commit 68fc61a are outside that diff.",
+      "Settlement suppression was not evaluated because no plan was discovered.",
+      "Agent-native, learnings, performance, API-contract, migration, prior-comments and frontend/iOS lenses were not selected because no applicable surface was evidenced.",
+      "The former #2/#3 triage group was removed after #3 was rejected."
+    ]
+  },
+  "artifact_path": "/tmp/compound-engineering-1001/ce-code-review/20260916-163029-82b30dd8",
+  "run_id": "20260916-163029-82b30dd8"
+}

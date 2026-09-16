@@ -7,7 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: bash -n install.sh uninstall.sh bin/apple-avd-rebuild tests/rebuild.sh tests/installer.sh libva/PKGBUILD libva/libva-v4l2_request-avd.install
+      - run: bash -n install.sh uninstall.sh bin/apple-avd-rebuild tests/rebuild.sh tests/installer.sh libva/PKGBUILD libva/libva-v4l2_request-avd.install tools/reproduce-package.sh
       - run: bash tests/rebuild.sh
       - run: bash tests/installer.sh
       - run: python3 tests/h264-interlace-scan-test.py
+      - run: python3 -m pip install jsonschema==4.25.1
+      - run: python3 tests/package-provenance-test.py

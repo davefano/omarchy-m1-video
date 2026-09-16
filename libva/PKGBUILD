@@ -16,16 +16,16 @@
 
 pkgname=libva-v4l2_request-avd
 pkgver=1.3.r11
-pkgrel=1
+pkgrel=2
 _commit=db3014f9499694c6f186af7e023de07bd5bc3564
 pkgdesc='VA-API driver for V4L2 stateless decoders, with Apple Video Decoder (AVD) fixes (omarchy-m1-video)'
 arch=('aarch64')
 url='https://github.com/iconidentify/libva-v4l2_request'
 license=('GPL-3.0-or-later')
 # dlopen()ed plugin: links only libc and exports the versioned VA backend entry
-# point, so it needs a rebuild whenever libva's driver ABI changes (the pacman
-# hook from omarchy-m1-video warns about that).
-depends=('glibc' 'libva')
+# point. Older entrypoints work with newer libva minors; the package bounds
+# and omarchy-m1-video pacman hook reject unsupported combinations.
+depends=('glibc' 'libva>=2.24' 'libva<3')
 makedepends=('git' 'meson' 'libdrm')
 provides=('libva-v4l2_request')
 conflicts=('libva-v4l2_request')
@@ -47,6 +47,13 @@ check() {
 }
 
 package() {
+  # libva's package version is 2.x while its backend ABI is 1.x. Record
+  # the build headers' minimum loader version, including on future rebuilds.
+  local va_api
+  va_api=$(pkg-config --modversion libva)
+  [[ $va_api =~ ^1\.([0-9]+)\.[0-9]+$ ]] || return 1
+  depends=('glibc' "libva>=2.${BASH_REMATCH[1]}" 'libva<3')
+
   meson install -C build --destdir "$pkgdir"
 
   # libva picks its driver from the DRM driver name of the render node, which on

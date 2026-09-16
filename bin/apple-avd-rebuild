@@ -84,33 +84,67 @@ tag_for_pkgver() {
 patchset_id() { cat "${PATCHES[@]}" | sha256sum | cut -c1-12; }
 
 check_libva() {
-	local ver libva_ver libva_minor have have_minor failed=0
+	local ver libva_ver libva_minor symbols have have_minor symbol compatible=0 failed=0
 	ver=$(pacman -Q libva-v4l2_request-avd 2>/dev/null || echo "libva-v4l2_request-avd (not installed)")
 	if [[ ! -f $LIBVA_SO ]]; then
 		warn "$LIBVA_SO missing ($ver); there is no hardware video decoding."
+		warn "  Run install.sh from omarchy-m1-video again after reviewing its installation/boot-risk instructions."
 		return 1
 	fi
 	if grep -aFq "$LIBVA_MARKER" "$LIBVA_SO"; then
 		say "VA-API driver: $ver"
 	else
 		warn "$ver does not contain the expected omarchy-m1-video 1.3.r11 build marker."
-		warn "  It may lack playback and memory-safety fixes. Run install.sh from omarchy-m1-video again."
+		warn "  It may lack playback and memory-safety fixes. Run install.sh from omarchy-m1-video again after reviewing its installation/boot-risk instructions."
 		failed=1
 	fi
-	# libva looks for its own __vaDriverInit_1_<minor> and older ones, so only a
-	# driver built for a newer libva than the installed one fails to load.
-	libva_ver=$(pacman -Q libva 2>/dev/null | awk '{print $2}')
-	libva_minor=$(cut -d. -f2 <<<"${libva_ver#*:}")
-	have=$(grep -aoE '__vaDriverInit_1_[0-9]+' "$LIBVA_SO" | head -1)
-	have_minor=${have##*_}
+	# Inspect the ELF header and dynamic symbols without loading the driver.
+	# A usable export also needs the platform's shared-object format.
+	if ! symbols=$(readelf --file-header --dyn-syms --wide "$LIBVA_SO" 2>/dev/null); then
+		warn "cannot inspect VA-API dynamic symbols in $LIBVA_SO; check the driver file and install binutils (readelf)."
+		warn "  Run install.sh from omarchy-m1-video again after reviewing its installation/boot-risk instructions."
+		return 1
+	fi
+	if ! awk '
+		$1 == "Class:" { class = $2 }
+		/Data: +2.s complement, little endian$/ { little = 1 }
+		$1 == "Type:" { type = $2 }
+		$1 == "Machine:" { machine = $2 }
+		END { exit !(class == "ELF64" && little && type == "DYN" && machine == "AArch64") }
+		' <<<"$symbols"; then
+		warn "$LIBVA_SO is not a little-endian ELF64 AArch64 shared object."
+		warn "  Run install.sh from omarchy-m1-video again after reviewing its installation/boot-risk instructions."
+		return 1
+	fi
+	# Embedded names, undefined imports and hidden symbols cannot satisfy
+	# libva's dlsym lookup.
+	have=$(awk '$4 == "FUNC" && ($5 == "GLOBAL" || $5 == "WEAK") &&
+		($6 == "DEFAULT" || $6 == "PROTECTED") && $7 != "UND" &&
+		$8 ~ /^__vaDriverInit_1_(0|[1-9][0-9]*)(@@[^@]+)?$/ {
+			sub(/@@.*/, "", $8); print $8
+		}' <<<"$symbols")
 	if [[ -z $have ]]; then
-		warn "$LIBVA_SO exports no VA-API entry point; run install.sh again."
-		failed=1
-	elif [[ ! $libva_minor =~ ^[0-9]+$ ]]; then
-		warn "cannot determine the installed libva version; check the libva package."
-		failed=1
-	elif [[ $have_minor -gt $libva_minor ]]; then
-		warn "the VA-API driver was built for a newer libva than $libva_ver; run install.sh again."
+		warn "$LIBVA_SO exports no supported VA-API entry point; run install.sh from omarchy-m1-video again after reviewing its installation/boot-risk instructions."
+		return 1
+	fi
+	# libva 2.x uses driver ABI 1.x and searches its own minor then older
+	# versions. Other package major versions are unknown, not assumed compatible.
+	libva_ver=$(pacman -Q libva 2>/dev/null | awk '{print $2}')
+	if [[ ! ${libva_ver#*:} =~ ^2\.([0-9]+)\.[0-9]+(-[0-9]+(\.[0-9]+)*)?$ ]]; then
+		warn "cannot determine a supported installed libva ABI from '$libva_ver'; check the libva package before rebuilding the driver."
+		return 1
+	fi
+	libva_minor=${BASH_REMATCH[1]}
+	while IFS= read -r symbol; do
+		have_minor=${symbol##*_}
+		# Decimal strings come from ELF data; compare with awk to avoid shell
+		# arithmetic overflow or octal interpretation of unusual symbol names.
+		if awk -v have="$have_minor" -v installed="$libva_minor" 'BEGIN { exit !(have <= installed) }'; then
+			compatible=1
+		fi
+	done <<<"$have"
+	if [[ $compatible == 0 ]]; then
+		warn "the VA-API driver was built for a newer libva than $libva_ver; update libva and the driver together or rebuild the driver against the installed libva."
 		failed=1
 	fi
 	return "$failed"
@@ -122,6 +156,11 @@ status() {
 	say "module selected for the next load: $(modinfo -n apple_avd 2>/dev/null || echo missing)"
 	# modinfo resolves the module on disk; it cannot identify which binary
 	# an already-loaded module came from after a rebuild.
+	if [[ -d $(sys /sys/module/apple_avd) ]]; then
+		say "loaded module binary identity: unknown (the selected on-disk file does not identify an already-loaded binary)"
+	else
+		say "loaded module binary identity: not loaded"
+	fi
 	while read -r k pv; do
 		tag=$(tag_for_pkgver "$pv")
 		stamp=$(cat "$(sys "/usr/lib/modules/$k/updates/$STAMP")" 2>/dev/null || echo "none (stock module)")

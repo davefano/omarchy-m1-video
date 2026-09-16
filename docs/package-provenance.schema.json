@@ -1,0 +1,598 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "enum": [
+        "package_inspection",
+        "historical_record"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "repository_commit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "dirty": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "dirty_paths": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "driver_commit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "pkgbuild_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "identity_scope": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "repository_commit",
+        "dirty",
+        "dirty_paths",
+        "driver_commit",
+        "pkgbuild_sha256",
+        "identity_scope"
+      ],
+      "additionalProperties": false
+    },
+    "patches": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "package": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "root_ownership_verified": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "members": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "uid": {
+                    "const": 0
+                  },
+                  "gid": {
+                    "const": 0
+                  },
+                  "mode": {
+                    "type": "string"
+                  },
+                  "size": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "type": {
+                    "enum": [
+                      "file",
+                      "directory",
+                      "symlink"
+                    ]
+                  },
+                  "link": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "path",
+                  "uid",
+                  "gid",
+                  "mode",
+                  "size",
+                  "type",
+                  "link"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "file",
+        "sha256",
+        "metadata",
+        "root_ownership_verified",
+        "members"
+      ],
+      "additionalProperties": false
+    },
+    "build": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "metadata": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "makepkg_config": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "sha256"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "pkginfo_sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "buildinfo_sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "inspection_tools": {
+              "type": "object",
+              "properties": {
+                "python": {
+                  "type": "string"
+                },
+                "readelf": {
+                  "type": "string"
+                },
+                "script_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "python",
+                "readelf",
+                "script_sha256"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "metadata",
+            "makepkg_config",
+            "pkginfo_sha256",
+            "buildinfo_sha256",
+            "inspection_tools"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "driver": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "const": "usr/lib/dri/v4l2_request_drv_video.so"
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "stripped": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "marker": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "entrypoints": {
+          "anyOf": [
+            {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1,
+              "items": {
+                "type": "string",
+                "pattern": "^__vaDriverInit_1_(0|[1-9][0-9]*)$"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "elf_machine": {
+          "enum": [
+            "AArch64",
+            null
+          ]
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "stripped",
+        "marker",
+        "entrypoints",
+        "elf_machine"
+      ],
+      "additionalProperties": false
+    },
+    "kernel": {
+      "type": "object",
+      "properties": {
+        "observation": {
+          "enum": [
+            "not_observed",
+            "read_only_build_host",
+            "historical_record"
+          ]
+        },
+        "running_release": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kernel_package": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "headers_package": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "package_versions_match": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "selected_module": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "identity": {
+              "enum": [
+                "unknown",
+                "on_disk_only"
+              ]
+            }
+          },
+          "required": [
+            "path",
+            "sha256",
+            "identity"
+          ],
+          "additionalProperties": false
+        },
+        "loaded_module": {
+          "type": "object",
+          "properties": {
+            "present": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "identity": {
+              "const": "unknown"
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "present",
+            "identity",
+            "reason"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "observation",
+        "running_release",
+        "kernel_package",
+        "headers_package",
+        "package_versions_match",
+        "selected_module",
+        "loaded_module"
+      ],
+      "additionalProperties": false
+    },
+    "hardware_evidence": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "enum": [
+            "not_provided",
+            "matched_driver_and_source",
+            "not_matched",
+            "historical_record"
+          ]
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "driver_hash_matches": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "source_commit_matches": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "scope": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "path",
+        "sha256",
+        "driver_hash_matches",
+        "source_commit_matches",
+        "scope"
+      ],
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "source",
+    "patches",
+    "package",
+    "build",
+    "driver",
+    "kernel",
+    "hardware_evidence",
+    "limitations"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/iconidentify/omarchy-m1-video/blob/main/docs/package-provenance.schema.json",
+  "title": "Package provenance and historical evidence normalization, version 1",
+  "description": "Null means unavailable or unobserved. Package metadata and supplied hardware evidence are not independently authenticated.",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "package_inspection"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "source": {
+            "properties": {
+              "repository_commit": {
+                "type": "string"
+              },
+              "dirty": {
+                "type": "boolean"
+              },
+              "dirty_paths": {
+                "type": "array"
+              },
+              "driver_commit": {
+                "type": "string"
+              },
+              "pkgbuild_sha256": {
+                "type": "string"
+              }
+            }
+          },
+          "patches": {
+            "type": "array"
+          },
+          "build": {
+            "type": "object"
+          },
+          "package": {
+            "properties": {
+              "file": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string"
+              },
+              "metadata": {
+                "type": "object"
+              },
+              "members": {
+                "type": "array"
+              },
+              "root_ownership_verified": {
+                "const": true
+              }
+            }
+          },
+          "driver": {
+            "properties": {
+              "sha256": {
+                "type": "string"
+              },
+              "stripped": {
+                "const": true
+              },
+              "marker": {
+                "type": "string"
+              },
+              "entrypoints": {
+                "type": "array"
+              },
+              "elf_machine": {
+                "const": "AArch64"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
