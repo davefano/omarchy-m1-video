@@ -1,0 +1,2032 @@
+{
+  "date": "2026-09-16",
+  "method": "Offline prefix scan; no decoder access",
+  "scanner_sha256": "32005c479cf4ab7513d1e4941cb7ddab9e8f00cb804da3c734d37211ad748d66",
+  "vectors": {
+    "AUD_MW_E": {
+      "input_sha256": "173b75a2883f3208894877549362f118721f45633bf08007396703ef2c358987",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 100,
+        "idr_slices": 4,
+        "parsed": 100,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "BA1_FT_C": {
+      "input_sha256": "1bd3abeea6a5612602556a455cd2c59f235cba23e09a1a5556641296324c0bb7",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 614,
+        "idr_slices": 15,
+        "parsed": 614,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "BA1_Sony_D": {
+      "input_sha256": "90c84dee7e57151b80918e4b81910d33885fba2ce131fa119e1753c1892086fc",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "BA2_Sony_F": {
+      "input_sha256": "ea4d6cc823bb931b22fb4f5947745d0d0829cd79eca72209bb990b890afded0a",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 1,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "BA3_SVA_C": {
+      "input_sha256": "f21e84fb480d24d1d912cc61d6487afd4f05b9a4956536313715a5741e3b695b",
+      "profile_idc": 88,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 33,
+        "idr_slices": 1,
+        "parsed": 33,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "BAMQ1_JVC_C": {
+      "input_sha256": "3cb7ccaf39846b1e6a5de48580461427f7e96ad563918d4f9c85c8133da5d1f9",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "BAMQ2_JVC_C": {
+      "input_sha256": "7f251c556b17b26c1117ab30effb40867552ec3ace16a2c6262ae486d699b4e4",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "BANM_MW_D": {
+      "input_sha256": "5f370f414beadadc7bb8a5c4c7a410924fda0ae2e7c31037932b961418279231",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 100,
+        "idr_slices": 4,
+        "parsed": 100,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "BASQP1_Sony_C": {
+      "input_sha256": "14cf421b985e0e5f62ac01129ea56c343a9804a13d4bd16122916a3315e6b71c",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 80,
+        "idr_slices": 20,
+        "parsed": 80,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "BA_MW_D": {
+      "input_sha256": "47c59fbe8de6edad04457b8b412579d10cf6ecf87393f252cb2493f9c20dca32",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 100,
+        "idr_slices": 4,
+        "parsed": 100,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CABA1_SVA_B": {
+      "input_sha256": "2c1319be664863d68bf22c26ccfff417b7eeca1d8d6360f1862b5b3aa4c24c0a",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CABA1_Sony_D": {
+      "input_sha256": "eade82fff74fba464a7fbd89bd455b867877a6dce657f2f438e3a06662582cec",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 50,
+        "idr_slices": 1,
+        "parsed": 50,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CABA2_SVA_B": {
+      "input_sha256": "31fbacc6c673226cd8300613cd1826714adf1dc467165870952c3568c2e0a011",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CABA2_Sony_E": {
+      "input_sha256": "cc57f355f300338b345631ac828d28bc5423f6b155e198d7cf027547c84d5d22",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 1,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CABA3_SVA_B": {
+      "input_sha256": "dd84719d9049ba58dd168c523d9636cc3334268c291a75978630b652b3a3bf30",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 33,
+        "idr_slices": 1,
+        "parsed": 33,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CABA3_Sony_C": {
+      "input_sha256": "79bf1a6779d8e56047956e1d9344e456c01c89e277f22e084f042482ff6116be",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 1,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CABA3_TOSHIBA_E": {
+      "input_sha256": "5051192d0fa49c938048791a31b8de7110b5f0d2b1ceb791b57bcc172572e813",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 1,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CABACI3_Sony_B": {
+      "input_sha256": "ef4c266b8478b6fdad06dd1d15299888ecc42c68ab5e1b6162e5c9d3fdbb781e",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 1200,
+        "idr_slices": 4,
+        "parsed": 1200,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CABAST3_Sony_E": {
+      "input_sha256": "8a4dcf13bacda58d7a208879b2e2a096b28f5530481040253b5959921bc5f8f1",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 100,
+        "idr_slices": 4,
+        "parsed": 100,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CABASTBR3_Sony_B": {
+      "input_sha256": "b2da637b6447340e8a63764bee20a49c255e2b59a9520ce45a303a5402752177",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 100,
+        "idr_slices": 4,
+        "parsed": 100,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CABREF3_Sand_D": {
+      "input_sha256": "93ff63a7f042abd81c7d1895d7e33ee7cd7264e493891752087c0f126e412cc9",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 100,
+        "idr_slices": 1,
+        "parsed": 100,
+        "field_slices": 100,
+        "bottom_field_slices": 50,
+        "parse_errors": 0
+      }
+    },
+    "CACQP3_Sony_D": {
+      "input_sha256": "fb0dbedc8ce0bdfaf66e820068829bd8c5cd917e5058281c61b72955080cfbd9",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 50,
+        "idr_slices": 1,
+        "parsed": 50,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAFI1_SVA_C": {
+      "input_sha256": "e29f14280edf5d10ad9857efc43114d829ed692dd156abf61bd68b2ab8f43d37",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 66,
+        "idr_slices": 1,
+        "parsed": 66,
+        "field_slices": 66,
+        "bottom_field_slices": 33,
+        "parse_errors": 0
+      }
+    },
+    "CAMA1_Sony_C": {
+      "input_sha256": "db49b84b320b2cc87c6ef9daaf1653c492fae113299c9eaf8ed62155d2c937bf",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 5,
+        "idr_slices": 1,
+        "parsed": 5,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAMA1_TOSHIBA_B": {
+      "input_sha256": "554a13ca140965b1e3401a90a4726dad5dcd374f8978f8b24a96f2430c9365cc",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 90,
+        "idr_slices": 1,
+        "parsed": 90,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAMA3_Sand_E": {
+      "input_sha256": "fea7da11585932184dbf804bf8aad22c7e34cda2369496a2588e19ab8dcd8b9a",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 50,
+        "idr_slices": 1,
+        "parsed": 50,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAMACI3_Sony_C": {
+      "input_sha256": "07baf951ecf6a9c8381311056dd1c4ccd152cea836c16ce1643f88e4848295cc",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAMANL1_TOSHIBA_B": {
+      "input_sha256": "6a3505d67742e761ad56fcfa8cd4ecf6c13ca8452e726fe35ae701dda6b2f460",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 90,
+        "idr_slices": 1,
+        "parsed": 90,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAMANL2_TOSHIBA_B": {
+      "input_sha256": "67ec3c3c36748125aefe35844e2418e7915afdc3218f56677a4fa9b6de2af6b7",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 90,
+        "idr_slices": 1,
+        "parsed": 90,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAMANL3_Sand_E": {
+      "input_sha256": "7a60ca81fdd59d6a27219fdc884dce33ac8fcd94004ef7f30153767f35d6be6e",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 50,
+        "idr_slices": 1,
+        "parsed": 50,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAMASL3_Sony_B": {
+      "input_sha256": "189dfeebe2f864507787cd7cb9c307e96dd2cf25cc77a018c64f4edc2b495fc2",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 68,
+        "idr_slices": 4,
+        "parsed": 68,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAMP_MOT_MBAFF_L30": {
+      "input_sha256": "8b53b14b28c52dc0b9c5a61ad3bf9e38a857750233873868ea336cfe48cc7161",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAMP_MOT_MBAFF_L31": {
+      "input_sha256": "ecf283ed5c6b60a80fcabbf33f8c8b107eadd991890a3e44fd22bad3e88f5889",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CANL1_SVA_B": {
+      "input_sha256": "40f9ea2fca09e08b0486c53eafd43bf064c3b488276f74ff96a1afcd414332d4",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CANL1_Sony_E": {
+      "input_sha256": "13b760dc501f7da7b692b6c428eb3f0a9e8f4772175aeed188afc18f7d27d04c",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 50,
+        "idr_slices": 1,
+        "parsed": 50,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CANL1_TOSHIBA_G": {
+      "input_sha256": "63a405361ae25276b6adcc00afc2e8f17d537e2b34bb96285ca6eea5d3c87489",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 1,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CANL2_SVA_B": {
+      "input_sha256": "d757f31c2546cbe222df728536765d7c162dcd71eb30279c1be8a5785a135dc3",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CANL2_Sony_E": {
+      "input_sha256": "b16bc6b910c0457194eec86a62aeb39ea70190d45b8159fdbad0f4248c25e1cc",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 1,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CANL3_SVA_B": {
+      "input_sha256": "ca3248a00e4a7ae20cd03c31f4fb32a3ef9865430d1af53dc9cf734d7fb6904a",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CANL3_Sony_C": {
+      "input_sha256": "15e0d13ee6631ab750271fffe1102fd2946cf53c7a54fee54d728de66b98f15e",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 1,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CANL4_SVA_B": {
+      "input_sha256": "617f57d8efeb240145d3cf891085d81040a3f87624713122b22ddc09b2e93742",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 33,
+        "idr_slices": 1,
+        "parsed": 33,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CANLMA2_Sony_C": {
+      "input_sha256": "df797af98b7335d985c7c20197e61ece3a5d4e9c43cfbca9d4535c443551199f",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CANLMA3_Sony_C": {
+      "input_sha256": "141bdf642d55421d3111c80dca838c9ab302763fa1d185d3fb5158280e9998d1",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAPA1_TOSHIBA_B": {
+      "input_sha256": "aa102d2b94fe48304d6cafbfe8b0427312853e079083e351470983149c1b8a6c",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 138,
+        "idr_slices": 1,
+        "parsed": 138,
+        "field_slices": 96,
+        "bottom_field_slices": 48,
+        "parse_errors": 0
+      }
+    },
+    "CAPAMA3_Sand_F": {
+      "input_sha256": "a6490cfa63b5a3a8ce7e0a9d64af5dc2b32a1e66d2f0630bbcb182dceeef336c",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 79,
+        "idr_slices": 1,
+        "parsed": 79,
+        "field_slices": 58,
+        "bottom_field_slices": 29,
+        "parse_errors": 0
+      }
+    },
+    "CAPCM1_Sand_E": {
+      "input_sha256": "02a3931287a0dfbf5cc5d95aaf95817b7c6c5791e665fc2a37c75abe211a5a25",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAPCMNL1_Sand_E": {
+      "input_sha256": "5ccbbf7529ef54e169faf03a838a4aaed5e228685c3d93a831da07c3735077df",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAPM3_Sony_D": {
+      "input_sha256": "547cdfa56597adf715bc55cde3fcf1cf31cebe2dfa9272a6901d76768ea45d11",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 1,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAQP1_Sony_B": {
+      "input_sha256": "0bba43b35aa2369f4f766f9621b5fdd9fd36dc1911601d20b0f53f302cc5f49c",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 50,
+        "idr_slices": 1,
+        "parsed": 50,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAWP1_TOSHIBA_E": {
+      "input_sha256": "d3c060da31a63e435bd6fcd8f6d8f8bdb2af1ae912cc29ade39d4f9042874326",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 90,
+        "idr_slices": 1,
+        "parsed": 90,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CAWP5_TOSHIBA_E": {
+      "input_sha256": "6989abb80de85749862c33f6db57417f780aeab5214dd5544ff7794a0da96f1f",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 90,
+        "idr_slices": 1,
+        "parsed": 90,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CI1_FT_B": {
+      "input_sha256": "900f033372ebd2f7b621a708eea82494b5a635140e5563a989ed9b824282fea6",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 549,
+        "idr_slices": 14,
+        "parsed": 549,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CI_MW_D": {
+      "input_sha256": "d773df1155183b9bcd01292c7f4dc4348732071b240f4fcc1bc871a0d41ff15b",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 100,
+        "idr_slices": 4,
+        "parsed": 100,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVBS3_Sony_C": {
+      "input_sha256": "cda3fd657ff71f143a53e3c41e2dd2326b8c4ab550503449dd3dabeaae646ebd",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 1,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVCANLMA2_Sony_C": {
+      "input_sha256": "699b0395f7b55c41b79e1b3d31507bf73d169fb46b1e5552787f5f6756589932",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVFC1_Sony_C": {
+      "input_sha256": "c8a1bc3e646d31cab9abaac3474769cf0fe134767ca53f9f88d9a3c272bb2ab3",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 200,
+        "idr_slices": 4,
+        "parsed": 200,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVFI1_SVA_C": {
+      "input_sha256": "ca8ce1ed0a82f3404b16811b1a482bfdbe03dcc246effe1ca83b2669a38fa8a6",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 14,
+        "idr_slices": 1,
+        "parsed": 14,
+        "field_slices": 14,
+        "bottom_field_slices": 7,
+        "parse_errors": 0
+      }
+    },
+    "CVFI1_Sony_D": {
+      "input_sha256": "dd90b73308db2e3c5cfd4a4e98dac088fd02938cd37ac49deda55dc7b894c2fa",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 238,
+        "idr_slices": 7,
+        "parsed": 238,
+        "field_slices": 238,
+        "bottom_field_slices": 119,
+        "parse_errors": 0
+      }
+    },
+    "CVFI2_SVA_C": {
+      "input_sha256": "3708bf1db5f7fbe00668775389536a8df85a2bc8f52e20f7494af46345e60e82",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 26,
+        "idr_slices": 1,
+        "parsed": 26,
+        "field_slices": 26,
+        "bottom_field_slices": 13,
+        "parse_errors": 0
+      }
+    },
+    "CVFI2_Sony_H": {
+      "input_sha256": "75f0a9326f9bb22928316db6326355b14dc0be235d87fed63e7c887eff024406",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 238,
+        "idr_slices": 7,
+        "parsed": 238,
+        "field_slices": 238,
+        "bottom_field_slices": 119,
+        "parse_errors": 0
+      }
+    },
+    "CVMA1_Sony_D": {
+      "input_sha256": "f5268668039ae7bf115702643a0dabe11d94b752288afb245a0ab1caf34c73eb",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 5,
+        "idr_slices": 1,
+        "parsed": 5,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVMA1_TOSHIBA_B": {
+      "input_sha256": "2e5af580fdeb99b2ae7cae616bd75a1c32353590a889f190bd435880711b33ce",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 90,
+        "idr_slices": 1,
+        "parsed": 90,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVMANL1_TOSHIBA_B": {
+      "input_sha256": "22342adae9a2c629aca85f348f76b5852b4f2cc17b1bc212546fd4102b0d37c4",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 90,
+        "idr_slices": 1,
+        "parsed": 90,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVMANL2_TOSHIBA_B": {
+      "input_sha256": "8cfb15cf5571fc18e8d025f260b6e8101454392cd5121be436e80265a362d79d",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 90,
+        "idr_slices": 1,
+        "parsed": 90,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVMAPAQP3_Sony_E": {
+      "input_sha256": "8a4bc3e7b291d405a2c2102e1147f53495d5af3e2fc3a3878c83e549bc63fc10",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 14,
+        "idr_slices": 1,
+        "parsed": 14,
+        "field_slices": 12,
+        "bottom_field_slices": 6,
+        "parse_errors": 0
+      }
+    },
+    "CVMAQP2_Sony_G": {
+      "input_sha256": "785ba74a2a60efce6c081d8ac0001e13d1db8cd7ec1c83c8f7bfc47c27ec7d4d",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVMAQP3_Sony_D": {
+      "input_sha256": "05edde53c10f651a0e214ded4e00d67e9df95cb9e660aab25dec3db80b9bf091",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVMP_MOT_FLD_L30_B": {
+      "input_sha256": "9fa4178d0695cd5508d8523f4f6a614a0091df5c8cbddd338c591ba7ed1523b7",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 60,
+        "idr_slices": 1,
+        "parsed": 60,
+        "field_slices": 60,
+        "bottom_field_slices": 30,
+        "parse_errors": 0
+      }
+    },
+    "CVMP_MOT_FRM_L31_B": {
+      "input_sha256": "707f7d4e56d925df950e8e6958cf7c22a2f37aa52a5113f2dc6023877632a475",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 60,
+        "idr_slices": 1,
+        "parsed": 60,
+        "field_slices": 60,
+        "bottom_field_slices": 30,
+        "parse_errors": 0
+      }
+    },
+    "CVNLFI1_Sony_C": {
+      "input_sha256": "a3b1f8eb0b271987edacc7b8f1447794032d2e74fc946cac089233ddb9a47cf6",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 238,
+        "idr_slices": 7,
+        "parsed": 238,
+        "field_slices": 238,
+        "bottom_field_slices": 119,
+        "parse_errors": 0
+      }
+    },
+    "CVNLFI2_Sony_H": {
+      "input_sha256": "448ea665fe7f81f1d2d76a53e75b34448d09d7df0c1c40ee154f85cd0e625468",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 238,
+        "idr_slices": 7,
+        "parsed": 238,
+        "field_slices": 238,
+        "bottom_field_slices": 119,
+        "parse_errors": 0
+      }
+    },
+    "CVPA1_TOSHIBA_B": {
+      "input_sha256": "23c2b3299efed3475956b0f7e6a098387ceba1cf3f0b17aff8906daadaf09dc3",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 138,
+        "idr_slices": 1,
+        "parsed": 138,
+        "field_slices": 96,
+        "bottom_field_slices": 48,
+        "parse_errors": 0
+      }
+    },
+    "CVPCMNL1_SVA_C": {
+      "input_sha256": "6d8dee9086d4cedaa255c0c40fa61165fc9dd56d2bbec16b0bfed6f1f1d33f0c",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVPCMNL2_SVA_C": {
+      "input_sha256": "d9def347076d58aa17ce2b5ba14cf00bfcf3378f8b8c2f0b61db29f69eb846fc",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 2,
+        "idr_slices": 1,
+        "parsed": 2,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVSE2_Sony_B": {
+      "input_sha256": "f10009500cef910947b3e9f0369f27c44a1de2f966a5c75d852a1c8d70e2cfa7",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 278,
+        "idr_slices": 1,
+        "parsed": 278,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVSE3_Sony_H": {
+      "input_sha256": "abe5743d9ee4e94fed9f203b6eaec147a0654c865407dd1b27a18917f141f827",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 278,
+        "idr_slices": 1,
+        "parsed": 278,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVSEFDFT3_Sony_E": {
+      "input_sha256": "4ddecf869f616f49ef5a8cac725479082b834bf496357f47f6da7e214954a444",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 200,
+        "idr_slices": 1,
+        "parsed": 200,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVWP1_TOSHIBA_E": {
+      "input_sha256": "a2cbf860dd8e15fd66cdda72ba37cb81c378b49fe7439200f9c2c9c1ec9f2dbb",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 90,
+        "idr_slices": 1,
+        "parsed": 90,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVWP2_TOSHIBA_E": {
+      "input_sha256": "6b2b6205398d2cfebbee5708c4d4d8c67bb56cd4991f1cc4d90836a14215e257",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 90,
+        "idr_slices": 1,
+        "parsed": 90,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVWP3_TOSHIBA_E": {
+      "input_sha256": "1ad8b8dcb156dbd3bf050ce0c3cee0334a27f1b8a5d494fd5ce6b96db0eacfb8",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 90,
+        "idr_slices": 1,
+        "parsed": 90,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "CVWP5_TOSHIBA_E": {
+      "input_sha256": "3ed038ac27d66283049b15da0aa9c62e042eb39d057d65dc3e5ded2a18fecc22",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 90,
+        "idr_slices": 1,
+        "parsed": 90,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "FI1_Sony_E": {
+      "input_sha256": "bb23c948562ff4da94baf70daeec531403345d866ebed885eb394831f9f21caf",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 34,
+        "idr_slices": 1,
+        "parsed": 34,
+        "field_slices": 34,
+        "bottom_field_slices": 17,
+        "parse_errors": 0
+      }
+    },
+    "FM1_BT_B": {
+      "input_sha256": "0d55226469e9515a4b80a086f3f419e9407ce452422b7afc3c04220f9cbe2568",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 1687,
+        "idr_slices": 5,
+        "parsed": 1687,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "FM1_FT_E": {
+      "input_sha256": "09c66ef606be137cb001fd6f806deabdc493ce5a06469ed8ce6ae8811ce8fade",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 582,
+        "idr_slices": 7,
+        "parsed": 582,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "FM2_SVA_C": {
+      "input_sha256": "f36f1435af82ac64cb5ba27f48da05b9878ca1d2aac4725712216255ae824220",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 85,
+        "idr_slices": 5,
+        "parsed": 85,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "HCBP1_HHI_A": {
+      "input_sha256": "80e9ee581f7fc90d1e17eacc3dadf5aa9456eeb671362ae7a509c1c9fb87c273",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 250,
+        "idr_slices": 1,
+        "parsed": 250,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "HCBP2_HHI_A": {
+      "input_sha256": "9a2789b2b2f9d6f6dd2781dd2f2a0a27064c815d6c0e534860dfaaaab0a46273",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 250,
+        "idr_slices": 1,
+        "parsed": 250,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "HCMP1_HHI_A": {
+      "input_sha256": "f9bf6d36a7250dd86cf325cd458e92f3319236dcde075000e70f73028f05111a",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 250,
+        "idr_slices": 1,
+        "parsed": 250,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "LS_SVA_D": {
+      "input_sha256": "f11195ecadf83dde3a6774fc072c2f1f07528b5f23f1ae0f61569f661962ae79",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 1700,
+        "idr_slices": 1,
+        "parsed": 1700,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "MIDR_MW_D": {
+      "input_sha256": "b39ba07a9734328a61d23ebc798ce32a17d6a88290d92501e94e5da731ba2a49",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 100,
+        "idr_slices": 2,
+        "parsed": 100,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "MPS_MW_A": {
+      "input_sha256": "f35413b51c427cc549779961209ca75c56e5e23614f88d27a10e7d66c3db6056",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 150,
+        "idr_slices": 5,
+        "parsed": 150,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "MR1_BT_A": {
+      "input_sha256": "20dc67331c81adcf40048bb37357883a69b3ab002b0927e599f43d86be9c3d8b",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 171,
+        "idr_slices": 4,
+        "parsed": 171,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "MR1_MW_A": {
+      "input_sha256": "d441f223c9dff05da43645cd5539eec21e8aef2684160040b61faf799f7f3b1f",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 150,
+        "idr_slices": 10,
+        "parsed": 150,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "MR2_MW_A": {
+      "input_sha256": "90b75468443485a893702b1349ce116a2e75e20f92df7d5bf8aca63b7ad2533c",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 7,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "MR2_TANDBERG_E": {
+      "input_sha256": "24d95632d3adff1808f391402d2bae4f111dd051c1187b915701c2201f995254",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 1,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "MR3_TANDBERG_B": {
+      "input_sha256": "05614f0c5c3b169d3520eb297796edb5227a2c7bcf84a1bfd15bbae42210fabc",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 1,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "MR4_TANDBERG_C": {
+      "input_sha256": "22c7460de21aa0b3ec68d2eb9e5ea712597e781c2e90940ed9c23803073d35e0",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 1,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "MR5_TANDBERG_C": {
+      "input_sha256": "d0749c59e6e34c607dac9aca210f470003947b64db6cdc5c3237ce9f53bfef93",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 1,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "MR6_BT_B": {
+      "input_sha256": "6b7fc0b3e6d57d7b5f58286c1fb4f5afb2324cc21e6d1c9ee9a846471fc21ae8",
+      "profile_idc": 88,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 120,
+        "idr_slices": 1,
+        "parsed": 120,
+        "field_slices": 120,
+        "bottom_field_slices": 60,
+        "parse_errors": 0
+      }
+    },
+    "MR7_BT_B": {
+      "input_sha256": "8d66aae5033474155599b4cd7f06da9ef7977d89e3ccc2a23d364e1e772e3f27",
+      "profile_idc": 88,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 66,
+        "idr_slices": 1,
+        "parsed": 66,
+        "field_slices": 12,
+        "bottom_field_slices": 6,
+        "parse_errors": 0
+      }
+    },
+    "MR8_BT_B": {
+      "input_sha256": "8ea256bd662006f28284e7485e9e71706fc036284a021873dec7d42d6eec986e",
+      "profile_idc": 88,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 116,
+        "idr_slices": 1,
+        "parsed": 116,
+        "field_slices": 116,
+        "bottom_field_slices": 58,
+        "parse_errors": 0
+      }
+    },
+    "MR9_BT_B": {
+      "input_sha256": "dd2712e64c602bfd5b79b1eff6ac9ed5826bd3619b0d70653850768ab95c4817",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 64,
+        "idr_slices": 1,
+        "parsed": 64,
+        "field_slices": 12,
+        "bottom_field_slices": 6,
+        "parse_errors": 0
+      }
+    },
+    "MV1_BRCM_D": {
+      "input_sha256": "5dc8e06bb1730033dd1ef06e88994704f1f30662a9229df5105bf78b0c29622b",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 257,
+        "idr_slices": 1,
+        "parsed": 257,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "NL1_Sony_D": {
+      "input_sha256": "125f334b98af2609b481d9c2d34a2b855d0ced981145c8021618c5f10cb864e5",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "NL2_Sony_H": {
+      "input_sha256": "5a4666b7269291f1d22d4190cfb9d327f818b212cdbc0c8e83d037f05d52a58c",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 300,
+        "idr_slices": 1,
+        "parsed": 300,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "NL3_SVA_E": {
+      "input_sha256": "1fbaf6149a8d346cba7968de3c09604e883a35c4b0e494d7353a135f1631a987",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 33,
+        "idr_slices": 1,
+        "parsed": 33,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "NLMQ1_JVC_C": {
+      "input_sha256": "5e84ad3a0dc3f5b7578a38d3b1c6cc70e051b7eeba183104a690f8d0700557e5",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "NLMQ2_JVC_C": {
+      "input_sha256": "9ef3595fbf4604d8d2189fe75d76c619b2d4c0f313d3cdbe05422068476906ee",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "NRF_MW_E": {
+      "input_sha256": "02e5b0f3e018a998adcd4cfbeed184298a1c8e0cf27ef4f16bcf780b23a03c00",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 100,
+        "idr_slices": 4,
+        "parsed": 100,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "SL1_SVA_B": {
+      "input_sha256": "47cdb0ded4dab7f41d8fdda4e76d7d01d38a5b58d8ac57e44e93b389bf107158",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 99,
+        "idr_slices": 3,
+        "parsed": 99,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "SP1_BT_A": {
+      "input_sha256": "2126d0489811e0bae6c3fd751506f883a673f9ecf1e4687d2cc1fbf791f6223f",
+      "profile_idc": 88,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 400,
+        "idr_slices": 1,
+        "parsed": 400,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "SVA_BA1_B": {
+      "input_sha256": "67c74b563820b3da6bda325dd2b37a957e9573429715464debe9b0d98d35636f",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "SVA_BA2_D": {
+      "input_sha256": "b7212b4610f8e64f7c894bbd70e48786061decaadbab623209c93ff061899a67",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "SVA_Base_B": {
+      "input_sha256": "e33d00e0e9358b118f152250b848e26f8d995a7bb06748e9f21f2f3cdd5c33e2",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 51,
+        "idr_slices": 3,
+        "parsed": 51,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "SVA_CL1_E": {
+      "input_sha256": "81fc3e69b2ed52204d77473175593fa2fa0128a0c8736dc91a3bfd8d80b3b43d",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 150,
+        "idr_slices": 3,
+        "parsed": 150,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "SVA_FM1_E": {
+      "input_sha256": "a997221bc0f056175ecc71d4d3e612ded7d460f8b5d8ff4f0b7648924f4e87f8",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 51,
+        "idr_slices": 3,
+        "parsed": 51,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "SVA_NL1_B": {
+      "input_sha256": "8ff7ef385325e54e5f383eb652d82436b3c5dbac6d76a39c8ce1bb6793e24d46",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "SVA_NL2_E": {
+      "input_sha256": "006daffa233010b1abc20f8368ff773ae96f1860cedc66e0a07e125a401f2cba",
+      "profile_idc": 66,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 17,
+        "idr_slices": 1,
+        "parsed": 17,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "Sharp_MP_Field_1_B": {
+      "input_sha256": "19f22b627c6da7d075efc552c0b0d04429375f4ac7317b357175684d7c91ca19",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 30,
+        "bottom_field_slices": 15,
+        "parse_errors": 0
+      }
+    },
+    "Sharp_MP_Field_2_B": {
+      "input_sha256": "0800f039c62966dfe89c07c0e3a0f250918e0a7d7a6731f267b9cb3031e41470",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 30,
+        "bottom_field_slices": 15,
+        "parse_errors": 0
+      }
+    },
+    "Sharp_MP_Field_3_B": {
+      "input_sha256": "27e7e304c8298481270087b67c22e2ed8abd07d406b63c061e85ae50b1f570e6",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 30,
+        "bottom_field_slices": 15,
+        "parse_errors": 0
+      }
+    },
+    "Sharp_MP_PAFF_1r2": {
+      "input_sha256": "541df810a033d64a2706d25cc335b80d562041af586f3f622d2d1d79566bd588",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 23,
+        "idr_slices": 1,
+        "parsed": 23,
+        "field_slices": 16,
+        "bottom_field_slices": 8,
+        "parse_errors": 0
+      }
+    },
+    "Sharp_MP_PAFF_2r": {
+      "input_sha256": "930856ab505cff7680353601c02b0fbf4e55800974065f7e90cebb9d8adf58cb",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 23,
+        "idr_slices": 1,
+        "parsed": 23,
+        "field_slices": 16,
+        "bottom_field_slices": 8,
+        "parse_errors": 0
+      }
+    },
+    "cabac_mot_fld0_full": {
+      "input_sha256": "2ff34d3b7fa25106dda248350730de340beeb32c94ed2028eb610dfeea377499",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 60,
+        "idr_slices": 1,
+        "parsed": 60,
+        "field_slices": 60,
+        "bottom_field_slices": 30,
+        "parse_errors": 0
+      }
+    },
+    "cabac_mot_frm0_full": {
+      "input_sha256": "36e1188ae32f0ffe764921d9471390687a7b07481d18b4d9fca4450c17116fac",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "cabac_mot_mbaff0_full": {
+      "input_sha256": "9c6ba659900a635da5a93e0bb68325fdea77db90ec8fcb4b19d9a54cad6e539e",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "cabac_mot_picaff0_full": {
+      "input_sha256": "cdf09622b0879240864f1258dd3ae0a0fe03690028780d4be834f528ecdade83",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 45,
+        "idr_slices": 1,
+        "parsed": 45,
+        "field_slices": 30,
+        "bottom_field_slices": 15,
+        "parse_errors": 0
+      }
+    },
+    "cama1_vtc_c": {
+      "input_sha256": "e70ea27b1a543f0ab021636398aa912a796a7d1ef4ce444cea73c74cb38d365c",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 5,
+        "idr_slices": 1,
+        "parsed": 5,
+        "field_slices": 2,
+        "bottom_field_slices": 1,
+        "parse_errors": 0
+      }
+    },
+    "cama2_vtc_b": {
+      "input_sha256": "f0ccd58dc44d8d8a8163fb21466cb19e63b6d4cce53be382329c4d60dcad6cd4",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 5,
+        "idr_slices": 1,
+        "parsed": 5,
+        "field_slices": 2,
+        "bottom_field_slices": 1,
+        "parse_errors": 0
+      }
+    },
+    "cama3_vtc_b": {
+      "input_sha256": "8b7bc245e3465c90906f395076def7c97057df606c00ab5194b6e9402fb0953f",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 5,
+        "idr_slices": 1,
+        "parsed": 5,
+        "field_slices": 2,
+        "bottom_field_slices": 1,
+        "parse_errors": 0
+      }
+    },
+    "cavlc_mot_fld0_full_B": {
+      "input_sha256": "3dd58a1be9fd9b800f0dec163c0bce19c8c9021cadb23824c1da5de1f0b9681f",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 60,
+        "idr_slices": 1,
+        "parsed": 60,
+        "field_slices": 60,
+        "bottom_field_slices": 30,
+        "parse_errors": 0
+      }
+    },
+    "cavlc_mot_frm0_full_B": {
+      "input_sha256": "d21e49a4f174a6933015ff2ecd94886d2ee5b5ebcf7cf1350ec7a97249e7bd77",
+      "profile_idc": 77,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "cavlc_mot_mbaff0_full_B": {
+      "input_sha256": "91d8e29a16e7cab22797d384dbdbd30643e4f8284866c3a81e2aabdb45f5c97b",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 1,
+      "complete": true,
+      "slices": {
+        "slice_nals": 30,
+        "idr_slices": 1,
+        "parsed": 30,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    },
+    "cavlc_mot_picaff0_full_B": {
+      "input_sha256": "872fbc427c37e13c5c9fd49e6094f1cc59a3074226e687d225fa417dedd28ab6",
+      "profile_idc": 77,
+      "frame_mbs_only": 0,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 45,
+        "idr_slices": 1,
+        "parsed": 45,
+        "field_slices": 30,
+        "bottom_field_slices": 15,
+        "parse_errors": 0
+      }
+    },
+    "sp2_bt_b": {
+      "input_sha256": "6482a8a5a7f1c1600ed291dca5be8417b88dd4c6d47aa724afde17eafabe43bf",
+      "profile_idc": 88,
+      "frame_mbs_only": 1,
+      "mbaff_enabled": 0,
+      "complete": true,
+      "slices": {
+        "slice_nals": 400,
+        "idr_slices": 1,
+        "parsed": 400,
+        "field_slices": 0,
+        "bottom_field_slices": 0,
+        "parse_errors": 0
+      }
+    }
+  }
+}

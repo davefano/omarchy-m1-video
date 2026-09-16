@@ -10,3 +10,4 @@ jobs:
       - run: bash -n install.sh uninstall.sh bin/apple-avd-rebuild tests/rebuild.sh tests/installer.sh libva/PKGBUILD libva/libva-v4l2_request-avd.install
       - run: bash tests/rebuild.sh
       - run: bash tests/installer.sh
+      - run: python3 tests/h264-interlace-scan-test.py
