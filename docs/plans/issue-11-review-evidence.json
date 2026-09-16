@@ -1,0 +1,13 @@
+{
+  "kernel_commit": "94fb23346d522edf53722357c426a3e58030beea",
+  "date": "2026-09-16",
+  "method": "Read-only pinned source review; no hardware or kernel mutation",
+  "sha256": {
+    "avd-v4l2.c": "2d1c3fc727d0427fcc0147c8f6f24367dfeb0851838bc093559a9c0630503c53",
+    "avd-vp9.c": "065e2343426559569b44aa39d16a7ff2bd780e65003874093fddc17b9c07e1a4",
+    "avd-drv.c": "134264a2c7ed8779077ff3ee9e8e733c2cddb5cc1b6e3d4def673e40b87083ca",
+    "videobuf2-core.c": "86222aaa61047a3ac9ecefec2f1ed4a9c3392026120009c59e862767c4618228",
+    "hantro_vp9.c": "a901cdfacaa5d9acce7f64d8d9fea136f9432a3b47bbb200cf170f3ae424ebe3",
+    "hantro_v4l2.c": "3aec3d5d523c310256370ef06036b529ed3b719897d29b15df789e7789c40ef6"
+  }
+}
