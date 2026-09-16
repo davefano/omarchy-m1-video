@@ -9,6 +9,12 @@ video decoder (AVD) instead of the CPU.
 > the code it patches. Please don't report problems with this setup to Asahi Linux or other
 > upstream projects: open an issue here instead.
 
+## Development roadmap
+
+See the [roadmap and ticket index](docs/ROADMAP.md) for planned codec, reliability,
+client/display and release work across both repositories. Agents and contributors should
+read the [claim and execution workflow](docs/AGENT_WORKFLOW.md) before taking a ticket.
+
 ## What it fixes
 
 With the stock `linux-asahi` 7.1.13 AVD driver and `libva-v4l2_request-avd` 1.3:

@@ -8,6 +8,11 @@ This is a development validation record, not a claim that every video or boot is
 The codec follow-up adds opt-in High 10 and stronger conformance checks. See
 [CODEC_STATUS.md](CODEC_STATUS.md) for the verified gains, workarounds and remaining causes.
 
+
+Implementation planning, ownership and blockers live in the [roadmap and ticket index](ROADMAP.md).
+The evidence and limitations below remain the criteria for support claims; opening or closing a
+research ticket does not itself fix a codec or prove boot stability.
+
 ## Closed in the userspace driver and installer
 
 | Gap | Change | Verification |
@@ -62,6 +67,8 @@ validated on the M1.
 
 ### H1 — unexplained resets shortly after boot (high priority)
 
+Tracked work: [Investigate unexplained boot resets with a consented, reproducible test matrix](https://github.com/iconidentify/omarchy-m1-video/issues/13), [Correct the identified reset cause before qualifying boot-enabled installation](https://github.com/iconidentify/omarchy-m1-video/issues/17).
+
 Two boots on 2026-09-14 reset with patches 0001–0005 loaded at boot. Their journals record
 module loading but no saved AVD panic/oops before ending. The second boot's PMU report says
 one boot error and zero panics. `/sys/fs/pstore` was empty when inspected on 2026-09-15.
@@ -75,6 +82,8 @@ module unload. Follow [recovery instructions](../README.md#if-the-mac-freezes-or
 No automatic reboot or module reload is part of this audit.
 
 ### H2 — remaining HEVC reference-picture corruption (high priority)
+
+Tracked work: [Isolate the HEVC RPS_E reference corruption with frame and command evidence](https://github.com/iconidentify/libva-v4l2_request/issues/38), [Correct HEVC long-term reference handling for RPS_E without regressions](https://github.com/iconidentify/libva-v4l2_request/issues/42).
 
 **RPS_B is corrected in r8 through VA-API.** Reordering the DPB into decode order, with
 all slice/RPS indices remapped, makes all 300 frames match. The complete serial suite rises
@@ -91,6 +100,8 @@ the shipped patches remain unchanged. Close RPS_E only after repeatable referenc
 on both paths and no regressions in the complete suites.
 
 ### H3 — intermittent HEVC mismatches with concurrent streams
+
+Tracked work: [Make intermittent multi-process HEVC corruption reproducible](https://github.com/iconidentify/libva-v4l2_request/issues/39), [Fix the isolated HEVC concurrency defect and lock in its regression](https://github.com/iconidentify/libva-v4l2_request/issues/43).
 
 Historical four-process runs sometimes fail `SLIST_B_Sony_9`, `SLIST_D_Sony_9` or
 `RAP_B_Bossen_2` without a firmware error; full-suite results vary between 141 and 143/147.
@@ -110,6 +121,8 @@ repeatable bit-exact results under the same parallel schedule, with no new kerne
 
 ### D1 — Vulkan imports the wrong chroma offset
 
+Tracked work: [Validate and package a scoped Mesa Vulkan dma-buf plane-offset correction](https://github.com/iconidentify/omarchy-m1-video/issues/24).
+
 Local Mesa 26.1.8 Honeykrisp source and existing frame comparisons identify ignored
 `VkImageDrmFormatModifierExplicitCreateInfoEXT.pPlaneLayouts[].offset` during dma-buf import.
 A local experimental Mesa fix improved the recorded Vulkan comparison from 13.4 to 58.1 dB
@@ -121,6 +134,8 @@ before considering a separately reviewed Mesa package. Do not change the shipped
 output setting based on a single successful sample.
 
 ### D2 — Chrome full-range H.264 without colour description
+
+Tracked work: [Fix Chrome full-range H.264 colour handling when the colour description is absent](https://github.com/iconidentify/omarchy-m1-video/issues/26).
 
 The local Chromium parser investigation found `H264SPS::GetColorSpace()` dropping the
 full-range flag when `colour_description_present_flag` is absent. Prior Chrome 152 frame
@@ -135,6 +150,8 @@ workaround; the recorded test worsened the output.
 
 ### C1 — unsupported H.264 formats
 
+Tracked work: [Expand and qualify H.264 profiles and coding features](https://github.com/iconidentify/libva-v4l2_request/issues/11), [Design and establish feasibility of H.264 field and MBAFF decoding on AVD](https://github.com/iconidentify/omarchy-m1-video/issues/10), [Implement and qualify AVD interlaced H.264 from the approved field-decoding design](https://github.com/iconidentify/omarchy-m1-video/issues/14).
+
 Interlaced H.264 requires further AVD firmware/driver work: all 49 failing Main vectors
 declare non-frame-only SPSs. The VA-API fork exposes Constrained Baseline, Main and High
 by default. Version r7 adds opt-in High 10 with a separate FFmpeg quantizer compatibility
@@ -147,6 +164,8 @@ profiles requires verified kernel formats, capability negotiation and bit-exact 
 suites. The new checksum runner rejects software fallback, which inflated Fluster's FRExt total.
 
 ### C2 — VP9 resize and format gaps
+
+Tracked work: [Complete VP9 state, resizing and format coverage](https://github.com/iconidentify/libva-v4l2_request/issues/13), [Design preservation of AVD VP9 reference metadata across size changes](https://github.com/iconidentify/omarchy-m1-video/issues/11), [Implement the approved AVD VP9 state-preserving resize contract](https://github.com/iconidentify/omarchy-m1-video/issues/16), [Decode VP9 inter-frame resize streams correctly through VA-API](https://github.com/iconidentify/libva-v4l2_request/issues/44).
 
 r10 adds strict header/submission/reference validation and persistent-state fixes, with four
 new Meson cases. The 216 baseline passing official vectors still pass, as does the official
@@ -182,6 +201,8 @@ in place. These observations come from the matching kernel-tag source and local 
 from proof of the exact module binary currently loaded. No kernel patches were edited.
 
 ### C3 — Firefox and other machines remain unvalidated
+
+Tracked work: [Validate Firefox hardware decoding inside its normal sandbox](https://github.com/iconidentify/omarchy-m1-video/issues/23), [Establish repeatable qualification for additional Apple Silicon machines](https://github.com/iconidentify/omarchy-m1-video/issues/18), [Qualify a non-AVD V4L2 backend and isolate Apple-specific behavior](https://github.com/iconidentify/libva-v4l2_request/issues/46).
 
 No Firefox hardware/rendering run was performed. The old package message stated that
 disabling the RDD sandbox was required; this is now described as unvalidated rather than
