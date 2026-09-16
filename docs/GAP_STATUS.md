@@ -152,6 +152,13 @@ workaround; the recorded test worsened the output.
 
 Tracked work: [Expand and qualify H.264 profiles and coding features](https://github.com/iconidentify/libva-v4l2_request/issues/11), [Design and establish feasibility of H.264 field and MBAFF decoding on AVD](https://github.com/iconidentify/omarchy-m1-video/issues/10), [Implement and qualify AVD interlaced H.264 from the approved field-decoding design](https://github.com/iconidentify/omarchy-m1-video/issues/14).
 
+The [field/PAFF/MBAFF research decision](plans/issue-10-h264-field-mbaff.md) is accepted
+in [PR #33](https://github.com/iconidentify/omarchy-m1-video/pull/33). Its corrected
+offline scanner confirms the 49 Main-profile vectors' interlace-capable headers;
+MBAFF flags alone do not establish actual macroblock-pair coding. Implementation #14
+remains blocked on validated firmware/queue semantics, kernel authorization and hardware
+evidence. Research acceptance adds no supported decoding mode.
+
 Interlaced H.264 requires further AVD firmware/driver work: all 49 failing Main vectors
 declare non-frame-only SPSs. The VA-API fork exposes Constrained Baseline, Main and High
 by default. Version r7 adds opt-in High 10 with a separate FFmpeg quantizer compatibility
@@ -186,15 +193,18 @@ reference scaling against software, then repeat the exact failing vectors and co
 suite. Keep firmware-error monitoring enabled and stop on the first new fault. See
 [codec details](CODEC_STATUS.md#vp9-validation-and-remaining-gaps).
 
-The preservation design now exists and is awaiting review:
+The preservation research is accepted in
+[PR #32](https://github.com/iconidentify/omarchy-m1-video/pull/32):
 [VP9 resize state-preservation design (V1)](plans/issue-11-vp9-resize-state.md)
 ([omarchy-m1-video#11](https://github.com/iconidentify/omarchy-m1-video/issues/11)).
-It specifies the kernel reconfiguration contract (V2,
+It documents the proposed kernel reconfiguration contract and feasibility blockers (V2,
 [omarchy-m1-video#16](https://github.com/iconidentify/omarchy-m1-video/issues/16), needs
 kernel approval) and the VA-driver decoder-session change (V3,
 [libva-v4l2_request#44](https://github.com/iconidentify/libva-v4l2_request/issues/44)),
-with the guarded hardware experiments that gate them. Until those land, the current
-userspace rejection stays in place unchanged.
+including streaming-format restrictions, reference registration, vb2 import sizes,
+session identity and recovery. The guarded hardware experiments and explicit kernel
+authorization still gate implementation. Until those land, the current userspace
+rejection stays in place unchanged.
 
 #### Why simply re-importing VP9 reference pixels is insufficient
 

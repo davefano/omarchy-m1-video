@@ -229,9 +229,10 @@ independent Meson tests.
 The final package also rejects all 25 previously wrong-output resize/scalable streams for
 unavailable references. They no longer return successful decode with corrupted output in
 this runner, but still fail conformance. Correct cross-size reference handling remains open;
-its design is [VP9 resize state-preservation (V1)](plans/issue-11-vp9-resize-state.md)
-pending review, with the vector-by-vector acceptance mapping and the V2/V3 implementation
-children.
+its reviewed [VP9 resize state-preservation design (V1)](plans/issue-11-vp9-resize-state.md)
+records the vector-by-vector acceptance mapping and explicit feasibility blockers.
+The V2/V3 implementation children remain blocked on the required kernel contracts,
+authorization and hardware evidence.
 
 ### Hardware evidence
 
