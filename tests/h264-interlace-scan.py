@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: GPL-2.0-only
 """Offline H.264 interlace-feature scanner for omarchy-m1-video#10.
 
-Read-only: parses Annex-B elementary streams (SPS fully; slice headers up to
+Read-only: parses Annex-B elementary streams (SPS/PPS prefixes; slice headers up to
 field_pic_flag/bottom_field_flag) and reports per-vector interlaced-coding
 features. Evidence tool for docs/plans/issue-10-h264-field-mbaff.md; it
 changes nothing and performs no network access.
 
 Usage: tests/h264-interlace-scan.py <fluster-cache>/JVT-AVC_V1 > report.json
 """
-import json, sys
+import argparse, json
 from pathlib import Path
 
 class BitReader:
@@ -38,7 +38,7 @@ class BitReader:
 def strip_epb(p):
     out = bytearray()
     for i in range(len(p)):
-        if (i >= 2 and out[-1] == 0 and out[-2] == 0 and p[i] == 3
+        if (i >= 2 and p[i - 1] == 0 and p[i - 2] == 0 and p[i] == 3
                 and i + 1 < len(p) and p[i + 1] <= 3):
             continue  # emulation prevention byte
         out.append(p[i])
@@ -57,7 +57,7 @@ def nals(data):
     for idx, (off, sclen) in enumerate(starts):
         end = starts[idx + 1][0] if idx + 1 < len(starts) else n
         payload = data[off + sclen:end]
-        if len(payload) < 2:
+        if not payload:
             continue
         yield payload[0] & 0x1f, payload[0], strip_epb(payload)
 
@@ -80,7 +80,7 @@ def parse_sps(rbsp):
     if p in HIGH_PROFILES:
         d['chroma_format_idc'] = b.ue()
         if d['chroma_format_idc'] == 3:
-            b.bit()
+            d['separate_colour_plane_flag'] = b.bit()
         d['bit_depth_luma_minus8'] = b.ue()
         d['bit_depth_chroma_minus8'] = b.ue()
         b.bit()
@@ -125,59 +125,74 @@ def parse_pps(rbsp):
             'entropy_coding_mode': entropy_coding,
             'num_slice_groups_minus1': num_slice_groups_minus1}
 
-def classify(path):
-    data = Path(path).read_bytes()
-    sps_list, pps_list, slices = [], [], []
+def classify_data(data):
+    # Resolve parameter sets in stream order, including replacement of an ID.
+    sps_list, pps_list = [], []
+    sps_by_id, pps_by_id = {}, {}
+    errors = []
+    st = {'slice_nals': 0, 'idr_slices': 0, 'parsed': 0,
+          'field_slices': 0, 'bottom_field_slices': 0, 'parse_errors': 0}
     for nt, hdr, rbsp in nals(data):
-        if nt == 7:
-            try:
-                sps_list.append(parse_sps(rbsp))
-            except Exception as e:
-                sps_list.append({'parse_error': str(e)})
-        elif nt == 8:
-            try:
-                pps_list.append(parse_pps(rbsp))
-            except Exception as e:
-                pps_list.append({'parse_error': str(e)})
-        elif nt in (1, 5):
-            slices.append((nt, rbsp))
-    valid = [s for s in sps_list if 'parse_error' not in s]
-    if not valid:
-        return None
-    sps = valid[0]
-    frame_num_bits = sps['log2_max_frame_num_minus4'] + 4
-    st = {'slice_nals': len(slices), 'idr_slices': sum(1 for nt, _ in slices if nt == 5),
-          'parsed': 0, 'field_slices': 0, 'bottom_field_slices': 0, 'parse_errors': 0}
-    for nt, rbsp in slices:
         try:
-            b = BitReader(rbsp[1:])
-            first_mb = b.ue()
-            b.ue()  # slice_type
-            b.ue()  # pps_id
-            b.bits(frame_num_bits)
-            if not sps['frame_mbs_only']:
-                if b.bit():
-                    st['field_slices'] += 1
-                    if b.bit():
-                        st['bottom_field_slices'] += 1
-            st['parsed'] += 1
-        except Exception:
-            st['parse_errors'] += 1
-    pps_ok = [p for p in pps_list if 'parse_error' not in p]
-    return {'sps': sps, 'sps_count': len(valid), 'sps_all_agree':
+            if hdr & 0x80:
+                raise ValueError('forbidden_zero_bit is set')
+            if nt == 7:
+                s = parse_sps(rbsp)
+                sps_by_id[s['sps_id']] = s
+                sps_list.append(s)
+            elif nt == 8:
+                p = parse_pps(rbsp)
+                pps_by_id[p['pps_id']] = p
+                pps_list.append(p)
+            elif nt in (1, 5):
+                st['slice_nals'] += 1
+                st['idr_slices'] += nt == 5
+                b = BitReader(rbsp[1:])
+                b.ue()  # first_mb_in_slice
+                b.ue()  # slice_type
+                pps_id = b.ue()
+                sps = sps_by_id[pps_by_id[pps_id]['sps_id']]
+                if sps.get('separate_colour_plane_flag'):
+                    b.bits(2)
+                b.bits(sps['log2_max_frame_num_minus4'] + 4)
+                field = 0 if sps['frame_mbs_only'] else b.bit()
+                bottom = b.bit() if field else 0
+                st['field_slices'] += field
+                st['bottom_field_slices'] += bottom
+                st['parsed'] += 1
+        except (IndexError, KeyError, ValueError) as e:
+            errors.append({'nal_type': nt, 'error': str(e) or type(e).__name__})
+            if nt in (1, 5):
+                st['parse_errors'] += 1
+            # A malformed replacement must not leave stale state usable.
+            elif nt == 7:
+                sps_by_id.clear()
+            elif nt == 8:
+                pps_by_id.clear()
+    if not sps_list:
+        return {'error': 'no parsable SPS', 'complete': False, 'errors': errors}
+    sps = sps_list[0]
+    return {'sps': sps, 'sps_count': len(sps_list), 'sps_all_agree':
             all(s['frame_mbs_only'] == sps['frame_mbs_only'] and
                 s.get('mb_adaptive_frame_field', 0) == sps.get('mb_adaptive_frame_field', 0)
-                for s in valid),
-            'pps_count': len(pps_ok),
+                for s in sps_list),
+            'parameter_sets': {'sps': sps_list, 'pps': pps_list},
+            'complete': not errors and st['parsed'] > 0, 'errors': errors,
+            'pps_count': len(pps_list),
             'max_slice_groups_minus1': max((p['num_slice_groups_minus1']
-                                            for p in pps_ok), default=0),
-            'entropy_coding': max((p['entropy_coding_mode'] for p in pps_ok),
+                                            for p in pps_list), default=0),
+            'entropy_coding': max((p['entropy_coding_mode'] for p in pps_list),
                                   default=0), 'slices': st}
 
 STREAM_SUFFIXES = ('.264', '.h264', '.jsv', '.jvt', '.26l', '.avc')
 
+def classify(path):
+    return classify_data(Path(path).read_bytes())
+
 def main():
-    root = Path(sys.argv[1])
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('root', type=Path)
+    root = parser.parse_args().root
     out = {}
     for vecdir in sorted(p for p in root.iterdir() if p.is_dir()):
         cands = sorted(f for f in vecdir.iterdir()
@@ -187,13 +202,14 @@ def main():
             # (e.g. sp2_bt_b/H26L/BitstreamExchange/sp2_bt_b.h264).
             cands = sorted(f for f in vecdir.rglob('*')
                            if f.is_file() and f.suffix in STREAM_SUFFIXES)
-        if not cands:
-            out[vecdir.name] = {'error': 'no elementary-stream input',
+        if len(cands) != 1:
+            out[vecdir.name] = {'error': 'expected exactly one elementary-stream input',
                                 'files': [f.name for f in vecdir.iterdir()]}
             continue
         r = classify(cands[0])
         out[vecdir.name] = r if r else {'error': 'no parsable SPS'}
     print(json.dumps(out, indent=1))
+    return 0 if out and all(r.get('complete') for r in out.values()) else 1
 
 if __name__ == '__main__':
-    main()
+    raise SystemExit(main())
