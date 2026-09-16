@@ -190,7 +190,7 @@ The preservation design now exists and is awaiting review:
 [VP9 resize state-preservation design (V1)](plans/issue-11-vp9-resize-state.md)
 ([omarchy-m1-video#11](https://github.com/iconidentify/omarchy-m1-video/issues/11)).
 It specifies the kernel reconfiguration contract (V2,
-[omarchy-m1-video#16](https://github.com/iconify/omarchy-m1-video/issues/16), needs
+[omarchy-m1-video#16](https://github.com/iconidentify/omarchy-m1-video/issues/16), needs
 kernel approval) and the VA-driver decoder-session change (V3,
 [libva-v4l2_request#44](https://github.com/iconidentify/libva-v4l2_request/issues/44)),
 with the guarded hardware experiments that gate them. Until those land, the current
