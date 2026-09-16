@@ -158,3 +158,50 @@ separate from this completed evidence.
 
 See [the r11 validation record](codec-validation-r11-2026-09-15.json) for source/package
 identity, commands, per-vector results and offline evidence.
+
+## Package provenance and repeat builds
+
+`tools/reproduce-package.sh NEW_OUTPUT_DIRECTORY` builds the pinned driver twice on
+an aarch64 Arch host with `base-devel`, Git, Meson, libdrm, libva, Python and Bubblewrap
+already available. It downloads a source mirror, then builds without network access in
+separate disposable writable trees, with the same `/build` path, `SOURCE_DATE_EPOCH`,
+locale and copied makepkg configuration. `/usr`, `/etc` and the pacman database are
+read-only. It neither installs the resulting packages nor opens a decoder.
+
+The builds share the host toolchain; they are not independent clean chroots or proof of
+reproducibility across toolchains. Preserve `one.log`, `two.log`, both packages, the
+makepkg configurations, manifests and `comparison.json`. A differing package returns
+nonzero: compare archive metadata (`.PKGINFO`, `.BUILDINFO`, `.MTREE`), then individual
+members before claiming reproducibility. Matching stripped drivers alone do not prove
+that the complete packages match.
+
+Generate a manifest for an existing candidate without installing it:
+
+```sh
+python3 tools/package-provenance.py --repo . --package /path/to/candidate.pkg.tar.xz \
+  --output /path/to/manifest.json \
+  --hardware-evidence docs/codec-validation-r11-2026-09-15.json
+python3 tests/package-provenance-test.py
+```
+
+The manifest links the recipe and repository revision, patch checksums, package and
+stripped-driver hashes, metadata/build dependencies, actual exported VA entrypoints,
+and read-only kernel/header observations. Archive metadata cannot prove that a builder
+used the declared source; retain build logs and the source checkout alongside it.
+Historical r11 evidence is a fixture, not a certification of a newly built package:
+reusing it requires the recorded stripped-driver hash to match exactly. An unmatched
+candidate needs separate hardware evidence before release qualification.
+
+The provenance tests require a C compiler, binutils and Python `jsonschema`; runtime
+manifest generation uses the Python standard library and `readelf`. The rebuild health
+checks also require `readelf` (binutils, supplied by the installer's base-devel dependency)
+and fail with a diagnostic if it is unavailable. The pacman health hook also runs after
+removal of the AVD package or libva, including package replacement transactions. It
+reports the resulting state after the transaction; it cannot undo the transaction.
+The installed libva package version
+must be recognized and compatible with a defined dynamic ELF entrypoint. Text strings,
+undefined symbols and an unknown ABI do not establish compatibility.
+
+This tooling makes no loaded-module identity claim. A selected module's path and hash
+only describe the on-disk candidate for the next load. Loaded binary provenance needs an
+independent recorded boot/load event; kernel/header identity alone is insufficient.
