@@ -51,6 +51,10 @@ Conformance on an M1 (bit-exact against the reference decoders):
 ¹ The r9 package passed three consecutive four-process runs with no unrelated video clients
 observed. Historical intermittent concurrent mismatches remain open.
 
+The r11 package preserves the exact preceding HEVC, AVC, opt-in High 10 FRExt and VP9
+pass sets. It also passes 864 generated hardware frame comparisons, including mixed
+codecs sharing one VA display. See [the r11 validation record](docs/codec-validation-r11-2026-09-15.json).
+
 The VP9 high-bit-depth result covers only the suite's one 10-bit 4:2:0 stream (10 frames),
 not its five 12-bit or 4:2:2/4:4:4 streams. An additional 384 generated VP9 frame comparisons
 cover 8/10-bit, full/limited range, lossless/lossy and ordinary/early-export paths.

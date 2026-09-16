@@ -27,9 +27,9 @@ The codec follow-up adds opt-in High 10 and stronger conformance checks. See
 | VP9 colour range and persistent state | Inherit range on inter frames; commit range/filter/segmentation state only after successful submission | State inheritance and parse/append/submission-failure tests |
 | VP9 references from a replaced context reach firmware | Require reference buffers in the current decoder context | Missing/detached/cross-context regressions; both observed resize timeout paths now reject in userspace with a clean kernel-log window |
 
-### r11 candidate: shared picture lifetime and references
+### r11: shared picture lifetime and references
 
-The candidate reserves a fresh target at BeginPicture and rejects destruction while an
+Version r11 reserves a fresh target at BeginPicture and rejects destruction while an
 active picture still holds it. Previously, destroying that target left EndPicture with a
 freed pointer; the offline probe reproduces the use-after-free under ASan. Context creation
 also stops replacing the owner of surfaces supplied as render-target hints.
@@ -38,8 +38,13 @@ The first RenderPicture failure is retained through EndPicture and surface readb
 later buffer completion cannot turn an incomplete picture into success. Nested begins
 cannot replace staged work, and failed begins clear the active picture. Shared reference
 lookup rejects foreign, detached, mismatched and known-failed capture buffers, extending
-the ownership protection beyond VP9. All 35 sanitizer cases pass. Hardware validation is
-pending while the decoder is in use by mpv, so these changes remain on draft branches.
+the ownership protection beyond VP9. All 35 sanitizer cases pass. Complete packaged-driver
+HEVC/AVC/FRExt/VP9 runs preserve the exact preceding pass sets. High 10 and VP9 export
+matrices plus a new mixed-codec shared-display check match all 864 generated hardware
+frames against software. The shared-display check interleaves work in one thread and
+closes shorter contexts while longer streams continue; threaded API stress remains outside
+its scope. No new AVD kernel messages occur, and the decoder is idle after every run.
+See [the r11 validation record](codec-validation-r11-2026-09-15.json).
 
 ### FFmpeg crash evidence
 

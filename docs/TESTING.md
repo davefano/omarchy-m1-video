@@ -122,10 +122,23 @@ VA-API sequence in an offline test, not evidence that a crafted media file can t
 No real hardware or kernel module is opened by these tests. Existing codec fixtures now
 model both sides of the surface-to-capture-buffer ownership relationship.
 
-Full H.264/HEVC/VP9 hardware checks and export matrices are required before merging this
-candidate because reference resolution is shared across the codecs. The first run stopped
-when mpv acquired the decoder after three HEVC passes, with no new kernel messages. Its
-incomplete result is not a full-suite pass.
+The full packaged-driver rerun preserves the exact HEVC/AVC/FRExt/VP9 pass sets, all five
+H.264 profile overrides and the official VP9 10-bit 4:2:0 vector. High 10 and VP9 export
+matrices match 144 and 384 hardware frames respectively.
 
-See [the r11 candidate record](codec-validation-r11-2026-09-15.json) for source/package identity,
-offline evidence and outstanding hardware validation.
+Run `sh tests/shared-contexts.sh /path/to/build/src` through the lab guard from the driver
+checkout. It interleaves H.264, HEVC and 8/10-bit VP9 using one VA display; the four streams
+contain 24, 36, 48 and 60 frames so contexts close at different times. Both normal and
+early-export runs match independent software checksums, totaling 336 hardware frames.
+Work is interleaved in one thread, so this does not test concurrent API calls. Omitting
+the driver-directory argument exercises the helper in software, as CI does.
+
+The final package adds only this test, its documentation and CI to the implementation
+package used for the full suites. Both stripped driver binaries compare byte-for-byte
+identical; the shared-display hardware test uses the final package. All 35 package checks
+pass. Completed hardware runs have no new AVD kernel messages and end with an idle decoder.
+The first run, interrupted when mpv acquired the decoder after three HEVC passes, remains
+separate from this completed evidence.
+
+See [the r11 validation record](codec-validation-r11-2026-09-15.json) for source/package
+identity, commands, per-vector results and offline evidence.
