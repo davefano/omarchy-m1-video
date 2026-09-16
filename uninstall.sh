@@ -8,12 +8,23 @@ shopt -s nullglob
 say() { echo "==> $*"; }
 
 SYSROOT=${OMARCHY_M1_VIDEO_SYSROOT:-}
-[[ -z $SYSROOT || $SYSROOT == /* ]] || { echo "==> ERROR: OMARCHY_M1_VIDEO_SYSROOT must be an absolute path" >&2; exit 1; }
-[[ -z $SYSROOT || ${OMARCHY_M1_VIDEO_TEST_MODE:-0} == 1 ]] || \
-	{ echo "==> ERROR: OMARCHY_M1_VIDEO_SYSROOT is only available with OMARCHY_M1_VIDEO_TEST_MODE=1" >&2; exit 1; }
-[[ -z $SYSROOT || $SYSROOT != / ]] || { echo "==> ERROR: refusing to use / as a test sysroot" >&2; exit 1; }
-[[ -z $SYSROOT || -f $SYSROOT/.omarchy-m1-video-test-root ]] || \
-	{ echo "==> ERROR: test sysroot is missing .omarchy-m1-video-test-root" >&2; exit 1; }
+TEST_MODE=${OMARCHY_M1_VIDEO_TEST_MODE:-0}
+test_root_error() { echo "invalid test environment: $*" >&2; exit 1; }
+[[ $TEST_MODE == 0 || $TEST_MODE == 1 ]] || test_root_error "unknown test mode"
+if [[ $TEST_MODE == 1 ]]; then
+	[[ -n $SYSROOT ]] || test_root_error "test mode requires a disposable sysroot"
+	[[ $EUID -ne 0 ]] || test_root_error "test mode must run as an unprivileged user"
+fi
+[[ -z $SYSROOT || $TEST_MODE == 1 ]] || \
+	test_root_error "OMARCHY_M1_VIDEO_SYSROOT is only available with OMARCHY_M1_VIDEO_TEST_MODE=1"
+if [[ -n $SYSROOT ]]; then
+	[[ $SYSROOT == /* ]] || test_root_error "OMARCHY_M1_VIDEO_SYSROOT must be an absolute path"
+	[[ $SYSROOT != / ]] || test_root_error "refusing to use / as a test sysroot"
+	physical_root=$(cd -- "$SYSROOT" 2>/dev/null && pwd -P) || test_root_error "sysroot does not exist"
+	[[ $SYSROOT == "$physical_root" ]] || test_root_error "sysroot must be a canonical physical directory"
+	[[ -f $SYSROOT/.omarchy-m1-video-test-root && ! -L $SYSROOT/.omarchy-m1-video-test-root ]] || \
+		test_root_error "test sysroot is missing .omarchy-m1-video-test-root"
+fi
 sys() { printf '%s%s' "$SYSROOT" "$1"; }
 
 say "removing the boot service, pacman hooks, rebuild script and patches"

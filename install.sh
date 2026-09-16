@@ -10,12 +10,23 @@ say() { echo "==> $*"; }
 die() { echo "==> ERROR: $*" >&2; exit 1; }
 
 SYSROOT=${OMARCHY_M1_VIDEO_SYSROOT:-}
-[[ -z $SYSROOT || $SYSROOT == /* ]] || die "OMARCHY_M1_VIDEO_SYSROOT must be an absolute path"
-[[ -z $SYSROOT || ${OMARCHY_M1_VIDEO_TEST_MODE:-0} == 1 ]] || \
-	die "OMARCHY_M1_VIDEO_SYSROOT is only available with OMARCHY_M1_VIDEO_TEST_MODE=1"
-[[ -z $SYSROOT || $SYSROOT != / ]] || die "refusing to use / as a test sysroot"
-[[ -z $SYSROOT || -f $SYSROOT/.omarchy-m1-video-test-root ]] || \
-	die "test sysroot is missing .omarchy-m1-video-test-root"
+TEST_MODE=${OMARCHY_M1_VIDEO_TEST_MODE:-0}
+test_root_error() { echo "invalid test environment: $*" >&2; exit 1; }
+[[ $TEST_MODE == 0 || $TEST_MODE == 1 ]] || test_root_error "unknown test mode"
+if [[ $TEST_MODE == 1 ]]; then
+	[[ -n $SYSROOT ]] || test_root_error "test mode requires a disposable sysroot"
+	[[ $EUID -ne 0 ]] || test_root_error "test mode must run as an unprivileged user"
+fi
+[[ -z $SYSROOT || $TEST_MODE == 1 ]] || \
+	test_root_error "OMARCHY_M1_VIDEO_SYSROOT is only available with OMARCHY_M1_VIDEO_TEST_MODE=1"
+if [[ -n $SYSROOT ]]; then
+	[[ $SYSROOT == /* ]] || test_root_error "OMARCHY_M1_VIDEO_SYSROOT must be an absolute path"
+	[[ $SYSROOT != / ]] || test_root_error "refusing to use / as a test sysroot"
+	physical_root=$(cd -- "$SYSROOT" 2>/dev/null && pwd -P) || test_root_error "sysroot does not exist"
+	[[ $SYSROOT == "$physical_root" ]] || test_root_error "sysroot must be a canonical physical directory"
+	[[ -f $SYSROOT/.omarchy-m1-video-test-root && ! -L $SYSROOT/.omarchy-m1-video-test-root ]] || \
+		test_root_error "test sysroot is missing .omarchy-m1-video-test-root"
+fi
 sys() { printf '%s%s' "$SYSROOT" "$1"; }
 
 SHARE=$(sys /usr/local/share/apple-avd-patched)

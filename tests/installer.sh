@@ -5,6 +5,7 @@ set -euo pipefail
 
 repo=$(cd "$(dirname "$0")/.." && pwd)
 work=$(mktemp -d)
+work=$(cd "$work" && pwd -P)
 trap 'rm -rf "$work"' EXIT
 real_path=$PATH
 
@@ -59,6 +60,20 @@ EOF
 #!/bin/bash
 set -euo pipefail
 printf 'sudo %s\n' "$*" >>"$TEST_COMMAND_LOG"
+guard_path() {
+    case "$1" in
+        "$TEST_ROOT"|"$TEST_ROOT"/*) ;;
+        *) echo "test command escaped disposable root: $1" >&2; exit 99 ;;
+    esac
+    case "$1/" in
+        */../*|*/./*) echo "test command contains path traversal: $1" >&2; exit 99 ;;
+    esac
+    local parent=$1
+    while [[ $parent != "$TEST_ROOT" ]]; do
+        [[ ! -L $parent ]] || { echo "test command follows a symlink: $1" >&2; exit 99; }
+        parent=${parent%/*}
+    done
+}
 case "${1:-}" in
 	pacman)
 		[[ ${TEST_PACMAN_FAIL:-0} -eq 0 ]] || exit 1
@@ -68,31 +83,31 @@ case "${1:-}" in
 		shift
 		case "${1:-}" in
 			-d)
-				shift; mkdir -p "$@" ;;
+				shift; for dest in "$@"; do guard_path "$dest"; done; mkdir -p "$@" ;;
 			-m644)
-				shift; dest=${!#}; mkdir -p "$dest"
+				shift; dest=${!#}; guard_path "$dest"; mkdir -p "$dest"
 				for src in "${@:1:$#-1}"; do cp "$src" "$dest/"; chmod 0644 "$dest/$(basename "$src")"; done ;;
 			-Dm755)
-				src=$2; dest=$3; mkdir -p "$(dirname "$dest")"; cp "$src" "$dest"; chmod 0755 "$dest" ;;
+				src=$2; dest=$3; guard_path "$dest"; mkdir -p "$(dirname "$dest")"; cp "$src" "$dest"; chmod 0755 "$dest" ;;
 			-Dm644)
 				shift
 				if [[ ${1:-} == -t ]]; then
-					dest=$2; shift 2; mkdir -p "$dest"
+					dest=$2; guard_path "$dest"; shift 2; mkdir -p "$dest"
 					for src in "$@"; do cp "$src" "$dest/"; chmod 0644 "$dest/$(basename "$src")"; done
 				else
-					src=$1; dest=$2; mkdir -p "$(dirname "$dest")"; cp "$src" "$dest"; chmod 0644 "$dest"
+					src=$1; dest=$2; guard_path "$dest"; mkdir -p "$(dirname "$dest")"; cp "$src" "$dest"; chmod 0644 "$dest"
 				fi ;;
 			*) echo "unsupported fake install: $*" >&2; exit 97 ;;
 		esac ;;
 	find)
-		shift; find "$@" ;;
+		shift; guard_path "$1"; find "$@" ;;
 	systemctl)
 		[[ ${TEST_SYSTEMCTL_FAIL:-0} -eq 0 ]] || exit 1
 		exit 0 ;;
 	rm)
-		shift; rm "$@" ;;
+		shift; for dest in "$@"; do [[ $dest == -* ]] || guard_path "$dest"; done; rm "$@" ;;
 	rmdir)
-		shift; rmdir "$@" ;;
+		shift; for dest in "$@"; do [[ $dest == -* ]] || guard_path "$dest"; done; rmdir "$@" ;;
 	depmod)
 		exit 0 ;;
 	*/usr/local/sbin/apple-avd-rebuild)
@@ -303,5 +318,31 @@ reset_fixture host-root
 export OMARCHY_M1_VIDEO_SYSROOT=/
 expect_status 1 run_install "$work/host-root/install.log"
 [[ ! -s $TEST_COMMAND_LOG ]] || fail "host-root sysroot executed external commands"
+
+# Test mode must never weaken the production rebuild without a disposable root.
+for script in install.sh uninstall.sh bin/apple-avd-rebuild; do
+    reset_fixture mode-without-root
+    unset OMARCHY_M1_VIDEO_SYSROOT
+    expect_status 1 bash "$repo/$script" --i-accept-boot-risk >"$work/mode-without-root/invalid.log" 2>&1
+    contains "$work/mode-without-root/invalid.log" 'test mode requires a disposable sysroot'
+    [[ ! -s $TEST_COMMAND_LOG ]] || fail "invalid test mode executed external commands"
+done
+
+# Reject missing markers and symlink aliases before any command shim, in every entrypoint.
+for script in install.sh uninstall.sh bin/apple-avd-rebuild; do
+    reset_fixture missing-marker
+    rm "$TEST_ROOT/.omarchy-m1-video-test-root"
+    expect_status 1 bash "$repo/$script" >"$work/missing-marker/invalid.log" 2>&1
+    contains "$work/missing-marker/invalid.log" 'test sysroot is missing'
+    [[ ! -s $TEST_COMMAND_LOG ]] || fail "missing marker executed external commands"
+
+    reset_fixture aliased-root
+    rm -f "$work/aliased-root/link"
+    ln -s "$TEST_ROOT" "$work/aliased-root/link"
+    export OMARCHY_M1_VIDEO_SYSROOT="$work/aliased-root/link"
+    expect_status 1 bash "$repo/$script" >"$work/aliased-root/invalid.log" 2>&1
+    contains "$work/aliased-root/invalid.log" 'canonical physical directory'
+    [[ ! -s $TEST_COMMAND_LOG ]] || fail "aliased root executed external commands"
+done
 
 printf 'PASS: consent, install/rerun, header/dependency/package/system/service/rebuild/offline failures, symlink/sysroot safety, uninstall idempotence\n'

@@ -19,7 +19,11 @@ stamps, unrelated hooks/files and mpv content survive the applicable failure or 
 `OMARCHY_M1_VIDEO_SYSROOT`, gated by `OMARCHY_M1_VIDEO_TEST_MODE=1`, is an integration-test
 seam for system filesystem paths. It must be absolute and is not an installation prefix or a
 supported user option. The root must contain `.omarchy-m1-video-test-root`, and `/` is always
-rejected. Normal runs leave both variables unset and retain the production paths.
+rejected. Test mode also requires a nonempty canonical physical root and an
+unprivileged caller; enabling it alone cannot weaken the production rebuild. The command
+shims reject mutation paths outside the disposable root. This seam redirects test paths;
+it is not a sandbox for arbitrary commands. Normal runs leave both variables unset and
+retain the production paths.
 The actual patch-preparation helper runs on synthetic
 ordered patches with upstream prefixes 0, 4, 9 and 15, then an incompatible tree. Mock
 package/driver data exercises build-marker and ABI failures. The installer is invoked
