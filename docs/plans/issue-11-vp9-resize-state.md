@@ -9,8 +9,8 @@ module was loaded or unloaded, and no hardware was touched while producing it.
 |---|---|
 | Ticket | [omarchy-m1-video#11](https://github.com/iconidentify/omarchy-m1-video/issues/11) (V1 research/design) |
 | Workstream | [libva-v4l2_request#13](https://github.com/iconidentify/libva-v4l2_request/issues/13) — Complete VP9 state, resizing and format coverage |
-| Decision requested | Approve **V2** (kernel: [§6](#6-the-v2-kernel-interface-state-preserving-reconfiguration)) and **V3** (VA driver: [§7](#7-the-v3-userspace-interface-decoder-sessions)) as implementation children, with the experiments of [§9](#9-open-experiments-and-feasibility-blockers-v2-hardware-gates) gating V2; or record the documented fallback of [§5.3](#53-strategy-b-explicit-migration-contract-fallback) as the decision. |
-| Sibling tickets | V2 = [omarchy-m1-video#16](https://github.com/iconidentify/omarchy-m1-video/issues/16) (needs `needs:hardware`, `needs:kernel-approval`); V3 = [libva-v4l2_request#44](https://github.com/iconidentify/libva-v4l2_request/issues/44) (needs hardware for final acceptance). Both stay blocked until this design is accepted. |
+| Decision requested | Accept V1 as a conditional design with the explicit feasibility blockers in §§6–9. Acceptance does not authorize kernel work or establish resize support. |
+| Sibling tickets | V2 = [omarchy-m1-video#16](https://github.com/iconidentify/omarchy-m1-video/issues/16) (needs `needs:hardware`, `needs:kernel-approval`); V3 = [libva-v4l2_request#44](https://github.com/iconidentify/libva-v4l2_request/issues/44) (needs hardware for final acceptance). V2 still requires authorization and resolution of the feasibility blockers below after design acceptance; V3 remains dependent on V2. |
 | Baseline | Driver `avd-fixes` at `793d741a5073be34c1a8084211c72cde9c620ba3` (r11 pass sets preserved); kernel tag `asahi-7.1.13-3` (commit `94fb23346d522edf53722357c426a3e58030beea`), which is what the shipped patch set applies to; **none** of patches 0001–0015 touches `avd-vp9.c`, so the VP9 kernel path analysed here is stock at that tag. |
 
 ## 0. Scope and reading notes
@@ -55,6 +55,10 @@ are advertised — `codec_vp9.c:237`).
    (`avd_s_capture_fmt`) and `avd-v4l2.c:630-693` (`avd_s_output_fmt`, which propagates size
    changes into the decoded format) both return `-EBUSY` when `vb2_is_busy()` on the
    CAPTURE queue, i.e. until `REQBUFS(0)` frees every capture buffer.
+   Separately, `avd_s_output_fmt` rejects **any streaming OUTPUT queue**. CAPTURE
+   `REQBUFS(0)` itself requires CAPTURE STREAMOFF (`vb2_core_reqbufs`). Keeping OUTPUT
+   streaming while changing formats therefore needs a new, explicitly gated kernel
+   contract; it is not a legal stock-kernel ioctl sequence.
 3. **Freeing the queue destroys per-buffer reference metadata.** The metadata hangs off
    the queue-allocated wrapper, not the memory: `struct avd_decoded_buffer` (`avd.h:112-123`)
    carries `comp {size, start_offset, offsets[4]}` and `vp9 {width, height, bit_depth}`;
@@ -73,7 +77,7 @@ are advertised — `codec_vp9.c:237`).
 5. **Bit-depth/profile change additionally gates through the frame control.**
    `avd-v4l2.c:126-150` (`avd_s_ctrl` → `avd_vp9_get_image_fmt`): an image-format change
    also requires an idle CAPTURE queue. (VP9 fixes profile/bit-depth at the keyframe, so
-   this path is robustness coverage, not a stream-legal transition — see §4.5, invariant 8.)
+   this path is robustness coverage, not a stream-legal transition — see §4, invariant 8.)
 6. **A timed-out job resets the whole decoder.** `avd-drv.c:219-239` (`avd_watchdog_func`
    → `avd_reset`); the IRQ `H%d error` path defers to it (`avd-drv.c:269-272`). This is why
    prevention at submission time matters more than recovery.
@@ -103,8 +107,7 @@ Consequences for our driver:
   client, must make sense of references that outlive the context they were decoded in.
 * Any design that assumes "the client keeps the VA context and just reconfigures it" is
   fiction for FFmpeg. The VA driver must absorb the replacement (that is what [§7](#7-the-v3-userspace-interface-decoder-sessions) does).
-* Chromium's `VaapiVideoDecoder` follows the same destroy-and-recreate pattern on size
-  changes; it is not part of resize acceptance (see [§10](#10-not-covered-by-this-design)).
+* Browser context replacement has not been established by this source review and needs separate qualification (see [§10](#10-not-covered-by-this-design)).
 
 ### 1.4 What the VA driver does today (avd-fixes `793d741`)
 
@@ -160,10 +163,8 @@ software reference that the conformance checksums come from):
 1. **References are consumed at their own size, scaled.** The frame may inherit its size
    from a reference (`found_ref`) or state a new size; in both cases motion compensation
    samples the old-size references with 14-bit `xscale/yscale` — the kernel already pushes
-   exactly that (`avd-vp9.c:225-230`). So **mixed-size reference sets are a designed-for
-   firmware input**, provided each reference's true dimensions, bit depth and
-   compressed-reference layout are correctly described. Nothing in the firmware interface
-   forces references and the current frame to share a size era.
+   exactly that (`avd-vp9.c:225-230`). This is evidence that **the command format describes mixed-size references**, provided each reference's true dimensions, bit depth and
+   compressed-reference layout are correctly described. It does not prove firmware accepts a live format transition; that remains experiment A.
 2. **Adapted probability contexts must persist.** The compressed header carries only
    *updates* against `frame_context[frame_context_idx]` (kernel applies them via
    `v4l2_vp9_fw_update_probs`, `avd-vp9.c:759-764`), and backward adaptation is computed
@@ -232,7 +233,7 @@ fields (carried per frame in the control), the format-converter chain, `avd_comp
 
 ## 4. Ownership invariants across size eras (ticket AC 1)
 
-The design introduces an **era** = the interval between frame-size (or bit-depth) format
+The design introduces an **era** = the interval between legal frame-size format
 changes of one decoder session. Invariants:
 
 1. **Pixel storage is owned by VA surfaces, permanently.** A surface's export stays
@@ -240,9 +241,7 @@ changes of one decoder session. Invariants:
    `context.c:539-546` comment). A surface never changes size; size changes allocate new
    surfaces (the client does this anyway, [§1.3](#13-the-client-always-replaces-the-va-context-on-resize-ffmpeg-pinned)).
 2. **Kernel reference metadata is owned by the decoding session, declared per request.**
-   A reference is valid iff (a) its timestamp resolves in the session's CAPTURE queue and
-   its wrapper carries era metadata (decoded in-session), or (b) the request declares its
-   metadata explicitly ([§6.1](#61-the-reference-metadata-control)) for a re-imported buffer. There is **no
+   A reference is valid only when its session, queue generation, buffer identity, timestamp and era metadata have all been validated. An imported buffer needs explicit registration before timestamp lookup ([§6.1](#61-the-reference-metadata-control)). There is **no
    self-reference fallback** for declared references that do not resolve — resolution
    failure is a submission error, not a firmware experiment.
 3. **Adapted probability state is owned by the kernel decoding context and survives
@@ -252,35 +251,27 @@ changes of one decoder session. Invariants:
    context ([§3.3](#33-userspace-driver-state-va-side)).
 5. **Grow/shrink:** all rules are symmetric in direction. The only asymmetry is sizing:
    the destination buffer must satisfy the *current* era's `sizeimage`; a re-imported
-   reference must satisfy *its own* era's `sizeimage` ([§6.3](#63-era-sizing-rules)). Growth
-   never rewrites an old reference's memory (references are read-only in the queue —
-   `dst_vq->bidirectional = true`, `avd-drv.c:328`).
+   reference must satisfy *its own* era's `sizeimage` ([§6.3](#63-era-sizing-rules)). Growth must never overwrite a live old reference. `bidirectional = true` selects DMA mapping direction; it does not enforce reference-only ownership. The new registration/queue contract must enforce that protection.
 6. **Repeated changes:** each change starts a new era; references from any earlier era of
    the session may appear in one frame's reference set (e.g. last/old-size, golden/newer,
-   alt/older still). The per-request metadata declaration makes era mixtures a non-event
-   for the kernel; the VA driver tracks per-surface era metadata (it negotiated every era).
+   alt/older still). The proposed metadata contract must make each era explicit; the VA driver tracks per-surface era metadata (it negotiated every era).
    Timestamp indices are never reused for different content while a still-submitted frame
    may reference the old content (the existing `last_ref_seq` rule, extended session-wide).
 7. **Surviving old-size references:** by design — see [§2.1](#2-what-vp9-actually-requires-across-a-size-change); the firmware gets each
    reference's true dims and scale factors, which the kernel path already computes from
    per-reference metadata.
-8. **8/10-bit paths:** a bit-depth (image_fmt) change rides the same reconfiguration
-   sequence (`avd_s_ctrl` EBUSY gate at `avd-v4l2.c:139-147`); era metadata includes the
-   image format; P010/NV12 eras may mix in one session's reference set exactly like size
-   eras. VP9 cannot legally change profile mid-stream, so this is robustness, not
-   conformance-reachable — but the invariant must hold because HEVC-style flows share the
-   kernel code.
-9. **Failed reconfiguration rollback:** every step of the session reconfiguration
-   sequence ([§7.2](#72-the-reconfiguration-sequence)) is checked before the next; on failure the frame is rejected
-   pre-submission with a VA error, the session's kernel formats are unchanged (ordering
-   below), no firmware job exists to cancel, and the *previous* era remains fully
-   decodable — a later key frame of the old size (VP9 streams may resize back) continues
-   correctly because nothing was destroyed. Order: drain in-flight completions → free
-   CAPTURE (`REQBUFS 0`) → `S_OUTPUT_FMT(new)` → `S_CAPTURE_FMT(new)` → (re)import
-   buffers → verify with `G_FMT`. Any failure before `S_OUTPUT_FMT` leaves the old era
-   formats; a failure after it leaves a half-configured queue that the next attempt
-   re-runs from the top (formats are re-settable while the CAPTURE queue is empty), so the
-   sequence is idempotent-retryable, not transactional — documented as such.
+8. **8/10-bit paths:** test growth and shrink independently in profile 0/NV12 and
+   profile 2/P010. An old-size reference must match the session's legal profile/depth.
+   Do not enable mixed NV12/P010 references or transfer state across a profile change;
+   reject unsupported transitions before submission. Other codecs need their own proof.
+9. **Failed reconfiguration:** errors before destructive queue changes leave the old
+   session usable. After CAPTURE STREAMOFF/REQBUFS(0), old wrappers and queue state no
+   longer exist; after format changes, the old formats are not guaranteed either.
+   Recovery requires verified restoration of formats, buffers, timestamps, metadata,
+   scratch and durable state. If that cannot be established, mark the session failed,
+   return a VA error and forbid further submissions. No automatic idempotent-retry or
+   old-era-decodable guarantee. Fault injection must check every phase (§7.3), consistent
+   with [driver #35](https://github.com/iconidentify/libva-v4l2_request/issues/35).
 
 ## 5. Strategy comparison (ticket plan step 2)
 
@@ -293,26 +284,23 @@ and re-import references with declared metadata.
 
 Why it fits:
 
-* The VA driver already has every ingredient: persistent surface backings, dmabuf-import
+* The VA driver already has useful building blocks: persistent surface backings, dmabuf-import
   capable CAPTURE queue (`io_modes = VB2_MMAP | VB2_DMABUF`, `avd-drv.c:332`), a DMABUF
   capture mode, and userspace reference-lifetime bookkeeping.
 * The kernel's per-frame interface already takes per-reference dims/scales — the missing
-  piece is metadata *declaration* for re-imported buffers, which fits the stateless
-  per-request model (no new queue semantics, no save/restore blobs).
+  pieces include reference registration, heterogeneous buffer-size validation and a state-preserving reconfiguration contract. Their compatibility with vb2 must be demonstrated; metadata alone is insufficient.
 * It preserves the r10/r11 safety property: every reference is validated before
   submission; nothing is fed to the firmware "to see what happens".
 
 ### 5.2 Why hantro G2 is the precedent (mainline stateless VP9)
 
-The only mainline stateless VP9 decoder keeps *all* persistent state at the
-`hantro_ctx` level, allocated once at device open at the **format maximum**
-(`hantro_vp9.c:158-227`: segment map at `max_width×max_height` ×2 alternating, tile/bsd
-at max height, fixed prob/count tables; per-frame `frame_context[4]` adaptation in
-`hantro_g2_vp9_dec.c` identical in structure to AVD's). A CAPTURE reallocation there
-cannot destroy codec state; only a device-node close can. AVD's structural deficit is
-precisely [§1.2](#12-kernel-enforcement-points-stock-asahi-7113-3) point 7 (state born/killed on OUTPUT STREAMON/OFF, scratch sized at
-the *current* rather than maximum dims) plus the per-buffer metadata channel. V2 adopts
-the hantro ownership model, adapted to AVD's push-stream firmware interface.
+Hantro is one comparison for context-owned probability tables and max-dimension
+scratch allocation (`hantro_vp9.c:158-227`). It does **not** establish open-to-close
+codec lifetime: `hantro_start_streaming` calls codec `init`, and
+`hantro_stop_streaming` calls codec `exit`, on the coded queue
+(`hantro_v4l2.c:921-989`). CAPTURE-only reallocation and coded-queue restart are distinct.
+This precedent motivates ownership separation but proves neither AVD live reconfiguration
+nor a legal ioctl sequence for it.
 
 ### 5.3 Strategy B: explicit migration contract (fallback)
 
@@ -322,84 +310,76 @@ re-import + metadata seeding. Kept as the **documented fallback** if the V2 expe
 show the firmware itself requires a context reset on dimension change (experiment A).
 Rejected as primary: strictly more ABI surface (state blobs in both directions, layout
 versioning), more failure modes (snapshot too late/early, partial era mixes), and it
-still needs the per-buffer metadata channel anyway. If B is forced, the per-request
-metadata control of [§6.1](#61-the-reference-metadata-control) is reused unchanged.
+still needs the per-buffer metadata channel anyway. If B becomes necessary, the registration and session contracts must be re-reviewed for migration; they are not automatically reusable unchanged.
 
 ## 6. The V2 kernel interface: state-preserving reconfiguration
 
-All changes are to `drivers/media/platform/apple/avd` as an out-of-tree patch in this
-repository's patch series (patch `00XX`), under explicit `needs:kernel-approval`;
-nothing here is edited by this design issue.
+This is a proposed interface, not an assigned UAPI or a proven driver-local patch.
+V2 must resolve the following blockers before its interface can be considered stable.
+Kernel changes require explicit authorization; no shipped patch is edited by V1.
 
 ### 6.1 The reference-metadata control
 
-A per-request compound control declaring the metadata of references that were re-imported
-into the CAPTURE queue from outside the current context lifetime:
+A timestamp-only request control cannot locate a freshly imported dmabuf: importing bytes
+neither restores the old queue timestamp nor the discarded wrapper metadata. V2 must
+prototype an explicit registration mechanism binding an imported buffer's **index and
+queue generation** to a session-local content identity/timestamp and immutable era
+metadata (unaligned width/height, legal depth/fourcc, backing extent).
 
-```
-V4L2_CID_STATELESS_AVD_VP9_REFERENCE_INFO (driver-specific, compound array)
-element {
-    u64 timestamp;          /* matches the CAPTURE buffer's queue timestamp */
-    u32 width, height;      /* frame dims of that buffer's era (unaligned) */
-    u32 bit_depth;          /* 8 or 10 */
-    u32 pixelformat;        /* era CAPTURE fourcc (NV12/P010/…) */
-    u32 comp_size;          /* fill_comp() products of the era */
-    u64 comp_start_offset;
-    u32 comp_offsets[4];
-};
-```
+The kernel must validate ownership, generation, index bounds, uniqueness, successful
+original decode and immutability while readers exist. Recompute compression offsets and
+required extents from the validated era with overflow/bounds checks; do not trust supplied
+DMA offsets. Resolve references only after registration succeeds. Reject unknown,
+stale, duplicate, mixed-session or destination-alias identities before hardware submission;
+no destination fallback. A stale request must not become valid after index reuse.
 
-Semantics:
-
-* Applied at request setup (`avd_run_preamble`/`set_refs`): a `set_refs` lookup that
-  resolves to a buffer whose wrapper has **no** era metadata (fresh import) uses the
-  declared element instead. The declared layout is *verified* against
-  `fill_comp(pixelformat-class, width, height)` and the buffer's plane size before use —
-  the control describes *which era*, not raw offsets; recomputing keeps it honest.
-* A declared timestamp that does not resolve in the queue is `-EINVAL` at
-  `validate_dec_params` time — **no self-reference fallback** for declared refs.
-* Buffers decoded in-session keep their wrapper metadata (control entries for them are
-  rejected as redundant — one source of truth per buffer).
-* The control is optional; absent it, behaviour is exactly today's (r10-equivalent safety
-  net remains the userspace guard).
-
-The VA driver fills this control from its per-surface era bookkeeping ([§3.1](#31-per-decoded-buffer-state-kernel-wrapper-dies-with-the-capture-queue): derivable).
+The mechanism must also keep imported reference buffers out of the destination queue:
+otherwise the scheduler could overwrite a still-live reference. How registration retains
+a reference without queuing it as a decode destination is an **open V2 blocker**. Its
+control ID, versioning, ordering, request lifetime and capability negotiation are TBD.
+The stock path and current userspace rejection remain until this opt-in contract exists.
 
 ### 6.2 Scratch and persistent-state lifetime rules
 
-* Move `avd_vp9_start`'s durable allocations to first-use at device open (hantro model),
-  or equivalently: keep them across CAPTURE reallocation and OUTPUT-format changes; free
-  them only on OUTPUT STREAMOFF/fd close as today.
-* On an OUTPUT format change while streaming (era change), re-run `avd_vp9_alloc_bufs`
-  between jobs (the m2m device serializes runs per context; the watchdog still guards
-  each job). `avd_buf_alloc`'s realloc-on-size-change behaviour (`avd-drv.c:72-86`) is
-  acceptable for all *per-frame* scratch; **`bufs.seg` content must be preserved across
-  its reallocation** (copy to the new buffer, sized per experiment B's answer), because
-  the map is the one scratch with cross-frame durability.
-* `frame_context[4]`, `cur`/`last`, `cnts` wiring are untouched by era changes.
+Stock `avd_s_output_fmt` rejects streaming OUTPUT; OUTPUT STREAMOFF frees the VP9
+probabilities and scratch. Strategy A therefore requires an explicit quiescent
+reconfiguration operation that preserves durable state while updating both formats and
+scratch, or a separately specified preservation contract across OUTPUT STREAMOFF.
+Simply removing EBUSY or calling the existing setter is insufficient.
+
+The operation must serialize against jobs and reference readers, preallocate scratch,
+retain `frame_context[4]` and `cur`/`last`, and publish compatible format/state together.
+The segmentation map's resize semantics require experiment B; copying bytes blindly
+cannot establish the correct changed-grid interpretation. Allocation failures must not
+free still-required state. Ordinary OUTPUT STREAMOFF/fd close retain stock reset semantics
+unless a negotiated new contract explicitly says otherwise.
 
 ### 6.3 Era sizing rules
 
-* `avd_buf_prepare` (`avd-v4l2.c:802-831`) validates the plane size against the
-  *queue-format* `sizeimage`. Change to per-buffer: record each buffer's required
-  `sizeimage` at creation/import (its era); the destination buffer of a run must satisfy
-  the *current* format; re-imported references must satisfy *their own* era's size. This
-  legalizes sub-size imported references without loosening the destination check.
-* `validate_dec_params` keeps its exact-match rule (it is the correctness anchor); era
-  changes are queue-level, not frame-level.
+The destination must meet the current era's size, and a reference its original era's
+size. `avd_buf_prepare` is not the only gate: `avd_queue_setup` supplies queue plane
+sizes, vb2 saves them as `min_length`, and `__prepare_dmabuf` rejects shorter planes
+**before** the driver's prepare callback (`videobuf2-core.c:515, 1407`).
+
+V2 must demonstrate a legal queue/import allocation path for smaller old-era buffers
+without weakening destination bounds. Options requiring investigation include bounded
+maximum-size allocations from the first era, per-buffer allocation/registration, or a
+separate reference-import path. Existing exported backings cannot be silently replaced
+or grown. Do not claim driver-only edits suffice until all vb2 gates are accounted for;
+if core changes are necessary, record the expanded scope and obtain authorization.
+`validate_dec_params` keeps its current-frame dimension match.
 
 ### 6.4 What V2 deliberately does *not* change
 
 No V4L2_EVENT_SOURCE_CHANGE machinery (the VA driver knows the frame size before
 submission — the event flow exists for bitstream-parsing clients, ours parses headers
-itself); no change to the timestamp reference model; no watchdog or reset-policy change;
+itself); no relaxation of reference identity checks; no watchdog or reset-policy change;
 no upstreaming claim — the control ID and layout are local until proven, and any future
 upstream proposal would go through the Asahi maintainers, not from this repository.
 
 ### 6.5 Authorization and risk envelope
 
-V2 touches only the AVD platform driver (no core V4L2/vb2 edits are required — the
-per-buffer era sizing is inside `avd_buf_prepare`). Experiments run under the existing
+V2 starts with an AVD-local prototype; the required scope remains blocked on §6.3. It must not silently expand into core V4L2/vb2 changes. Experiments run under the existing
 guarded-hardware protocol: read-only idle/fault preflight, finite deadlines,
 new-kernel-error and foreign-client monitoring, durable logs, stop on first new decoder
 fault or wedge, `LIBVA_DRIVERS_PATH` selected userspace builds.
@@ -411,49 +391,47 @@ final conformance.
 
 ### 7.1 Decoder sessions outlive VA contexts
 
-* A **decoder session** = one `(video_fd, media_fd, OUTPUT/CAPTURE queues, kernel codec
-  context, VP9 persistent userspace state, surface bindings, era metadata)`, keyed by
-  `(decoder device, profile)` in the VA driver.
-* `v4l2r_DestroyContext` no longer tears the session down when another VA context could
-  re-bind it: it detaches the VA context, reassigns bound surfaces' pixels to their
-  backings (existing `preserve_capture` logic, now trivial since the CAPTURE queue runs
-  in DMABUF mode), and parks the session (idle timeout or explicit free on VA display
-  close). `v4l2r_CreateContext` for the same profile re-binds the parked session and its
-  surfaces.
-* The r10/r11 ownership guards are kept and generalized: a reference is valid iff it
-  resolves *in the session* with era metadata (wrapper or declared); foreign/detached/
-  failed surfaces still reject. `codec_vp9.c`'s persistent state moves from
-  `ctx->codec_priv` (per VA context) into the session.
-* Timestamps remain session-local `(capture_index + 1) * 1000`; indices are never reused
-  for different pixel content while any submitted frame may still reference it (the
-  `last_ref_seq` rule becomes session-scoped).
+* A **decoder session** owns one kernel context, queues, persistent VP9 state and
+  surface/era metadata. It has a unique opaque identity. Device and profile are only
+  compatibility filters, never a session key: unrelated same-profile streams must not
+  inherit each other's entropy state or references.
+* Destroying a VA context may detach a still-needed session while its reference surfaces
+  retain ownership. Creating a same-profile context does not by itself prove continuity.
+  At picture setup, attach only from unambiguous reference-surface ancestry to one
+  compatible session, with exclusive active-context ownership. Reject mixed ancestry or
+  concurrent attachment. A reset/key frame without ancestry can start a fresh session;
+  an inter frame with missing ancestry is rejected, never assigned an arbitrary parked
+  session. Prove this policy against the pinned FFmpeg call sequence before V3 ships.
+* Bound resource retention without silently evicting state needed by live surfaces.
+  Destroy a session after its last owner/request releases it; display termination tears
+  everything down. If a resource cap prevents retaining required state, fail explicitly.
+* Surface storage/export identity stays stable. Session-local content IDs must be unique
+  across queue generations; `(capture_index + 1)` alone is insufficient after reimport.
+  Reference registration (§6.1) reconnects live content to the new queue safely.
 
 ### 7.2 The reconfiguration sequence
 
-On `vp9_fill_frame`, compare `pic->frame_width/height/bit_depth` with the session's
-current era (the VA driver, not the kernel, initiates — it has the header first). On
-mismatch, before submitting anything:
+This sequence is conditional on the new V2 contract; it cannot run on stock AVD:
 
-1. Drain all in-flight completions for the session (`v4l2r_wait_completed(submitted)`),
-   and wait out every reference reader (existing `capture_wait_readers` logic).
-2. `REQBUFS(0)` on CAPTURE (frees wrappers; kernel VP9 state survives — [§6.2](#62-scratch-and-persistent-state-lifetime-rules)).
-3. `S_OUTPUT_FMT(new aligned dims)` → `S_CAPTURE_FMT(new)` (both now legal; kernel
-   reallocates scratch, preserves `frame_context[4]`/`last`/seg map).
-4. Re-import the *needed* reference backings (the frame's `reference_frames[]` that are
-   still session-valid) as DMABUF capture buffers; allocate destination backings for
-   new-era surfaces (backings must match the new capture format — the existing
-   `backing_matches_capture` rule becomes the per-era rule).
-5. Fill the new VP9_FRAME control *plus* the reference-metadata control of [§6.1](#61-the-reference-metadata-control) for every re-imported reference.
-6. Submit; on any failure above, reject the picture pre-submission (VA error surfaces to
-   the client, which falls back or errors per its policy) and mark the session
-   retry-idempotent ([§4.9](#4-ownership-invariants-across-size-eras-ticket-ac-1)).
+1. Resolve unique session ownership, validate all references and the legal profile/depth,
+   and preflight dimensions, memory bounds and required V2 capabilities.
+2. Drain in-flight jobs and reference readers. Preserve exported backings and immutable
+   era records before destructive queue operations.
+3. CAPTURE STREAMOFF, then CAPTURE REQBUFS(0). OUTPUT remains streaming only if V2
+   provides the negotiated live-reconfiguration operation; ordinary OUTPUT S_FMT is
+   still illegal. An alternative OUTPUT-stop path needs explicit durable-state retention.
+4. Use that operation to commit compatible formats/scratch while preserving probabilities
+   and the proven segmentation policy. Verify the negotiated formats and extents.
+5. Allocate new destination buffers; import/register old reference backings using the
+   verified sizing and reference-only mechanism. Do not queue references as destinations.
+6. Queue suitable destinations, restart CAPTURE with STREAMON, and publish the new era
+   only when registrations and both queues are ready. Submit the first picture last.
 
-CAPTURE runs in `V4L2_MEMORY_DMABUF` for the whole session (both fresh destinations —
-the driver allocates backings, which it already can (`surface.c:587+`) — and re-imported
-references). MMAP mode stays for sessions that never resize (unchanged fast path), and
-the memory type is still fixed per queue — the first era decides, and a session that
-started in MMAP switches to DMABUF at its first resize (queue freed → memory type may
-change).
+Every phase has explicit completion/error checks. Before destructive operations, retain
+old usability; afterwards, restore and verify the entire old state or mark the session
+failed (§4.9). A hardware fault stops the guarded run, never triggers an automatic retry.
+Starting with MMAP additionally requires verified export before release and a legal
+switch to DMABUF; the existing export-identity contract cannot change.
 
 ### 7.3 Fake-state tests (offline, no device — ticket AC 3)
 
@@ -465,10 +443,16 @@ intercepted codec), V3 adds named cases, e.g.:
 |---|---|
 | `vp9-resize-session-reject` | an inter picture whose references are not session-valid rejects before any submission (r10 semantics preserved across the session redesign) |
 | `vp9-resize-era-metadata` | after a simulated era change, the submitted control set contains reference metadata matching each reference surface's recorded era (dims/depth/comp recomputed via the same arithmetic as `fill_comp`) |
-| `vp9-resize-rollback` | a failing step in the sequence (e.g. `S_CAPTURE_FMT` error injected) leaves the session retryable, rejects the picture, submits nothing, and a subsequent old-size key frame still configures and submits |
+| `vp9-resize-rollback` | inject failure at every phase; no submission occurs, and either full old-state restoration is verified or the session remains failed and rejects later submissions |
 | `vp9-resize-repeated` | two consecutive era changes (shrink then grow) with references from all three eras in one picture produce correct per-reference declarations and no aliasing of timestamps to different content |
-| `vp9-resize-depth` | a bit-depth era change rides the same path and rejects illegal mid-stream profile changes (existing profile check at `codec_vp9.c:809-811`) |
+| `vp9-resize-depth` | grow/shrink independently at 8 and 10 bits; illegal depth/profile or mixed-format references reject before submission |
 | `vp9-resize-ref-lifetime` | a backing still referenced by a submitted frame is not re-imported-into/re-decoded before that frame completes (session-scoped `last_ref_seq`) |
+
+Additional mandatory cases: two simultaneous same-profile streams; ambiguous/foreign
+reference ancestry; a live reference surviving context destruction; resource-cap failure;
+stale queue-generation registration; duplicate timestamp; reference queued as destination;
+old backing smaller than current `min_length`; failed CAPTURE STREAMON. These include
+kernel/vb2-side tests under V2, not only mocks of a successful userspace ioctl.
 
 These are the V3 acceptance tests for the offline part; hardware acceptance is the
 vector set of [§8](#8-acceptance-vector-mapping-ticket-ac-2) through the guard.
@@ -507,15 +491,17 @@ affected piece of this design into the §5.3 fallback or a documented blocker �
 
 | # | Question | Experiment | Abort/decision criteria |
 |---|---|---|---|
-| A | Does the AVD firmware accept a per-frame dimension change on a *continuing* context (hantro-style), with references from a prior size era? | One 05/18-resize vector on the patched kernel, single stream, journal + `hwguard` monitoring, idle preflight/post-state | any new kernel/`H`-class message, timeout, or wrong checksum → firmware needs context reset → strategy B |
+| A | Does the AVD firmware accept a per-frame dimension change on a *continuing* context (hantro-style), with references from a prior size era? | One 05/18-resize vector on the patched kernel, single stream, journal + `hwguard` monitoring, idle preflight/post-state | any new kernel/`H`-class message, timeout, or wrong checksum → stop, record a blocker and triage; failure alone does not prove a reset is required |
 | B | Segment-map policy across a resize: preserve-and-realloc-content vs reset-on-resize | the resize vectors with segmentation enabled vs a locally generated resize+segmentation clip (software reference first) | mismatch vs software → adopt the software-equivalent policy; if neither matches, segmentation-across-resize is a documented blocker and such streams stay rejected |
-| C | Scratch regrow between jobs on a live OUTPUT stream | run the era-change sequence under the guard with concurrent reference reads | any kernel message or completion stall beyond the deadline → regrow only with OUTPUT paused (userspace-visible hiccup, documented) |
+| C | Scratch regrow between jobs on a live OUTPUT stream | run the era-change sequence under the guard with concurrent reference reads | any kernel message or completion stall beyond the deadline → stop; OUTPUT pause destroys stock durable state and needs a separately reviewed retention/migration contract |
 | D | Mixed-era compressed references: firmware reads ref comp data at the ref's own offsets (believed by construction from `set_refs`) | 24-vector batch as above | first wrong-output vector → metadata channel insufficient → investigate comp layout pinning before proceeding |
 | E | M1 (T8103, firmware rev 3, `NO_PIPE_STATE` quirk) vs M2 (T8112, rev 4) | all of the above on the M1 first (the r11 machine), M2 as follow-up | any rev-dependent divergence recorded; V2 ships rev-3-validated, rev-4 qualified separately |
 
-The one blocker that would invalidate the whole approach A: if the firmware provably
-requires a *reset context* (experiment A fails cleanly) — then B is the design and this
-document's §6.1/§7 remain valid unchanged (B consumes the same metadata control).
+Experiment failure can result from queue, metadata, layout or firmware behavior; it
+cannot alone identify a firmware requirement. Strategy B is reconsidered only with
+independent evidence that a reset is necessary and a viable migration contract. Until
+registration, vb2 sizing, session continuity and state-preservation blockers are resolved,
+V2/V3 remain conditional and resize rejection stays enabled.
 
 ## 10. Not covered by this design
 
@@ -524,8 +510,7 @@ document's §6.1/§7 remain valid unchanged (B consumes the same metadata contro
 * Profiles 1/3 (4:2:2/4:4:4) — outside the advertised VP9 profiles.
 * The 10-bit high-bit-depth suite has no resize vector; resize-at-10-bit is covered only
   by the added generated matrix pattern, not by conformance vectors.
-* Chrome/Chromium/Firefox resize behaviour (same expected client pattern; browser
-  qualification is its own ticket).
+* Chrome/Chromium/Firefox resize behaviour (client pattern unverified; browser qualification is its own ticket).
 * GStreamer V4L2 (non-VA) path — unaffected by V3; V2 kernel changes must keep the
   GStreamer path's current behaviour (its clients re-queue their own buffers; era
   metadata is opt-in per request).
@@ -536,7 +521,7 @@ document's §6.1/§7 remain valid unchanged (B consumes the same metadata contro
 
 | Source | Revision |
 |---|---|
-| Kernel AVD driver (`avd-vp9.c`, `avd-v4l2.c`, `avd.h`, `avd-drv.c`; comparison `hantro_vp9.c`, `hantro_g2_vp9_dec.c`, `hantro_v4l2.c`, `hantro.h`) | AsahiLinux/linux tag `asahi-7.1.13-3` = commit `94fb23346d522edf53722357c426a3e58030beea` (annotated tag `c7f124eff1b928ae3e35aa0ca18356c4e2d15dce`); per-file SHA-256 recorded in the ticket evidence |
+| Kernel AVD driver (`avd-vp9.c`, `avd-v4l2.c`, `avd.h`, `avd-drv.c`; comparison `hantro_vp9.c`, `hantro_g2_vp9_dec.c`, `hantro_v4l2.c`, `hantro.h`) | AsahiLinux/linux tag `asahi-7.1.13-3` = commit `94fb23346d522edf53722357c426a3e58030beea` (annotated tag `c7f124eff1b928ae3e35aa0ca18356c4e2d15dce`); reviewed file SHA-256s in the adjacent evidence JSON |
 | VA driver (`src/context.c`, `decode.c`, `codec_vp9.c`, `surface.c`, `v4l2_request.h`, `tests/vp9.c`, `tests/picture.c`) | iconidentify/libva-v4l2_request `avd-fixes` at `793d741a5073be34c1a8084211c72cde9c620ba3` |
 | Client behaviour (`libavcodec/vp9.c`, `decode.c`, `vaapi_decode.c`) | FFmpeg tag `n9.0.1` = commit `bf1b838f2ab88b4f8fd83443325c782ea0e0f7fa` |
 | Conformance records | `docs/codec-validation-r10/r11-2026-09-15.json` (r10 `candidate_resize` names the two timeout vectors and their clean post-fix kernel window; r11 `resize_investigation` states the pre-design conclusion this document replaces) |
@@ -545,7 +530,7 @@ document's §6.1/§7 remain valid unchanged (B consumes the same metadata contro
 Source inspection does not prove which binary module is loaded on any machine (the r10
 record's own caveat); every hardware claim above is an experiment, not a result. All
 analysis for this document was offline read-only (fetch + `git show`); commands and
-per-file checksums are in the ticket claim thread. Not run: anything on hardware — no
+reviewed kernel file checksums are in [issue-11-review-evidence.json](issue-11-review-evidence.json). The maintainer source review was performed on the M1 host without decoder access; source identity does not establish the running module identity. Not run: anything on hardware — no
 decoder access, no module operations, no installation, no reboots.
 
 <!-- agent:issue-11-vp9-resize-state-design -->
