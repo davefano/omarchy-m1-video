@@ -1,0 +1,59 @@
+{
+  "date": "2026-09-16",
+  "reviewer": "iconidentify / Codex maintainer review",
+  "implementation_review": "Independent of contributor implementation; maintainer test-only remediation is self-reviewed.",
+  "build_source_head": "833cb5b244324bfb811753d7262748f43b2c46d5",
+  "driver_source": "db3014f9499694c6f186af7e023de07bd5bc3564",
+  "comparison": {
+    "schema_version": 1,
+    "source_date_epoch": 1789592449,
+    "environment": "same read-only host toolchain; separate writable /build trees; network disabled",
+    "one": {
+      "package_sha256": "0359f466bbac13471685b2b17caffea8f861304aa811aec81b81d4dac6f03de2",
+      "stripped_driver_sha256": "a9d6225e0fd348ca22fd738cb2367d7835d7cda1f789ba7b5aae278b32b6729b"
+    },
+    "two": {
+      "package_sha256": "0359f466bbac13471685b2b17caffea8f861304aa811aec81b81d4dac6f03de2",
+      "stripped_driver_sha256": "a9d6225e0fd348ca22fd738cb2367d7835d7cda1f789ba7b5aae278b32b6729b"
+    },
+    "package_bytes_identical": true,
+    "stripped_driver_bytes_identical": true
+  },
+  "recipe_sha256": "2eafd41355e5b235df0ea7191a2adabdf2fcec5795a26b4a911eb4b16628ff83",
+  "inspector_sha256": "6c119148d39d27d2124304d7740a19e3f98461fc48547e6a8d0fc8f7e2494f6d",
+  "commands": [
+    "bash tools/reproduce-package.sh NEW_OUTPUT_DIRECTORY",
+    "bash -n install.sh uninstall.sh bin/apple-avd-rebuild tests/rebuild.sh tests/installer.sh libva/PKGBUILD libva/libva-v4l2_request-avd.install tools/reproduce-package.sh",
+    "bash tests/rebuild.sh",
+    "bash tests/installer.sh",
+    "python3 tests/h264-interlace-scan-test.py",
+    "python3 tests/package-provenance-test.py"
+  ],
+  "results": {
+    "package_builds": 2,
+    "driver_meson_cases_per_build": 35,
+    "scanner_cases": 12,
+    "provenance_cases": 19,
+    "rebuild_and_installer": "passed"
+  },
+  "review_finding": {
+    "upstream_failed_run": 35150004471,
+    "environment": "Python 3.12",
+    "cause": "Global Path.is_dir mock incorrectly intercepted pathlib glob directory checks; result assertions escaped subTest.",
+    "remediation": "Delegate non-sysfs paths to original is_dir, directly exercise delegation, keep result assertions within each subtest.",
+    "production_changes_for_remediation": false
+  },
+  "machine": "Apple M1 j293/t8103, aarch64",
+  "limitations": [
+    "No installation, module operation, kernel patch edit, reboot, hardware decode or browser/display validation from this PR.",
+    "Full archive hash differs from contributor pair because final-head SOURCE_DATE_EPOCH differs; each local pair is byte-identical and stripped driver matches the same historical r11 evidence.",
+    "Two builds share a read-only host toolchain; no cross-toolchain or authenticated-attestation claim."
+  ],
+  "local_artifact_hashes": {
+    "one.json": "215b47fbcec86350a1320b2bf6f2bbec8c9a3f44240625eb9566405ac0ebb87c",
+    "two.json": "3da1b7b7b19fc4b80502f4e5cc04788682a35fa19720dec58eba9c7ed6e10fc3",
+    "one.log": "c6897c836b9749ddd72314a1e0c6fe770294daf52fddb77e55ae23fcf6de3674",
+    "two.log": "e792c29299542069253d58226d811280b50776a3c9b063b6484e8c99295959a1",
+    "comparison.json": "31da05544f741ca1c1ab48883e7696b013c8bc036c7d45d2846dc60472c75385"
+  }
+}

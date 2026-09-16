@@ -173,10 +173,12 @@ class ProvenanceTest(unittest.TestCase):
         responses = {('pacman', '-Q', 'linux-asahi'): kernel,
                      ('pacman', '-Q', 'linux-asahi-headers'): headers,
                      ('modinfo', '-k', 'fixture-release', '-n', 'apple_avd'): module}
+        real_is_dir = Path.is_dir
 
         def loaded_module_present(path):
-            self.assertEqual(path, Path('/sys/module/apple_avd'))
-            return loaded
+            if path == Path('/sys/module/apple_avd'):
+                return loaded
+            return real_is_dir(path)
 
         with mock.patch.object(provenance.platform, 'release', return_value='fixture-release'), \
                 mock.patch.object(provenance, 'optional_command', side_effect=lambda *args: responses[args]), \
@@ -234,15 +236,19 @@ class ProvenanceTest(unittest.TestCase):
         package = self.package()
         for loaded in (True, False):
             with self.subTest(loaded=loaded), self.host_environment(module=str(module), loaded=loaded):
+                # Older pathlib glob implementations inspect this directory
+                # through is_dir; sysfs mocking must preserve that behavior.
+                self.assertTrue((self.repo / 'patches').is_dir())
+                self.assertFalse((self.repo / 'missing-directory').is_dir())
                 doc = provenance.generate(self.repo, package, observe_host=True)
-            self.assertEqual(doc['kernel']['observation'], 'read_only_build_host')
-            self.assertEqual(doc['kernel']['running_release'], 'fixture-release')
-            self.assertTrue(doc['kernel']['package_versions_match'])
-            self.assertEqual(doc['kernel']['selected_module']['sha256'], hashlib.sha256(module.read_bytes()).hexdigest())
-            self.assertEqual(doc['kernel']['selected_module']['identity'], 'on_disk_only')
-            self.assertIs(doc['kernel']['loaded_module']['present'], loaded)
-            self.assertEqual(doc['kernel']['loaded_module']['identity'], 'unknown')
-            self.validate_schema(doc)
+                self.assertEqual(doc['kernel']['observation'], 'read_only_build_host')
+                self.assertEqual(doc['kernel']['running_release'], 'fixture-release')
+                self.assertTrue(doc['kernel']['package_versions_match'])
+                self.assertEqual(doc['kernel']['selected_module']['sha256'], hashlib.sha256(module.read_bytes()).hexdigest())
+                self.assertEqual(doc['kernel']['selected_module']['identity'], 'on_disk_only')
+                self.assertIs(doc['kernel']['loaded_module']['present'], loaded)
+                self.assertEqual(doc['kernel']['loaded_module']['identity'], 'unknown')
+                self.validate_schema(doc)
 
     def test_hardware_hash_and_source_link(self):
         path = self.package()

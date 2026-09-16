@@ -92,3 +92,20 @@ pre-existing wrong-architecture health gap was also corrected for this issue.
 [Resolution record](review-resolution.json) links the fixes and verification.
 The receipt records remaining coverage limits; no actionable review finding remains.
 This automated review does not replace maintainer acceptance.
+
+## Maintainer verification
+
+[Maintainer validation](maintainer-validation.json) records an additional clean
+M1 build pair at final contributor head `833cb5b`. Both builds pass 35 driver
+tests and produce identical complete archives; the stripped driver again matches
+the recorded r11 binary. The archive timestamp follows this later source head,
+so the full package hash differs from the earlier contributor pair as expected.
+No installation or new hardware qualification occurred.
+
+Upstream Python 3.12 CI exposed a global `Path.is_dir` test mock intercepting
+`Path.glob` internals. The maintainer fix delegates non-sysfs paths to the real
+method, tests that delegation explicitly, and keeps each result assertion in its
+subtest. Production helper, recipe, patches and build scripts are unchanged.
+The implementation review is independent of the contributor; this bounded
+maintainer test remediation is self-reviewed. Corrected-head CI is required
+before acceptance.
