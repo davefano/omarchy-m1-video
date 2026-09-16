@@ -36,7 +36,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -68,7 +68,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -100,7 +100,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -132,7 +132,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -164,7 +164,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -196,7 +196,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        48
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -290,7 +290,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -322,7 +322,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -354,7 +354,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -386,7 +386,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -418,7 +418,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -450,7 +450,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        48
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -613,7 +613,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -645,7 +645,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -677,7 +677,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -709,7 +709,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -741,7 +741,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -773,7 +773,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        48
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -936,7 +936,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -968,7 +968,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1000,7 +1000,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1032,7 +1032,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1064,7 +1064,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1096,7 +1096,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        48
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1190,7 +1190,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1222,7 +1222,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1254,7 +1254,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1286,7 +1286,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1318,7 +1318,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1350,7 +1350,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        48
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1444,7 +1444,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1476,7 +1476,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1508,7 +1508,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1540,7 +1540,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1572,7 +1572,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1604,7 +1604,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        48
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1697,7 +1697,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1728,7 +1728,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1759,7 +1759,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1790,7 +1790,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1821,7 +1821,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1852,7 +1852,7 @@
       ],
       "aligned_decoded_format": [
         64,
-        48
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1929,7 +1929,7 @@
       ],
       "aligned_decoded_format": [
         128,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1960,7 +1960,7 @@
       ],
       "aligned_decoded_format": [
         128,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -1991,7 +1991,7 @@
       ],
       "aligned_decoded_format": [
         128,
-        16
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -2022,7 +2022,7 @@
       ],
       "aligned_decoded_format": [
         128,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -2053,7 +2053,7 @@
       ],
       "aligned_decoded_format": [
         128,
-        32
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -2084,7 +2084,7 @@
       ],
       "aligned_decoded_format": [
         128,
-        48
+        64
       ],
       "enforced_by": "kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, before firmware submission)"
     },
@@ -2200,6 +2200,8 @@
     ],
     "below_minimum_but_recorded_passing": [],
     "within_minimum_but_recorded_failing": [],
+    "within_minimum_but_unknown": [],
+    "below_minimum_but_unknown": [],
     "consistent": true
   },
   "generated": "2026-09-16",
@@ -2208,5 +2210,6 @@
   "note": "Derived classification metadata only. The official vectors are download-on-demand-only with terms not established and are not redistributed here; this file records parsed header fields, not media.",
   "suite_file_sha256": "37f79fb4b3c529f54f8f54b0e36040b410d75a2bf71d022f9726e5545bd129b0",
   "vectors_verified_md5": 70,
-  "hardware": "none; no decoder was opened and no decode was run"
+  "hardware": "none; no decoder was opened and no decode was run",
+  "maintainer_correction": "Replayed all 70 original vectors locally with corrected minimum-clamped format dimensions and strict baseline/parse failure checks. Parsed headers and the 60/10 classification remain unchanged."
 }

@@ -103,7 +103,7 @@ class Header(unittest.TestCase):
         # The negotiated format is already padded past the frame size; a padded
         # allocation is therefore not evidence that the frame size is accepted.
         v = scan.verdict(scan.classify_frame(frame(8, 8)))
-        self.assertEqual(v['aligned_decoded_format'], [64, 16])
+        self.assertEqual(v['aligned_decoded_format'], [64, 64])
         self.assertEqual(v['classification'], 'below_avd_minimum')
 
     def test_render_size_is_read_separately_from_the_coded_size(self):
@@ -181,6 +181,22 @@ class Containers(unittest.TestCase):
             scan.first_frame(bad)
 
 
+    def test_short_block_is_reported_as_container_error(self):
+        bad = b'\x1a\x45\xdf\xa3\x84\x00\x00\x00\x00' + _elem(0x18538067, _elem(0xA3, b'\x81'))
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / 'short.webm'
+            path.write_bytes(bad)
+            info = scan.classify_path(path)
+            self.assertEqual(info['classification'], 'unparsed')
+
+    def test_empty_cluster_does_not_hide_later_block(self):
+        payload = frame(8, 8)
+        block = b'\x81\x00\x00\x80' + payload
+        segment = _elem(0x18538067, _elem(0x1F43B675, b'') + _elem(0x1F43B675, _elem(0xA3, block)))
+        data = b'\x1a\x45\xdf\xa3\x84\x00\x00\x00\x00' + segment
+        self.assertEqual(scan.first_frame(data), payload)
+
+
 class CrossCheck(unittest.TestCase):
     """The scanner must refuse to smooth over a contradiction with the baseline."""
 
@@ -209,9 +225,19 @@ class CrossCheck(unittest.TestCase):
         self.assertFalse(rep['cross_check']['consistent'])
         self.assertEqual(rep['cross_check']['below_minimum_but_recorded_passing'], ['a.ivf'])
 
+    def test_within_minimum_recorded_as_failing_is_an_error(self):
+        rc, rep = self._run('a.ivf', ivf(frame(64, 64)), ['a.ivf'], [])
+        self.assertEqual(rc, 1)
+        self.assertFalse(rep['cross_check']['consistent'])
+
+    def test_unknown_vector_cannot_certify_the_baseline(self):
+        rc, rep = self._run('a.ivf', ivf(frame(64, 64)), [], [])
+        self.assertEqual(rc, 1)
+        self.assertFalse(rep['cross_check']['consistent'])
+
     def test_unreadable_vector_is_reported_not_counted_as_supported(self):
         rc, rep = self._run('a.ivf', b'DKIF' + bytes(28), [], [])
-        self.assertEqual(rc, 0)
+        self.assertEqual(rc, 1)
         self.assertEqual(rep['counts'].get('unparsed'), 1)
         self.assertNotIn('within_avd_minimum', rep['counts'])
 

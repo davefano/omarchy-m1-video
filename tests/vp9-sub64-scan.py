@@ -66,6 +66,8 @@ def _color_config(b, profile):
         else:
             ssx = ssy = 1
     else:
+        if profile not in (1, 3):
+            raise ValueError('RGB requires VP9 profile 1 or 3')
         if profile in (1, 3):
             if b.bits(1):
                 raise ValueError('reserved_zero set in color_config')
@@ -159,7 +161,8 @@ def verdict(info):
         # The negotiated decoded format is already padded past the frame size,
         # so the rejection is about the declared frame size, not the allocation.
         'aligned_decoded_format': [
-            -(-w // AVD_ALIGN_W) * AVD_ALIGN_W, -(-h // AVD_ALIGN_H) * AVD_ALIGN_H],
+            max(AVD_MIN_CODED, -(-w // AVD_ALIGN_W) * AVD_ALIGN_W),
+            max(AVD_MIN_CODED, -(-h // AVD_ALIGN_H) * AVD_ALIGN_H)],
         'enforced_by': 'kernel avd-vp9.c:632-634 validate_dec_params (-EINVAL, '
                        'before firmware submission)',
     }
@@ -197,10 +200,12 @@ def _webm_first_frame(data):
         while pos < end:
             eid, pos = _vint(data, pos, True)
             size, pos = _vint(data, pos, False)
-            if size > end - pos:
+            if pos > end or size > end - pos:
                 raise ValueError('EBML element overruns its parent')
             if eid in BLOCK:
-                _, bp = _vint(data, pos, False)   # track number
+                _, bp = _vint(data[:pos + size], pos, False)  # track number
+                if bp + 3 > pos + size:
+                    raise ValueError('truncated block header')
                 bp += 2                            # timecode (int16)
                 flags = data[bp]
                 bp += 1
@@ -208,6 +213,7 @@ def _webm_first_frame(data):
                     raise ValueError('laced block is not supported')
                 return data[bp:pos + size]
             if eid in MASTER:
+                stack.insert(0, (pos + size, end))
                 stack.insert(0, (pos, pos + size))
                 break
             pos += size
@@ -218,6 +224,8 @@ def _ivf_first_frame(data):
     if len(data) < 32:
         raise ValueError('truncated IVF header')
     hdr = int.from_bytes(data[6:8], 'little')
+    if hdr < 32 or data[8:12] != b'VP90':
+        raise ValueError('invalid VP9 IVF header')
     if len(data) < hdr + 12:
         raise ValueError('truncated IVF frame header')
     size = int.from_bytes(data[hdr:hdr + 4], 'little')
@@ -294,18 +302,23 @@ def main():
             'below_minimum_and_recorded_failing': sorted(below & failing),
             'below_minimum_but_recorded_passing': sorted(below & passing),
             'within_minimum_but_recorded_failing': sorted(within & failing),
-            'consistent': not (below & passing),
+            'within_minimum_but_unknown': sorted(within - passing - failing),
+            'below_minimum_but_unknown': sorted(below - passing - failing),
+            'consistent': not (below & passing or within & failing or
+                               (below | within) - passing - failing or
+                               report['counts'].get('unparsed', 0)),
         }
-        # A vector below the minimum that the baseline records as passing would
-        # contradict the kernel check and must be investigated, not smoothed over.
-        if below & passing:
+        # This mode is for the dimension-only family: every parsed vector must
+        # have a baseline outcome agreeing in both directions. Unknown/unparsed
+        # input cannot certify the claimed exact classification.
+        if not report['cross_check']['consistent']:
             json.dump(report, sys.stdout, indent=2)
             print(file=sys.stdout)
             return 1
 
     json.dump(report, sys.stdout, indent=2)
     print()
-    return 0
+    return 1 if report['counts'].get('unparsed', 0) else 0
 
 
 if __name__ == '__main__':

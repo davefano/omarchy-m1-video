@@ -11,7 +11,7 @@ shorter than 64 pixels. It does **not** claim that any of the 60 affected vector
 1. Sub-64 coded dimensions stay **unsupported** on the AVD backend.
 2. The boundary is **not** implemented by padding or cropping. Declaring a padded frame
    size to the decoder is rejected as a design: it changes `MiCols`/`MiRows`, which drive
-   partition syntax during decode, so it corrupts the decode rather than merely changing
+   partition syntax during decode. It cannot preserve arbitrary streams merely by changing
    the visible crop (§4).
 3. The enforced limit today is a **kernel driver guard**, not a demonstrated firmware
    limit (§3.3). Prior notes describing a "kernel minimum 64x64" as a hardware property
@@ -74,7 +74,8 @@ None of the shipped patches `0001`–`0015` touches `avd-vp9.c`, so this path is
 
 * `frame_width < 64 || frame_height < 64` → `-EINVAL`;
 * then `round_up(width, 64)` / `round_up(height, 16)` must equal the negotiated decoded
-  format, or `-EINVAL` with `unexpected bitstream resolution`.
+  format, or `-EINVAL` with `unexpected bitstream resolution`. This agreement check
+  would also need analysis if the minimum guard were relaxed.
 
 The values checked come from `V4L2_CID_STATELESS_VP9_FRAME`, i.e. the **bitstream-declared
 frame size**, not the size of any buffer. The call site (`avd-vp9.c:751`) runs while
@@ -83,9 +84,9 @@ submitted to the decoder.
 
 ### 3.2 The allocation is already padded
 
-The negotiated decoded format is `round_up(w, 64) x round_up(h, 16)` and every per-codec
-scratch buffer in `avd_vp9_alloc_bufs()` (`avd-vp9.c:654-728`) is sized from that format,
-not from the frame size. An 8x8 stream already negotiates a 64x16 decoded format. **Padding
+Format negotiation applies both the minimum 64x64 and the width/height alignment:
+`max(64, round_up(w, 64)) x max(64, round_up(h, 16))`. Every per-codec scratch buffer in `avd_vp9_alloc_bufs()` (`avd-vp9.c:654-728`) is sized from that format,
+not from the frame size. An 8x8 stream negotiates at least a 64x64 decoded format. **Padding
 the allocation therefore changes nothing**: the allocation is not what is rejected.
 
 ### 3.3 The guard is conservative, not arithmetic
@@ -127,14 +128,14 @@ detail; it changes how the bitstream is decoded:
   For an 8-pixel-wide frame `MiCols` is 1; declaring 64 makes it 8.
 * Partition decoding is conditioned on that grid: availability of rows and columns at the
   frame edge determines whether a partition symbol is read or an implicit split is used.
-  Changing `MiCols` therefore changes the syntax read from the very first superblock, and
-  the entropy-coded tile data desynchronises immediately. The result is not a larger
-  picture to be cropped; it is a different, wrong decode.
+  Changing `MiCols` can therefore change the syntax consumed at a boundary and
+  desynchronise entropy decoding. This is a specification-based reason that padding is
+  not a general solution; it is not evidence that every padded vector necessarily fails.
 * VP9 reference scaling compounds this. Scale factors are computed from each reference's
   dimensions against the current frame's dimensions, so a frame decoded under a falsified
   size poisons every later frame that references it. The acceptance criterion that a
   padding path must "account for reference scaling and hash the exact visible crop" cannot
-  be met, because the pixels inside the crop are already wrong.
+  be established by allocation padding alone.
 
 No resampling or crop-and-compare step can hide this, and none may be used to make a
 checksum match. The padding approach is rejected on these grounds alone, independently of
@@ -169,7 +170,8 @@ source.
 
 ### 6.1 Report the real dimension limits and reject below them in userspace
 
-Owning layer: `libva-v4l2_request` (driver). No hardware, no kernel change.
+Tracked as [driver #79](https://github.com/iconidentify/libva-v4l2_request/issues/79).
+Owning layer: driver. Offline implementation first; hardware acceptance remains guarded.
 
 * Derive `VASurfaceAttribMin/MaxWidth/Height` from `VIDIOC_ENUM_FRAMESIZES` for the
   selected coded format, with a documented fallback when the ioctl is absent.
@@ -182,17 +184,19 @@ Owning layer: `libva-v4l2_request` (driver). No hardware, no kernel change.
   the kernel already applies.
 * Correct the `docs/CORPUS.md` "rejected in userspace" wording to name the layer that
   actually rejects.
-* Acceptance: offline tests only; the exact r11 pass sets must be unchanged, since no
-  currently passing stream is affected.
+* Acceptance: intercepted-device boundary tests first; a guarded selected-driver run
+  confirms rejection and preserves exact r11 pass sets before hardware qualification.
 
 ### 6.2 Establish whether the firmware accepts a truthful sub-64 frame size
 
-Owning layer: kernel patch in this repository. **`needs:hardware` and
+Tracked as [companion #37](https://github.com/iconidentify/omarchy-m1-video/issues/37).
+Owning layer: kernel experiment in this repository. **`needs:hardware` and
 `needs:kernel-approval`**; blocked until both are granted.
 
-* Experiment: relax `validate_dec_params()`'s `< 64` test only, keeping the
-  `round_up(w, 64) x round_up(h, 16)` format agreement intact, and submit the true frame
-  size for a small ordered subset — `vp90-2-02-size-08x08`, `08x64`, `64x08`, `34x34`,
+* First reconcile the minimum-clamped negotiated format with the rounded truthful
+  bitstream size; removing only the `< 64` check still rejects some inputs at the
+  format-agreement check. An approved experiment must preserve allocation safety and
+  truthful coded dimensions, then submit the true frame size for a small ordered subset — `vp90-2-02-size-08x08`, `08x64`, `64x08`, `34x34`,
   `66x32` — under the hardware guard, comparing against the software decode.
 * Stop conditions: any decoder fault, watchdog or wedge ends the experiment; no
   unload/reload recovery loop; the decoder must be left idle.
@@ -229,3 +233,14 @@ Owning layer: kernel patch in this repository. **`needs:hardware` and
 * `tests/vp9-sub64-scan-test.py` exercises the scanner against synthetic headers and
   containers it builds itself; the real-corpus run above was performed once, offline, and
   is not reproduced in CI, because the vectors may not be redistributed.
+
+## Maintainer review corrections
+
+The scanner now fails on unreadable inputs, unknown baseline entries and disagreements
+in either direction. Short block headers and empty clusters have synthetic regressions.
+Format dimensions include the 64x64 minimum before alignment; removing only the VP9
+size guard cannot satisfy the later format-agreement check for every sub-64 picture.
+All 70 original inputs were replayed locally and their source MD5s verified against the
+pinned suite: 60 below the minimum and 10 within it, with no changed header classification.
+The padding argument is a general correctness limitation, not a claim that every modified
+stream was observed to produce wrong pixels.
