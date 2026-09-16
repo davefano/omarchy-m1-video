@@ -6,11 +6,31 @@ set -euo pipefail
 export LC_ALL=C
 cd "$(dirname "$0")"
 
-SHARE=/usr/local/share/apple-avd-patched
-KVER=$(uname -r)
-
 say() { echo "==> $*"; }
 die() { echo "==> ERROR: $*" >&2; exit 1; }
+
+SYSROOT=${OMARCHY_M1_VIDEO_SYSROOT:-}
+TEST_MODE=${OMARCHY_M1_VIDEO_TEST_MODE:-0}
+test_root_error() { echo "invalid test environment: $*" >&2; exit 1; }
+[[ $TEST_MODE == 0 || $TEST_MODE == 1 ]] || test_root_error "unknown test mode"
+if [[ $TEST_MODE == 1 ]]; then
+	[[ -n $SYSROOT ]] || test_root_error "test mode requires a disposable sysroot"
+	[[ $EUID -ne 0 ]] || test_root_error "test mode must run as an unprivileged user"
+fi
+[[ -z $SYSROOT || $TEST_MODE == 1 ]] || \
+	test_root_error "OMARCHY_M1_VIDEO_SYSROOT is only available with OMARCHY_M1_VIDEO_TEST_MODE=1"
+if [[ -n $SYSROOT ]]; then
+	[[ $SYSROOT == /* ]] || test_root_error "OMARCHY_M1_VIDEO_SYSROOT must be an absolute path"
+	[[ $SYSROOT != / ]] || test_root_error "refusing to use / as a test sysroot"
+	physical_root=$(cd -- "$SYSROOT" 2>/dev/null && pwd -P) || test_root_error "sysroot does not exist"
+	[[ $SYSROOT == "$physical_root" ]] || test_root_error "sysroot must be a canonical physical directory"
+	[[ -f $SYSROOT/.omarchy-m1-video-test-root && ! -L $SYSROOT/.omarchy-m1-video-test-root ]] || \
+		test_root_error "test sysroot is missing .omarchy-m1-video-test-root"
+fi
+sys() { printf '%s%s' "$SYSROOT" "$1"; }
+
+SHARE=$(sys /usr/local/share/apple-avd-patched)
+KVER=$(uname -r)
 
 accept=0
 for arg in "$@"; do
@@ -35,7 +55,7 @@ fi
 
 [[ $EUID -ne 0 ]] || die "run this as your normal user, not root"
 [[ $(uname -m) == aarch64 ]] || die "this is for aarch64 Apple Silicon Macs"
-compat=$(tr '\0' ' ' < /proc/device-tree/compatible 2>/dev/null || true)
+compat=$(tr '\0' ' ' < "$(sys /proc/device-tree/compatible)" 2>/dev/null || true)
 [[ $compat == *apple,* ]] || die "not an Apple Silicon Mac (device tree: ${compat:-none})"
 kpkg=$(pacman -Q linux-asahi 2>/dev/null | awk '{print $2}') || true
 [[ -n $kpkg ]] || die "needs the linux-asahi kernel package"
@@ -43,7 +63,7 @@ say "machine: $compat"
 [[ $compat == *t8103* ]] || say "NOTE: only tested on the M1 (t8103). Other chips use the same driver but are untested."
 
 running_asahi=0
-[[ $(pacman -Qqo "/usr/lib/modules/$KVER/vmlinuz" 2>/dev/null || true) == linux-asahi ]] && running_asahi=1
+[[ $(pacman -Qqo "$(sys "/usr/lib/modules/$KVER/vmlinuz")" 2>/dev/null || true) == linux-asahi ]] && running_asahi=1
 [[ $running_asahi -eq 1 ]] || say "NOTE: the running kernel $KVER is not the installed linux-asahi $kpkg (reboot pending after a kernel update?)"
 
 # Headers must match the installed kernel exactly; installing them from a newer
@@ -57,8 +77,9 @@ else
 	need_headers=linux-asahi-headers
 fi
 
-blocked=$(grep -rsE '^[[:space:]]*(blacklist|install)[[:space:]]+apple[-_]avd([[:space:]]|$)' /etc/modprobe.d /usr/lib/modprobe.d /run/modprobe.d || true)
-cmdline_block=$(grep -oE '(module_blacklist|modprobe\.blacklist)=[^ ]*apple[-_]avd' /proc/cmdline || true)
+blocked=$(grep -rsE '^[[:space:]]*(blacklist|install)[[:space:]]+apple[-_]avd([[:space:]]|$)' \
+	"$(sys /etc/modprobe.d)" "$(sys /usr/lib/modprobe.d)" "$(sys /run/modprobe.d)" || true)
+cmdline_block=$(grep -oE '(module_blacklist|modprobe\.blacklist)=[^ ]*apple[-_]avd' "$(sys /proc/cmdline)" || true)
 if [[ -n $blocked || -n $cmdline_block ]]; then
 	say "NOTE: apple_avd is currently blocked from loading:"
 	[[ -n $blocked ]] && printf '       %s\n' "$blocked"
@@ -68,30 +89,34 @@ fi
 
 say "installing build dependencies"
 # shellcheck disable=SC2086
-sudo pacman -S --needed --noconfirm base-devel git meson libdrm libva libva-utils patch $need_headers
+sudo pacman -S --needed --noconfirm base-devel git meson libdrm libva libva-utils patch $need_headers || \
+	die "installing build dependencies failed; fix the package error and rerun this installer"
 
 say "building and installing the VA-API driver (libva-v4l2_request-avd)"
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 cp libva/PKGBUILD libva/libva-v4l2_request-avd.install "$work/"
-(cd "$work" && makepkg -si --noconfirm)
+(cd "$work" && makepkg -si --noconfirm) || \
+	die "building or installing the VA-API package failed; existing kernel modules were not changed; fix the error and rerun this installer"
 
 say "installing kernel driver patches, rebuild script, pacman hooks and boot service"
-sudo install -d "$SHARE/patches"
-sudo find "$SHARE/patches" -maxdepth 1 -name '*.patch' -delete
-sudo install -m644 patches/*.patch "$SHARE/patches/"
-sudo install -Dm755 bin/apple-avd-rebuild /usr/local/sbin/apple-avd-rebuild
-sudo install -Dm644 -t /etc/pacman.d/hooks hooks/*.hook
-sudo install -Dm644 systemd/apple-avd-rebuild.service /etc/systemd/system/apple-avd-rebuild.service
-sudo systemctl daemon-reload
-sudo systemctl enable apple-avd-rebuild.service
+sudo install -d "$SHARE/patches" || die "creating the managed patch directory failed; fix the error and rerun this installer"
+sudo find "$SHARE/patches" -maxdepth 1 -name '*.patch' -delete || die "cleaning the managed patch directory failed; fix the error and rerun this installer"
+sudo install -m644 patches/*.patch "$SHARE/patches/" || die "installing the managed patch set failed; fix the error and rerun this installer"
+sudo install -Dm755 bin/apple-avd-rebuild "$(sys /usr/local/sbin/apple-avd-rebuild)" || die "installing apple-avd-rebuild failed; fix the error and rerun this installer"
+sudo install -Dm644 -t "$(sys /etc/pacman.d/hooks)" hooks/*.hook || die "installing pacman hooks failed; fix the error and rerun this installer"
+sudo install -Dm644 systemd/apple-avd-rebuild.service "$(sys /etc/systemd/system/apple-avd-rebuild.service)" || die "installing the boot service failed; fix the error and rerun this installer"
+sudo systemctl daemon-reload || die "reloading systemd failed; installed files are retained; fix the error and rerun this installer"
+sudo systemctl enable apple-avd-rebuild.service || die "enabling the boot service failed; installed files are retained; fix the error and rerun this installer"
 
 say "building the patched apple_avd module for the installed kernel(s)"
-if ! sudo /usr/local/sbin/apple-avd-rebuild --force; then
+if ! sudo "$(sys /usr/local/sbin/apple-avd-rebuild)" --force; then
 	die "building the patched module failed (messages above). The VA-API driver, hooks and boot service are installed; fix the problem and run ./install.sh --i-accept-boot-risk again"
 fi
 
 conf=${XDG_CONFIG_HOME:-$HOME/.config}/mpv/mpv.conf
+[[ ! -L $conf && ! -L $conf.before-omarchy-m1-video ]] || \
+	die "refusing to follow a symbolic link for $conf or its backup"
 mkdir -p "$(dirname "$conf")"
 touch "$conf"
 if grep -qE '^[[:space:]]*(hwdec|vo|gpu-api)[[:space:]]*=' "$conf"; then
@@ -109,7 +134,7 @@ else
 fi
 
 echo
-if [[ $running_asahi -ne 1 || ! -f /usr/lib/modules/$KVER/updates/apple-avd.ko ]]; then
+if [[ $running_asahi -ne 1 || ! -f $(sys "/usr/lib/modules/$KVER/updates/apple-avd.ko") ]]; then
 	say "Done. Reboot into the installed kernel; the patched module is built for it and loads at boot."
 elif [[ -n $blocked || -n $cmdline_block ]]; then
 	say "Done, but apple_avd is blocked from loading (see above)."

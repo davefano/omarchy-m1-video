@@ -21,12 +21,32 @@ set -uo pipefail
 export LC_ALL=C
 shopt -s nullglob
 
-SHARE=/usr/local/share/apple-avd-patched
+SYSROOT=${OMARCHY_M1_VIDEO_SYSROOT:-}
+TEST_MODE=${OMARCHY_M1_VIDEO_TEST_MODE:-0}
+test_root_error() { echo "invalid test environment: $*" >&2; exit 1; }
+[[ $TEST_MODE == 0 || $TEST_MODE == 1 ]] || test_root_error "unknown test mode"
+if [[ $TEST_MODE == 1 ]]; then
+	[[ -n $SYSROOT ]] || test_root_error "test mode requires a disposable sysroot"
+	[[ $EUID -ne 0 ]] || test_root_error "test mode must run as an unprivileged user"
+fi
+[[ -z $SYSROOT || $TEST_MODE == 1 ]] || \
+	test_root_error "OMARCHY_M1_VIDEO_SYSROOT is only available with OMARCHY_M1_VIDEO_TEST_MODE=1"
+if [[ -n $SYSROOT ]]; then
+	[[ $SYSROOT == /* ]] || test_root_error "OMARCHY_M1_VIDEO_SYSROOT must be an absolute path"
+	[[ $SYSROOT != / ]] || test_root_error "refusing to use / as a test sysroot"
+	physical_root=$(cd -- "$SYSROOT" 2>/dev/null && pwd -P) || test_root_error "sysroot does not exist"
+	[[ $SYSROOT == "$physical_root" ]] || test_root_error "sysroot must be a canonical physical directory"
+	[[ -f $SYSROOT/.omarchy-m1-video-test-root && ! -L $SYSROOT/.omarchy-m1-video-test-root ]] || \
+		test_root_error "test sysroot is missing .omarchy-m1-video-test-root"
+fi
+sys() { printf '%s%s' "$SYSROOT" "$1"; }
+
+SHARE=$(sys /usr/local/share/apple-avd-patched)
 PATCHES=("$SHARE"/patches/[0-9][0-9][0-9][0-9]-*.patch)
 REPO=https://github.com/AsahiLinux/linux.git
 AVD_REL=drivers/media/platform/apple/avd
 STAMP=apple-avd.ko.patched-stamp
-LIBVA_SO=/usr/lib/dri/v4l2_request_drv_video.so
+LIBVA_SO=$(sys /usr/lib/dri/v4l2_request_drv_video.so)
 LIBVA_MARKER='v4l2-request (omarchy-m1-video 1.3.r11)'
 STOCK_BUG='the stock driver stops every H.264 stream after 4096 slices (seconds to minutes of video)'
 
@@ -36,7 +56,7 @@ warn() { echo "==> apple-avd: WARNING: $*" >&2; }
 # Kernels installed by the linux-asahi package: prints "<kver> <pkgver>".
 asahi_kernels() {
 	local d k pkg ver
-	for d in /usr/lib/modules/*/; do
+	for d in "$(sys /usr/lib/modules)"/*/; do
 		k=$(basename "$d")
 		[[ -e $d/vmlinuz ]] || continue
 		pkg=$(pacman -Qqo "$d/vmlinuz" 2>/dev/null) || continue
@@ -98,13 +118,13 @@ check_libva() {
 
 status() {
 	local k pv tag stamp
-	say "running kernel $(uname -r); apple_avd taint=$(cat /sys/module/apple_avd/taint 2>/dev/null || echo not-loaded)"
+	say "running kernel $(uname -r); apple_avd taint=$(cat "$(sys /sys/module/apple_avd/taint)" 2>/dev/null || echo not-loaded)"
 	say "module selected for the next load: $(modinfo -n apple_avd 2>/dev/null || echo missing)"
 	# modinfo resolves the module on disk; it cannot identify which binary
 	# an already-loaded module came from after a rebuild.
 	while read -r k pv; do
 		tag=$(tag_for_pkgver "$pv")
-		stamp=$(cat "/usr/lib/modules/$k/updates/$STAMP" 2>/dev/null || echo "none (stock module)")
+		stamp=$(cat "$(sys "/usr/lib/modules/$k/updates/$STAMP")" 2>/dev/null || echo "none (stock module)")
 		say "$k  linux-asahi $pv  tag $tag  local build: $stamp"
 	done < <(asahi_kernels)
 	check_libva
@@ -112,7 +132,7 @@ status() {
 
 cleanup_orphans() {
 	local s d k
-	for s in /usr/lib/modules/*/updates/"$STAMP"; do
+	for s in "$(sys /usr/lib/modules)"/*/updates/"$STAMP"; do
 		d=${s%/updates/*}
 		k=$(basename "$d")
 		[[ $k == "$(uname -r)" ]] && continue          # still needed until reboot
@@ -127,6 +147,10 @@ cleanup_orphans() {
 # reach the build tree between patching and installing.
 pick_build_id() {
 	local id
+	if [[ $TEST_MODE == 1 ]]; then
+		echo 60500
+		return 0
+	fi
 	for id in $(seq 60500 60599); do
 		getent passwd "$id" >/dev/null && continue
 		getent group "$id" >/dev/null && continue
@@ -144,8 +168,21 @@ done
 
 # Run as the build user, without the lock fd.
 nob() {
-	setpriv --reuid="$BUILD_ID" --regid="$BUILD_ID" --clear-groups \
-		env -i HOME="$B" PATH=/usr/bin GIT_TERMINAL_PROMPT=0 "${PROXY_ENV[@]}" "$@" 9>&-
+	if [[ $TEST_MODE == 1 ]]; then
+		if [[ ${#PROXY_ENV[@]} -gt 0 ]]; then
+			env HOME="$B" PATH="$PATH" GIT_TERMINAL_PROMPT=0 "${PROXY_ENV[@]}" "$@" 9>&-
+		else
+			env HOME="$B" PATH="$PATH" GIT_TERMINAL_PROMPT=0 "$@" 9>&-
+		fi
+		return
+	fi
+	if [[ ${#PROXY_ENV[@]} -gt 0 ]]; then
+		setpriv --reuid="$BUILD_ID" --regid="$BUILD_ID" --clear-groups \
+			env -i HOME="$B" PATH=/usr/bin GIT_TERMINAL_PROMPT=0 "${PROXY_ENV[@]}" "$@" 9>&-
+	else
+		setpriv --reuid="$BUILD_ID" --regid="$BUILD_ID" --clear-groups \
+			env -i HOME="$B" PATH=/usr/bin GIT_TERMINAL_PROMPT=0 "$@" 9>&-
+	fi
 }
 
 # Patch the pristine tree $1 into $B/avd. Leading patches that upstream already
@@ -183,8 +220,10 @@ case "${1:-}" in
 	*) echo "usage: $0 [--force|--status|--check-libva]" >&2; exit 2 ;;
 esac
 
-[[ $EUID -eq 0 ]] || { echo "must run as root" >&2; exit 1; }
-exec 9>/run/apple-avd-rebuild.lock
+if [[ $TEST_MODE != 1 ]]; then
+	[[ $EUID -eq 0 ]] || { echo "must run as root" >&2; exit 1; }
+fi
+exec 9>"$(sys /run/apple-avd-rebuild.lock)"
 flock -w 600 9 || { warn "another apple-avd-rebuild is running"; exit 1; }
 
 if [[ ${#PATCHES[@]} -eq 0 ]]; then
@@ -199,7 +238,7 @@ FAILED=0 UPSTREAM=0 KERNELS=0
 while read -r K PV; do
 	KERNELS=$((KERNELS + 1))
 	TAG=$(tag_for_pkgver "$PV")
-	DEST=/usr/lib/modules/$K/updates
+	DEST=$(sys "/usr/lib/modules/$K/updates")
 	WANT="tag=$TAG patches=$PID"
 
 	if [[ $FORCE -eq 0 && -f $DEST/apple-avd.ko && "$(cat "$DEST/$STAMP" 2>/dev/null)" == "$WANT" ]]; then
@@ -211,7 +250,7 @@ while read -r K PV; do
 	else
 		KEPT="this kernel uses the stock driver; $STOCK_BUG"
 	fi
-	if [[ ! -f /usr/lib/modules/$K/build/Makefile ]]; then
+	if [[ ! -f $(sys "/usr/lib/modules/$K/build/Makefile") ]]; then
 		warn "$K: linux-asahi-headers for this kernel is not installed; cannot build."
 		warn "  Until then $KEPT. Install matching headers and run: sudo apple-avd-rebuild"
 		FAILED=1; continue
@@ -224,7 +263,7 @@ while read -r K PV; do
 	R=$(mktemp -d /tmp/apple-avd-rebuild.XXXXXX) || { FAILED=1; continue; }
 	chmod 0711 "$R"
 	B=$R/build
-	mkdir -m 0700 "$B" && chown "$BUILD_ID:$BUILD_ID" "$B" || { rm -rf "$R"; FAILED=1; continue; }
+	mkdir -m 0700 "$B" && { [[ $TEST_MODE == 1 ]] || chown "$BUILD_ID:$BUILD_ID" "$B"; } || { rm -rf "$R"; FAILED=1; continue; }
 
 	say "$K: fetching $AVD_REL from AsahiLinux/linux $TAG"
 	if ! nob timeout 300 git -c advice.detachedHead=false clone -q --depth 1 --filter=blob:none --sparse -b "$TAG" "$REPO" "$B/linux" 2>"$R/git.log" ||
@@ -257,7 +296,7 @@ while read -r K PV; do
 	[[ $SKIPPED -gt 0 ]] && say "$K: $TAG already has the first $SKIPPED patch(es); applying the rest"
 
 	say "$K: building apple-avd.ko"
-	if ! nob make -s -C "/usr/lib/modules/$K/build" M="$B/avd" CONFIG_VIDEO_APPLE_AVD=m modules -j"$(nproc)" >"$R/build.log" 2>&1; then
+	if ! nob make -s -C "$(sys "/usr/lib/modules/$K/build")" M="$B/avd" CONFIG_VIDEO_APPLE_AVD=m modules -j"$(nproc)" >"$R/build.log" 2>&1; then
 		warn "$K: build failed; until it builds $KEPT:"; tail -15 "$R/build.log" >&2
 		rm -rf "$R"; FAILED=1; continue
 	fi
