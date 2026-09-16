@@ -9,7 +9,7 @@ module was loaded or unloaded, and no hardware was touched while producing it.
 |---|---|
 | Ticket | [omarchy-m1-video#11](https://github.com/iconidentify/omarchy-m1-video/issues/11) (V1 research/design) |
 | Workstream | [libva-v4l2_request#13](https://github.com/iconidentify/libva-v4l2_request/issues/13) — Complete VP9 state, resizing and format coverage |
-| Decision requested | Accept V1 as a conditional design with the explicit feasibility blockers in §§6–9. Acceptance does not authorize kernel work or establish resize support. |
+| Decision | V1 accepted in [PR #32](https://github.com/iconidentify/omarchy-m1-video/pull/32) as a conditional design with the explicit feasibility blockers in §§6–9. Acceptance does not authorize kernel work or establish resize support. |
 | Sibling tickets | V2 = [omarchy-m1-video#16](https://github.com/iconidentify/omarchy-m1-video/issues/16) (needs `needs:hardware`, `needs:kernel-approval`); V3 = [libva-v4l2_request#44](https://github.com/iconidentify/libva-v4l2_request/issues/44) (needs hardware for final acceptance). V2 still requires authorization and resolution of the feasibility blockers below after design acceptance; V3 remains dependent on V2. |
 | Baseline | Driver `avd-fixes` at `793d741a5073be34c1a8084211c72cde9c620ba3` (r11 pass sets preserved); kernel tag `asahi-7.1.13-3` (commit `94fb23346d522edf53722357c426a3e58030beea`), which is what the shipped patch set applies to; **none** of patches 0001–0015 touches `avd-vp9.c`, so the VP9 kernel path analysed here is stock at that tag. |
 
