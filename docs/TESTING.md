@@ -18,7 +18,7 @@ It does not install or load an out-of-tree module on CI runners.
 
 ## Userspace driver
 
-The companion fork contains `tests/README.md`, a 29-case Meson sanitizer suite and hardware
+The companion fork contains `tests/README.md`, a 35-case Meson sanitizer suite and hardware
 pixel-comparison scripts. Build and test the candidate there before updating
 `libva/PKGBUILD`. Use a commit available from the configured Git source and update the
 package version and `LIBVA_MARKER` together. A release tag is optional; the source commit
@@ -48,7 +48,7 @@ must compare rendered frames, not only decoded checksums.
 
 `apple-avd-rebuild --check-libva` and `--status` return nonzero when the expected userspace
 driver is missing or replaced, or its libva ABI cannot be established or is too new.
-An older driver entry point may load with a newer libva. The exact `1.3.r10` vendor marker
+An older driver entry point may load with a newer libva. The exact `1.3.r11` vendor marker
 is also visible through `vainfo --display drm`; a generic early-export log string is
 insufficient to identify these fixes.
 
@@ -108,3 +108,37 @@ AVD errors/timeouts. Check the final journal window too, since a short-lived chi
 between monitor polls. The r10 reference fix lets both triggering resize streams reject
 without reaching the bad hardware submission. See [codec status](CODEC_STATUS.md) and
 [the r10 record](codec-validation-r10-2026-09-15.json).
+
+## Shared picture lifecycle follow-up (driver 1.3.r11)
+
+Six new cases bring the sanitizer suite to 35. `picture.c` calls the real public picture
+entrypoints with an intercepted codec; it covers failed/nested BeginPicture, failed
+RenderPicture, active-target destruction, reference ownership and invalid context arguments.
+The completion regression checks that an earlier slice finishing does not erase the failure
+of the picture as a whole, and that a later valid submission can reuse the surface.
+
+The r10 active-target sequence produces an ASan heap-use-after-free. This is a malformed
+VA-API sequence in an offline test, not evidence that a crafted media file can trigger it.
+No real hardware or kernel module is opened by these tests. Existing codec fixtures now
+model both sides of the surface-to-capture-buffer ownership relationship.
+
+The full packaged-driver rerun preserves the exact HEVC/AVC/FRExt/VP9 pass sets, all five
+H.264 profile overrides and the official VP9 10-bit 4:2:0 vector. High 10 and VP9 export
+matrices match 144 and 384 hardware frames respectively.
+
+Run `sh tests/shared-contexts.sh /path/to/build/src` through the lab guard from the driver
+checkout. It interleaves H.264, HEVC and 8/10-bit VP9 using one VA display; the four streams
+contain 24, 36, 48 and 60 frames so contexts close at different times. Both normal and
+early-export runs match independent software checksums, totaling 336 hardware frames.
+Work is interleaved in one thread, so this does not test concurrent API calls. Omitting
+the driver-directory argument exercises the helper in software, as CI does.
+
+The final package adds only this test, its documentation and CI to the implementation
+package used for the full suites. Both stripped driver binaries compare byte-for-byte
+identical; the shared-display hardware test uses the final package. All 35 package checks
+pass. Completed hardware runs have no new AVD kernel messages and end with an idle decoder.
+The first run, interrupted when mpv acquired the decoder after three HEVC passes, remains
+separate from this completed evidence.
+
+See [the r11 validation record](codec-validation-r11-2026-09-15.json) for source/package
+identity, commands, per-vector results and offline evidence.

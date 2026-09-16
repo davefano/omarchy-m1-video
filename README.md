@@ -35,6 +35,8 @@ With the stock `linux-asahi` 7.1.13 AVD driver and `libva-v4l2_request-avd` 1.3:
 | H.264 accepts incomplete pictures and invalid active references; slice-count arithmetic can overflow | VA-API driver 1.3.r9 |
 | VP9 accepts malformed/incomplete pictures, loses inter-frame colour range and changes persistent state before submission succeeds | VA-API driver 1.3.r10 |
 | Two VP9 resize streams trigger firmware timeouts after decoder-context replacement | VA-API driver 1.3.r10 rejects unavailable references before hardware submission; resize support remains incomplete |
+| Destroying an active render target leaves a freed pointer; failed API calls can still submit incomplete pictures or clear an earlier error | VA-API driver 1.3.r11 |
+| Reference buffer indices from different decoder contexts can alias | VA-API driver 1.3.r11 validates reference ownership and status |
 
 Conformance on an M1 (bit-exact against the reference decoders):
 
@@ -48,6 +50,10 @@ Conformance on an M1 (bit-exact against the reference decoders):
 
 ¹ The r9 package passed three consecutive four-process runs with no unrelated video clients
 observed. Historical intermittent concurrent mismatches remain open.
+
+The r11 package preserves the exact preceding HEVC, AVC, opt-in High 10 FRExt and VP9
+pass sets. It also passes 864 generated hardware frame comparisons, including mixed
+codecs sharing one VA display. See [the r11 validation record](docs/codec-validation-r11-2026-09-15.json).
 
 The VP9 high-bit-depth result covers only the suite's one 10-bit 4:2:0 stream (10 frames),
 not its five 12-bit or 4:2:2/4:4:4 streams. An additional 384 generated VP9 frame comparisons

@@ -18,7 +18,7 @@ The codec follow-up adds opt-in High 10 and stronger conformance checks. See
 | Image and buffer memory safety | Validate image dimensions and plane spans, copy complete odd-width UV pairs, reject truncated derived storage, zero-element resize and bitstream-size overflow | NV12/P010 tests under ASan/UBSan |
 | HEVC entry-point handling | Accept exactly full arrays, reject excessive counts/offset lengths, reset between request batches, reject invalid headers | Parser regressions, 24,000 deterministic random inputs, HEVC conformance |
 | No durable regression suite | Add Meson tests, hardware scripts and CI to the fork; offline Bash tests and CI to the installer | See [TESTING.md](TESTING.md) |
-| Health check silently successful | Nonzero exit on missing/wrong driver or incompatible/unknown libva ABI; identify the expected `1.3.r10` binary by its version marker | Mock driver/package tests |
+| Health check silently successful | Nonzero exit on missing/wrong driver or incompatible/unknown libva ABI; identify the expected `1.3.r11` binary by its version marker | Mock driver/package tests |
 | Loaded-module provenance overstated | Label `modinfo` as the on-disk module selected for the next load | Read-only inspection: no loaded `srcversion` or build-ID note available on this Mac |
 | Unsupported test/documentation claims | Retain tested VP9 coverage; enforce actual Main10 input; stop treating Firefox sandbox changes as a validated setup; distinguish mpv output API from renderer | Script and README review |
 | H.264 incomplete-picture submission and invalid reference mapping | Reject EndPicture with unconsumed slice parameters; validate active references and slice type before flushing a pending slice; prevent missing surfaces matching through timestamp zero | Three new fake-submission cases fail before the fix and pass afterward; AVC/FRExt and High 10 hardware checks |
@@ -26,6 +26,25 @@ The codec follow-up adds opt-in High 10 and stronger conformance checks. See
 | VP9 malformed/incomplete submission | Validate both headers and declared boundaries; reject absent tile data and failed pictures | Malformed-input regression and sanitizer parser coverage |
 | VP9 colour range and persistent state | Inherit range on inter frames; commit range/filter/segmentation state only after successful submission | State inheritance and parse/append/submission-failure tests |
 | VP9 references from a replaced context reach firmware | Require reference buffers in the current decoder context | Missing/detached/cross-context regressions; both observed resize timeout paths now reject in userspace with a clean kernel-log window |
+
+### r11: shared picture lifetime and references
+
+Version r11 reserves a fresh target at BeginPicture and rejects destruction while an
+active picture still holds it. Previously, destroying that target left EndPicture with a
+freed pointer; the offline probe reproduces the use-after-free under ASan. Context creation
+also stops replacing the owner of surfaces supplied as render-target hints.
+
+The first RenderPicture failure is retained through EndPicture and surface readback; a
+later buffer completion cannot turn an incomplete picture into success. Nested begins
+cannot replace staged work, and failed begins clear the active picture. Shared reference
+lookup rejects foreign, detached, mismatched and known-failed capture buffers, extending
+the ownership protection beyond VP9. All 35 sanitizer cases pass. Complete packaged-driver
+HEVC/AVC/FRExt/VP9 runs preserve the exact preceding pass sets. High 10 and VP9 export
+matrices plus a new mixed-codec shared-display check match all 864 generated hardware
+frames against software. The shared-display check interleaves work in one thread and
+closes shorter contexts while longer streams continue; threaded API stress remains outside
+its scope. No new AVD kernel messages occur, and the decoder is idle after every run.
+See [the r11 validation record](codec-validation-r11-2026-09-15.json).
 
 ### FFmpeg crash evidence
 
@@ -147,6 +166,20 @@ Next: preserve/reconstruct the reference pictures needed across size changes, in
 reference scaling against software, then repeat the exact failing vectors and complete
 suite. Keep firmware-error monitoring enabled and stop on the first new fault. See
 [codec details](CODEC_STATUS.md#vp9-validation-and-remaining-gaps).
+
+#### Why simply re-importing VP9 reference pixels is insufficient
+
+The kernel's [capture-format setter](https://github.com/AsahiLinux/linux/blob/asahi-7.1.13-3/drivers/media/platform/apple/avd/avd-v4l2.c)
+rejects format changes while capture buffers remain allocated. Freeing that queue loses
+the per-buffer reference metadata: dimensions, bit depth and compressed-reference offsets.
+The [VP9 backend](https://github.com/AsahiLinux/linux/blob/asahi-7.1.13-3/drivers/media/platform/apple/avd/avd-vp9.c)
+also holds probability contexts and previous-frame state. Re-importing the surviving dma-buf
+into a new context only restores memory; it does not reconstruct these kernel data structures.
+
+A complete fix needs a verified way to retain or restore this state across size changes,
+including scratch-buffer resizing and reference scaling. The current userspace guard stays
+in place. These observations come from the matching kernel-tag source and local code, not
+from proof of the exact module binary currently loaded. No kernel patches were edited.
 
 ### C3 — Firefox and other machines remain unvalidated
 

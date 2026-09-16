@@ -1,6 +1,6 @@
 # H.264, HEVC and VP9 follow-up — 2026-09-15
 
-Driver candidate: `1.3.r10`. Testing uses a local userspace build on the existing M1 boot,
+Validated driver: `1.3.r11`. Testing uses a local userspace build on the existing M1 boot,
 with `linux-asahi 7.1.13.asahi3-1` and the same 15 kernel patches. No installation, module
 reload or reboot is part of this follow-up.
 
@@ -259,3 +259,35 @@ Subsequent candidate runs monitor new AVD journal errors as well as child deadli
 tasks. Do not repeat a firmware failure without a concrete fix to test. Refer to
 [the r10 validation record](codec-validation-r10-2026-09-15.json) for source/package identity,
 commands, individual results and separate baseline/candidate kernel-log windows.
+
+## r11: shared picture lifetime and reference isolation
+
+The shared API now reserves active targets, rejects their destruction, retains the first
+RenderPicture failure through EndPicture, and cleans up failed begins. An earlier slice
+completing cannot erase a failed submission. Shared reference lookup also requires the
+surface to belong to the requesting context and its matching capture buffer, with no known
+decode error. Context render-target hints no longer change ownership.
+
+There are 35 passing offline sanitizer cases. ASan reproduces the old active-target
+use-after-free with an intercepted codec. This is an API misuse test, not a media-file exploit.
+The complete packaged-driver rerun retains the exact preceding pass sets: HEVC 144/147,
+AVC 73/135, FRExt 27/69 with High 10 enabled, VP9 216/305 and five H.264 profile overrides.
+The official VP9 10-bit 4:2:0 vector also passes all ten frames. All 144 High 10 and 384 VP9
+ordinary/early-export frame comparisons match software.
+
+A new test interleaves H.264, HEVC and 8/10-bit VP9 on one VA display, destroying shorter
+decoder contexts while longer streams continue. Normal and early-export runs match 336
+hardware frames against independent software decoding. This uses one thread; it does not
+establish concurrent API-call behavior or throughput. These checks total 864 generated
+hardware frame comparisons, separate from the conformance suites.
+
+The final package's stripped driver is byte-for-byte identical to the implementation
+package used for the full suites; the final source adds only the shared-context test,
+its documentation and CI step. That additional hardware test uses the final package.
+The guarded runs end with an idle decoder and no new AVD kernel messages; the full-suite
+window contains three unrelated firewall messages. The initial run interrupted by mpv
+is retained separately and is not counted as a complete run.
+
+See [the r11 validation record](codec-validation-r11-2026-09-15.json) for source/package
+identity, per-vector results and offline evidence. VP9 resizing and the other codec/display
+limitations above remain open.
