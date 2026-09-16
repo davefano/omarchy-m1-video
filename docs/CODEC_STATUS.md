@@ -1,6 +1,6 @@
 # H.264, HEVC and VP9 follow-up — 2026-09-15
 
-Driver candidate: `1.3.r10`. Testing uses a local userspace build on the existing M1 boot,
+Driver candidate: `1.3.r11`. Testing uses a local userspace build on the existing M1 boot,
 with `linux-asahi 7.1.13.asahi3-1` and the same 15 kernel patches. No installation, module
 reload or reboot is part of this follow-up.
 
@@ -259,3 +259,20 @@ Subsequent candidate runs monitor new AVD journal errors as well as child deadli
 tasks. Do not repeat a firmware failure without a concrete fix to test. Refer to
 [the r10 validation record](codec-validation-r10-2026-09-15.json) for source/package identity,
 commands, individual results and separate baseline/candidate kernel-log windows.
+
+## r11 candidate: shared picture lifetime and reference isolation
+
+The shared API now reserves active targets, rejects their destruction, retains the first
+RenderPicture failure through EndPicture, and cleans up failed begins. An earlier slice
+completing cannot erase a failed submission. Shared reference lookup also requires the
+surface to belong to the requesting context and its matching capture buffer, with no known
+decode error. Context render-target hints no longer change ownership.
+
+There are 35 passing offline sanitizer cases. ASan reproduces the old active-target
+use-after-free with an intercepted codec. This is an API misuse test, not a media-file exploit.
+Full hardware validation is pending; the first HEVC run stopped after three passes when
+mpv acquired the decoder. No kernel errors were observed. The existing r9/r10 hardware
+results above remain the latest complete release evidence.
+
+See [the r11 candidate record](codec-validation-r11-2026-09-15.json) for source/package identity,
+offline evidence and outstanding hardware validation.

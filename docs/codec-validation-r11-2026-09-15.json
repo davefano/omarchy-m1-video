@@ -1,0 +1,107 @@
+{
+  "date": "2026-09-15",
+  "driver_version": "1.3.r11",
+  "driver_commit": "63d6d750264cb0d5c1f86a0b480d6949adb31c0f",
+  "status": "candidate; full hardware validation pending; PRs remain draft",
+  "kernel_package": "linux-asahi 7.1.13.asahi3-1",
+  "machine": "Apple M1 T8103 / MacBookPro17,1",
+  "installed_driver": "1.3.r5-1",
+  "scope": "Userspace builds only; no installation, kernel patch edits, module reload or reboot.",
+  "offline": {
+    "meson_cases": 35,
+    "asan_ubsan": "pass",
+    "new_cases": [
+      "picture-render-errors",
+      "picture-begin-errors",
+      "picture-target-lifetime",
+      "picture-reference-owner",
+      "picture-context-parameters",
+      "submission-error"
+    ],
+    "before": "The initial four picture lifecycle cases fail against r10. Destroying the active target then ending the picture produces an ASan heap-use-after-free. A separate probe reproduces the prior completion code clearing a submission failure.",
+    "limitation": "The active-target sequence is deliberate API misuse with an intercepted codec; no malicious-video exploit has been established.",
+    "parser_inputs": {
+      "h264": 24000,
+      "hevc": 24000,
+      "vp9": 24000
+    },
+    "local_before": [
+      "builds/codec-r11-sanitize/before-fixes.txt",
+      "builds/codec-r11-sanitize/target-uaf-before.txt",
+      "builds/codec-r11-sanitize/submission-error-before.txt"
+    ],
+    "local_after": "builds/codec-r11-sanitize/meson-logs/testlog.txt",
+    "software_checksum_helper": "pass"
+  },
+  "package": {
+    "file": "libva-v4l2_request-avd-1.3.r11-1-aarch64.pkg.tar.xz",
+    "sha256": "f6695652d193208344413519b709007152d8f9d3832b2d24dccac61dedc0f5b2",
+    "check_cases": 35,
+    "check_result": "pass",
+    "installed": false,
+    "root_ownership_verified": true,
+    "marker": "v4l2-request (omarchy-m1-video 1.3.r11)",
+    "alias": "asahi_drv_video.so -> v4l2_request_drv_video.so"
+  },
+  "hardware_interrupted": {
+    "suite": "JCT-VC-HEVC_V1",
+    "completed_vectors": [
+      {
+        "event": "result",
+        "vector": "AMP_A_Samsung_7",
+        "returncode": 0,
+        "expected": "93a5875d58072db5539c04e1e943ed9d",
+        "actual": "93a5875d58072db5539c04e1e943ed9d",
+        "frames": 17,
+        "success": true,
+        "files": "0000"
+      },
+      {
+        "event": "result",
+        "vector": "AMP_B_Samsung_7",
+        "returncode": 0,
+        "expected": "4e051fad4145d5127e16ac2999500069",
+        "actual": "4e051fad4145d5127e16ac2999500069",
+        "frames": 17,
+        "success": true,
+        "files": "0001"
+      },
+      {
+        "event": "result",
+        "vector": "AMP_D_Hisilicon_3",
+        "returncode": 0,
+        "expected": "277006085088cf68b9cafbbba0c19443",
+        "actual": "277006085088cf68b9cafbbba0c19443",
+        "frames": 100,
+        "success": true,
+        "files": "0002"
+      }
+    ],
+    "interrupted_vector": "AMP_E_Hisilicon_3",
+    "reason": "unrelated mpv process acquired the decoder",
+    "kernel_log": "-- No entries --\n",
+    "full_suite_completed": false,
+    "local_results": "codec-r11-dev",
+    "source_note": "Development build of the final implementation before changing the version marker from r10 to r11; no package hardware run completed yet."
+  },
+  "ci": {
+    "driver_push": "https://github.com/iconidentify/libva-v4l2_request/actions/runs/35038719080",
+    "driver_pr": "https://github.com/iconidentify/libva-v4l2_request/actions/runs/35038759349",
+    "driver_result": "success"
+  },
+  "resize_investigation": {
+    "finding": "Re-importing pixels cannot restore kernel reference-buffer dimensions/compression metadata or context probability state. The capture format setter rejects changes while buffers are allocated. A state-preserving kernel design needs separate work.",
+    "sources": [
+      "https://github.com/AsahiLinux/linux/blob/asahi-7.1.13-3/drivers/media/platform/apple/avd/avd-v4l2.c",
+      "https://github.com/AsahiLinux/linux/blob/asahi-7.1.13-3/drivers/media/platform/apple/avd/avd-vp9.c"
+    ],
+    "loaded_module_limit": "Source inspection does not prove the exact loaded module binary."
+  },
+  "remaining_validation": [
+    "Full strict AVC, FRExt with High 10 enabled, HEVC and VP9 suites, preserving the previous pass sets.",
+    "VP9 official 10-bit 4:2:0 vector and five H.264 profile overrides.",
+    "VP9 and H.264 High 10 ordinary/early-export pixel matrices using the final stripped package.",
+    "Kernel-error/foreign-client monitoring and an idle decoder at completion."
+  ],
+  "installed_patchset_sha256": "029f57377a00f3584678f80a8011d8ba7a17c83f1708d9a429d3c91dbb2d0390"
+}

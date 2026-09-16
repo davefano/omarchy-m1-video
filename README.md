@@ -35,6 +35,8 @@ With the stock `linux-asahi` 7.1.13 AVD driver and `libva-v4l2_request-avd` 1.3:
 | H.264 accepts incomplete pictures and invalid active references; slice-count arithmetic can overflow | VA-API driver 1.3.r9 |
 | VP9 accepts malformed/incomplete pictures, loses inter-frame colour range and changes persistent state before submission succeeds | VA-API driver 1.3.r10 |
 | Two VP9 resize streams trigger firmware timeouts after decoder-context replacement | VA-API driver 1.3.r10 rejects unavailable references before hardware submission; resize support remains incomplete |
+| Destroying an active render target leaves a freed pointer; failed API calls can still submit incomplete pictures or clear an earlier error | VA-API driver 1.3.r11 |
+| Reference buffer indices from different decoder contexts can alias | VA-API driver 1.3.r11 validates reference ownership and status |
 
 Conformance on an M1 (bit-exact against the reference decoders):
 
