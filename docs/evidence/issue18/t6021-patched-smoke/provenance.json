@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "record_kind": "hand_loaded_patched_module_userspace_smoke",
+  "device_id": "contributor-m2-j416c",
+  "collected_at": "2026-09-17T03:38:51.999716+00:00",
+  "hardware_qualified": false,
+  "support_status": "experimental",
+  "campaign": "2-hand-loaded-patched-apple_avd-no-boot-install",
+  "host": {
+    "architecture": "aarch64",
+    "compatible": [
+      "apple,j416c",
+      "apple,t6021",
+      "apple,arm-platform"
+    ],
+    "model": "Apple MacBook Pro (16-inch, M2 Max, 2023)"
+  },
+  "kernel": {
+    "release": "7.1.13-3-1-ARCH",
+    "package": "linux-asahi 7.1.13.asahi3-1",
+    "headers": "linux-asahi-headers 7.1.13.asahi3-1",
+    "asahi_tag": "asahi-7.1.13-3"
+  },
+  "module": {
+    "load_method": "insmod of a locally built ko after loading v4l2 helper modules; not installed into updates/",
+    "patched_ko_sha256": "150d934087a4f337f4fe9e84ec2bfcaa11f01962cce0824c2bba82736531fd2e",
+    "patches_applied": 15,
+    "taint_while_loaded": "O",
+    "first_insmod": "failed with unknown symbols because helpers were removed by modprobe -r; not a firmware fault",
+    "restored_after_tests": "rmmod patched; modprobe in-tree apple_avd",
+    "updates_directory_installed": false,
+    "boot_service_enabled": false,
+    "install_sh": false,
+    "loaded_binary_identity_while_testing": "the insmod file; sysfs cannot certify that after unload"
+  },
+  "candidate": {
+    "source_commit": "27da69dd5fcb438deab970061a2edcc68a9e1d93",
+    "library_sha256": "3e4fa0e3b2a143cca71ef4308001b5c4c46241a2ba6fec92d90a9244fcdc0c16",
+    "vendor_string": "v4l2-request (omarchy-m1-video 1.3.r11)"
+  },
+  "tests": {
+    "idle_preflight": {
+      "status": "pass"
+    },
+    "hevc_AMP_A_Samsung_7": {
+      "status": "hardware_pass",
+      "frames": 17,
+      "size": "2560x1600",
+      "bit_exact": true
+    },
+    "avc_AUD_MW_E": {
+      "status": "hardware_pass",
+      "frames": 100,
+      "size": "176x144",
+      "bit_exact": true
+    },
+    "vp9_vp90-2-00-quantizer-00.webm": {
+      "status": "hardware_pass",
+      "frames": 2,
+      "size": "352x288",
+      "bit_exact": true
+    },
+    "full_conformance": {
+      "status": "not_run",
+      "reason": "bounded_smoke_only"
+    },
+    "export": {
+      "status": "not_run"
+    },
+    "lifecycle": {
+      "status": "not_run"
+    },
+    "clients": {
+      "status": "not_run"
+    },
+    "boot": {
+      "status": "not_run",
+      "reason": "explicitly_not_boot_enabled"
+    }
+  },
+  "packages_installed_this_session": [
+    "linux-asahi-headers 7.1.13.asahi3-1",
+    "libva-utils 2.24.0-1",
+    "pahole 1:1.32-1"
+  ]
+}

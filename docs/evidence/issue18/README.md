@@ -108,5 +108,8 @@ conformance, export, lifecycle, client and boot tests were not run.
 A later bounded campaign on this same host decoded three known-pass vectors
 through an isolated `27da69dd5fcb438deab970061a2edcc68a9e1d93` library against
 the already-loaded in-tree module. See
-[t6021-in-tree-smoke](t6021-in-tree-smoke/README.md). Full suites, export,
+[t6021-in-tree-smoke](t6021-in-tree-smoke/README.md). The same three vectors then
+passed on a hand-loaded 15-patch module that was never installed into `updates/`;
+the in-tree module was restored afterward. See
+[t6021-patched-smoke](t6021-patched-smoke/README.md). Full suites, export,
 lifecycle, client and boot tests remain not run. The device stays experimental.

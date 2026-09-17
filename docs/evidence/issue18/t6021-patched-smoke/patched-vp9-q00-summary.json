@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "kind": "conformance-suite-result",
+  "suite": "VP9-TEST-VECTORS",
+  "suite_key": "vp9",
+  "mode": "hardware",
+  "complete": true,
+  "abort": null,
+  "passed": 1,
+  "total": 1,
+  "passing_frames": 2,
+  "high10": "off",
+  "profile_mismatch": false,
+  "subset": {
+    "rationale": "explicit --vectors selection; not a full-suite total",
+    "selected": [
+      "vp90-2-00-quantizer-00.webm"
+    ]
+  },
+  "provenance": {
+    "source_commit": "27da69dd5fcb438deab970061a2edcc68a9e1d93",
+    "driver": "<redacted>"
+  },
+  "command": {
+    "redacted": true,
+    "argv": [
+      "conformance.py",
+      "VP9-TEST-VECTORS",
+      "<resources>",
+      "vaapi"
+    ]
+  },
+  "vectors": [
+    {
+      "name": "vp90-2-00-quantizer-00.webm",
+      "success": true,
+      "category": "hardware_pass",
+      "expected_md5": "e3b792ed5ed3a7c53d17db06bd437ad9",
+      "actual_md5": "e3b792ed5ed3a7c53d17db06bd437ad9",
+      "frames": 2,
+      "native_sizes": [
+        "352x288"
+      ],
+      "frame_summaries": [
+        {
+          "index": 0,
+          "width": 352,
+          "height": 288,
+          "md5": "c3fbb7abbdb5bd4ed4a7e34768c17df1",
+          "format": "yuv420p"
+        },
+        {
+          "index": 1,
+          "width": 352,
+          "height": 288,
+          "md5": "08203c2595bdb2d58ead6f921345d699",
+          "format": "yuv420p"
+        }
+      ],
+      "returncode": 0
+    }
+  ]
+}
