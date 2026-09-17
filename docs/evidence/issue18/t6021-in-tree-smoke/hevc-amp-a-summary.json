@@ -1,0 +1,168 @@
+{
+  "schema_version": "1.0.0",
+  "kind": "conformance-suite-result",
+  "suite": "JCT-VC-HEVC_V1",
+  "suite_key": "hevc",
+  "mode": "hardware",
+  "complete": true,
+  "abort": null,
+  "passed": 1,
+  "total": 1,
+  "passing_frames": 17,
+  "high10": "off",
+  "profile_mismatch": false,
+  "subset": {
+    "rationale": "explicit --vectors selection; not a full-suite total",
+    "selected": [
+      "AMP_A_Samsung_7"
+    ]
+  },
+  "provenance": {
+    "source_commit": "27da69dd5fcb438deab970061a2edcc68a9e1d93",
+    "driver": "<redacted>"
+  },
+  "command": {
+    "redacted": true,
+    "argv": [
+      "conformance.py",
+      "JCT-VC-HEVC_V1",
+      "<resources>",
+      "vaapi"
+    ]
+  },
+  "vectors": [
+    {
+      "name": "AMP_A_Samsung_7",
+      "success": true,
+      "category": "hardware_pass",
+      "expected_md5": "93a5875d58072db5539c04e1e943ed9d",
+      "actual_md5": "93a5875d58072db5539c04e1e943ed9d",
+      "frames": 17,
+      "native_sizes": [
+        "2560x1600"
+      ],
+      "frame_summaries": [
+        {
+          "index": 0,
+          "width": 2560,
+          "height": 1600,
+          "md5": "02c3f28f0ac0bed331a675b93969e578",
+          "format": "yuv420p"
+        },
+        {
+          "index": 1,
+          "width": 2560,
+          "height": 1600,
+          "md5": "72f4b2cbb3a82f62214d9eaa00f6ff7c",
+          "format": "yuv420p"
+        },
+        {
+          "index": 2,
+          "width": 2560,
+          "height": 1600,
+          "md5": "08f1d12a981915b1513850e3c61e5d15",
+          "format": "yuv420p"
+        },
+        {
+          "index": 3,
+          "width": 2560,
+          "height": 1600,
+          "md5": "dcabf0ac722abacf8349b33b0fef0d80",
+          "format": "yuv420p"
+        },
+        {
+          "index": 4,
+          "width": 2560,
+          "height": 1600,
+          "md5": "6a57d4a0c3610e6fbf5f9a706c4393e8",
+          "format": "yuv420p"
+        },
+        {
+          "index": 5,
+          "width": 2560,
+          "height": 1600,
+          "md5": "06c416617b73b4f44bf11a4fd354a5a3",
+          "format": "yuv420p"
+        },
+        {
+          "index": 6,
+          "width": 2560,
+          "height": 1600,
+          "md5": "59c9e628bbe3abadd9c540bf424cf3b9",
+          "format": "yuv420p"
+        },
+        {
+          "index": 7,
+          "width": 2560,
+          "height": 1600,
+          "md5": "b1e7ff934618059bb5a2064bd9614271",
+          "format": "yuv420p"
+        },
+        {
+          "index": 8,
+          "width": 2560,
+          "height": 1600,
+          "md5": "54118f04eb530785058b2e9336b1d4ce",
+          "format": "yuv420p"
+        },
+        {
+          "index": 9,
+          "width": 2560,
+          "height": 1600,
+          "md5": "dc51f75057e9543f63465a2dd3caed4e",
+          "format": "yuv420p"
+        },
+        {
+          "index": 10,
+          "width": 2560,
+          "height": 1600,
+          "md5": "89694a3036425ac3d0fa38ee2fd18df0",
+          "format": "yuv420p"
+        },
+        {
+          "index": 11,
+          "width": 2560,
+          "height": 1600,
+          "md5": "b54e1a2b9cba462a048187d67b32bf42",
+          "format": "yuv420p"
+        },
+        {
+          "index": 12,
+          "width": 2560,
+          "height": 1600,
+          "md5": "626628a3825e2218371aa3649e5eb8cc",
+          "format": "yuv420p"
+        },
+        {
+          "index": 13,
+          "width": 2560,
+          "height": 1600,
+          "md5": "1fe4bf8a8e1747125ed79155bc9bfb23",
+          "format": "yuv420p"
+        },
+        {
+          "index": 14,
+          "width": 2560,
+          "height": 1600,
+          "md5": "e4a4cf5b279e3082f33fef8568b598eb",
+          "format": "yuv420p"
+        },
+        {
+          "index": 15,
+          "width": 2560,
+          "height": 1600,
+          "md5": "6edf1720bf2b9d33f97cbfd16a68e2e8",
+          "format": "yuv420p"
+        },
+        {
+          "index": 16,
+          "width": 2560,
+          "height": 1600,
+          "md5": "80e487c5e2ca9d8427882e0fc11395f9",
+          "format": "yuv420p"
+        }
+      ],
+      "returncode": 0
+    }
+  ]
+}

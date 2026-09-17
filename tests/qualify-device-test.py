@@ -71,6 +71,20 @@ class QualificationTest(unittest.TestCase):
         self.assertFalse(result['hardware_qualified'])
         self.assertEqual(result['capabilities']['av1']['status'], 'not_probed')
 
+    def test_camera_node_does_not_hide_loaded_decoder(self):
+        (self.root / 'sys/module/apple_avd').mkdir(parents=True)
+        self.node('video0', 'apple_avd')
+        self.node('video1', 'apple_isp')
+        result = self.collect()
+        self.assertEqual([(node['node'], node['apple_avd']) for node in result['devices']],
+                         [('video0', True), ('video1', False)])
+        self.assertEqual(result['preflight']['status'], 'inventory_complete')
+        self.assertNotIn('no_apple_avd_video_node', result['preflight']['blockers'])
+        self.assertTrue(result['module']['loaded'])
+        self.assertIsNone(result['module']['loaded_binary_sha256'])
+        self.assertFalse(result['hardware_qualified'])
+        self.assertEqual(result['capabilities']['av1']['status'], 'not_probed')
+
     def test_missing_package_and_tool_block_claims(self):
         result = qualification.collect('fixture', root=self.root, command=lambda *args: None,
                                        machine='aarch64', release='test', available=lambda _: False)
@@ -177,6 +191,23 @@ class QualificationTest(unittest.TestCase):
                                 text=True, timeout=120)
         self.assertIn(result.returncode, (0, 2), result.stderr)
         return json.loads(output.read_text())['collector']
+
+    def test_published_inventories_remain_unqualified(self):
+        evidence = ROOT / 'docs/evidence/issue18'
+        records = [evidence / 'm2-inventory.json', evidence / 'm2-j416c-inventory.json']
+        self.assertTrue(all(path.is_file() for path in records))
+        for path in records:
+            with self.subTest(path=path.name):
+                report = json.loads(path.read_text())
+                self.assertFalse(report['hardware_qualified'])
+                self.assertEqual(report['record_kind'], 'read_only_inventory')
+                self.assertEqual(report['support_status'], 'experimental')
+                self.assertTrue(all(codec['status'] == 'not_probed'
+                                    for codec in report['capabilities'].values()))
+                self.assertIsNone(report['module']['loaded_binary_sha256'])
+                encoded = path.read_text()
+                for secret in ('machine-id', 'serial', 'hostname', '/home/'):
+                    self.assertNotIn(secret, encoded)
 
     def test_standalone_copy_does_not_claim_unrelated_repository_commit(self):
         checkout, script = self.copied_collector()
