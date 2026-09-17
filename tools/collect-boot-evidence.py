@@ -263,7 +263,7 @@ def collect(device_id, *, root=Path('/'), run=run_command, scan=scan_directory,
         first, last = timestamp(row.get('first_entry')), timestamp(row.get('last_entry'))
         if first is None or last is None:
             list_gaps.append('invalid_record')
-        journal = run('journalctl', '--kernel', '--boot', row['boot_id'], '--output=json',
+        journal = run('journalctl', '--dmesg', '--boot', row['boot_id'], '--output=json',
                       '--output-fields=MESSAGE,__REALTIME_TIMESTAMP',
                       '--lines=' + str(entry_limit), '--no-pager')
         summary = summarize(journal, entry_limit)

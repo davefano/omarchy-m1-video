@@ -74,6 +74,10 @@ class BootEvidenceTest(unittest.TestCase):
         self.assertEqual(report['collection']['status'], 'complete')
         self.assertTrue(all(a[0] in ('journalctl', 'pacman', 'modinfo') for a in self.calls))
         self.assertFalse(any('--quiet' in a for a in self.calls))
+        for args in self.calls:
+            if args[0] == 'journalctl' and '--list-boots' not in args:
+                self.assertIn('--dmesg', args)
+                self.assertNotIn('--kernel', args)
 
     def test_command_and_parse_gaps(self):
         for sample, gap in [(result('', 'missing'), 'missing'), (result('', 'failed'), 'failed'),
