@@ -50,12 +50,14 @@ absence cannot be inferred just from a model name or installed package.
 
 ## Pin and prepare the tools without hardware
 
-Use fresh directories beside this checkout; the following paths are ordinary
-relative workspace paths. Tools are pinned independently from the installed r5
+Continue from this repository's root after inventory. Use fresh directories beside
+this checkout; the following paths are ordinary relative workspace paths.
+Tools are pinned independently from the installed r5
 package and the historical r11 candidate. Record the candidate source, build options,
 actual library hash and dependencies separately before testing it.
 
 ```sh
+cd ..
 git clone https://github.com/iconidentify/libva-v4l2_request qualification-driver
 git -C qualification-driver checkout --detach b775d9b2d657f04daba3e3bd19dd570130dc7e7d
 git clone https://github.com/fluendo/fluster qualification-fluster

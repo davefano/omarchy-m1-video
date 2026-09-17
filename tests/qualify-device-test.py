@@ -78,6 +78,33 @@ class QualificationTest(unittest.TestCase):
         self.assertIn('missing_tool:vainfo', result['preflight']['blockers'])
         self.assertFalse(result['hardware_qualified'])
 
+    def test_loaded_decoder_with_failed_modinfo_is_blocked(self):
+        (self.root / 'sys/module/apple_avd').mkdir(parents=True)
+        self.node('video2', 'apple_avd')
+        original = self.command
+        self.command = lambda *args: None if args[0] == 'modinfo' else original(*args)
+        result = self.collect()
+        self.assertEqual(result['preflight']['status'], 'blocked')
+        self.assertEqual(result['preflight']['blockers'], ['module_file_identity_unavailable'])
+        self.assertIsNone(result['module']['selected_file'])
+        self.assertIsNone(result['module']['selected_file_sha256'])
+        self.assertIsNone(result['module']['loaded_binary_sha256'])
+        self.assertEqual(result['module']['loaded_binary_identity'], 'unknown')
+        self.assertFalse(result['hardware_qualified'])
+
+    def test_loaded_decoder_with_missing_selected_file_is_blocked(self):
+        (self.root / 'sys/module/apple_avd').mkdir(parents=True)
+        self.node('video2', 'apple_avd')
+        (self.root / 'usr/lib/modules/test/updates/apple-avd.ko').unlink()
+        result = self.collect()
+        self.assertEqual(result['preflight']['status'], 'blocked')
+        self.assertEqual(result['preflight']['blockers'], ['module_file_identity_unavailable'])
+        self.assertEqual(result['module']['selected_file'], '/usr/lib/modules/test/updates/apple-avd.ko')
+        self.assertIsNone(result['module']['selected_file_sha256'])
+        self.assertIsNone(result['module']['loaded_binary_sha256'])
+        self.assertEqual(result['module']['loaded_binary_identity'], 'unknown')
+        self.assertFalse(result['hardware_qualified'])
+
     def test_wrong_platform_is_blocked(self):
         self.assertIn('architecture_not_aarch64', self.collect(machine='x86_64')['preflight']['blockers'])
         self.write('proc/device-tree/compatible', b'other,machine\0')

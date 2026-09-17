@@ -95,6 +95,8 @@ def collect(device_id, *, root=Path('/'), command=command, machine=None,
     blockers.extend('missing_tool:' + name for name in TOOLS if not tools[name])
     if not loaded:
         blockers.append('apple_avd_not_loaded')
+    if selected_hash is None:
+        blockers.append('module_file_identity_unavailable')
     if not any(node['apple_avd'] for node in devices):
         blockers.append('no_apple_avd_video_node')
     if not driver_hash:

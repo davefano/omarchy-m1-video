@@ -1,0 +1,128 @@
+{
+  "status": "complete",
+  "verdict": "Ready with fixes",
+  "run_id": "20260916-201904-1beac856",
+  "scope": {
+    "base": "cca0e194e9205016deb3ecff78b8c622bac5104b",
+    "branch": "agent/18-apple-silicon-qualification",
+    "head_sha": "819d9e132fde09ba2ffe2076dded3f92f6da2fce",
+    "pr_url": null,
+    "files_changed": 7,
+    "includes_staged_changes": true,
+    "diff_sha256": "d891236359816678059877b0a2d5b4d3c6c2b7f110f9889b09675eac6c92eb6b"
+  },
+  "intent": "Deliver issue 18 portable no-install inventory and pinned guarded qualification preparation. Inventory never qualifies a device; camera identity, unknown loaded-module provenance and blocked M2 hardware evidence remain explicit. Issue 18 stays open.",
+  "reviewers": [
+    "correctness",
+    "adversarial-claude"
+  ],
+  "findings": [
+    {
+      "#": 1,
+      "title": "Mark unavailable next-load module identity as an inventory blocker",
+      "severity": "P2",
+      "file": "tools/qualify-device.py",
+      "line": 100,
+      "confidence": 100,
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Add module_file_identity_unavailable when selected_file_sha256 is None, and test failed modinfo with loaded apple_avd and an identified decoder node. Preserve loaded_binary_identity as unknown.",
+      "first_evidence": "selected_hash = file_hash(root / selected.lstrip('/')) if selected else None",
+      "why_it_matters": "With a loaded decoder but a failed modinfo query or unreadable selected module file, the collector returns inventory_complete and exit 0 despite missing the on-disk module provenance it collects. This occurs after package upgrades remove the running kernel module tree. Hardware remains unqualified, but the inventory completeness signal is misleading.",
+      "evidence": [
+        "Read blocker construction at lines 89-103: no selected_hash condition.",
+        "Offline fixture reproduced loaded=True, selected_file=null, selected_file_sha256=null, blockers=[], preflight.status=inventory_complete."
+      ],
+      "reviewers": [
+        "adversarial-claude"
+      ],
+      "independent_reviewers": [
+        "adversarial-claude"
+      ]
+    },
+    {
+      "#": 2,
+      "title": "Make the documented sibling checkout directory explicit",
+      "severity": "P3",
+      "file": "docs/DEVICE_QUALIFICATION.md",
+      "line": 59,
+      "confidence": 100,
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Add cd .. at the start of the clone block, explicitly continuing from the repository directory used by the inventory step.",
+      "first_evidence": "git clone https://github.com/iconidentify/libva-v4l2_request qualification-driver",
+      "why_it_matters": "The previous command starts inside this repository. Following the clone block literally creates tool checkouts and the potentially large qualification-cache inside the repository, contrary to the documented sibling layout and leaving generated artifacts visible to git.",
+      "evidence": [
+        "Lines 53-54 say directories belong beside this checkout.",
+        "Lines 58-63 have no directory change before either clone; ../qualification-cache is later relative to the nested driver checkout."
+      ],
+      "reviewers": [
+        "adversarial-claude"
+      ],
+      "independent_reviewers": [
+        "adversarial-claude"
+      ]
+    }
+  ],
+  "coverage": {
+    "depth": "focused",
+    "scope_mode": "local-aligned",
+    "criteria_files": [
+      "AGENTS.md"
+    ],
+    "criteria_fallback": "Root AGENTS.md governs all seven changed files; no CODING_STANDARDS.md found. README.md read as required.",
+    "adversarial_lens": "Independent cross-model Claude read completed; no local reviewer subagents or validator batch ran.",
+    "compound_packs": "Not declared; not applied.",
+    "not_assessed": [
+      "learnings",
+      "agent-native gaps",
+      "deployment notes"
+    ],
+    "plan_discovery": "No explicit plan or matching issue-18/apple-silicon/qualification plan found under docs/plans.",
+    "untracked_excluded": [],
+    "validation": [
+      "Nine qualification tests passed.",
+      "Reproduced finding 1 with offline loaded-decoder fixture and failed modinfo.",
+      "All six documented tool SHA-256 pins match files at b775d9b2d657f04daba3e3bd19dd570130dc7e7d.",
+      "Collector script SHA-256 matches committed M2 evidence.",
+      "Pinned conformance, corpus and tests README command semantics inspected.",
+      "git diff --check passed.",
+      "Host read-only applicability checks passed: aarch64, Apple device tree, linux-asahi package."
+    ],
+    "cross_model": {
+      "cross_model_route": "claude",
+      "model_requested": "claude-opus-5",
+      "effort_requested": "high",
+      "receipt_supported": true,
+      "model_actual": "claude-opus-5",
+      "effort_actual": "unverified",
+      "independence_verified": true
+    },
+    "peer_candidates_disposition": [
+      "Retained missing module identity blocker as P2 after reproduction.",
+      "Retained clone working-directory inconsistency as P3; did not retain speculative media disclosure claims.",
+      "Failed-write partial output retained only as residual risk; command already exits failure and evidence is not a valid JSON record.",
+      "Non-pacman/Fedora portability finding rejected: this repository explicitly requires pacman linux-asahi on Omarchy; no cross-distribution support contract.",
+      "Unpinned historical corpus concern retained as documented limitation, not a demonstrated regression.",
+      "Peer could not hash the evidence; local reviewer did and verified it."
+    ]
+  },
+  "residual_risks": [
+    "Actual M2 capability, conformance, export, lifecycle, client and boot qualification remain blocked and untested; this receipt approves only the inventory/tooling contribution.",
+    "A write interrupted by I/O failure can leave partial output; CLI fails and retry requires a fresh filename or removal of the failed artifact.",
+    "Historical M1 corpus revision is unknown, explicitly documented; comparator output must retain that limitation.",
+    "An explicit candidate-selected guarded vainfo template would improve the future workflow but is not required for this inventory-only contribution."
+  ],
+  "resolution": {
+    "applied_findings": [
+      1,
+      2
+    ],
+    "unresolved_actionable_findings": [],
+    "verification": "Final targeted results recorded in README.md; receipt reviewed the pre-fix diff."
+  }
+}
