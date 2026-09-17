@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "record_kind": "in_tree_module_userspace_smoke",
+  "device_id": "contributor-m2-j416c",
+  "collected_at": "2026-09-17T03:33:30.926169+00:00",
+  "hardware_qualified": false,
+  "support_status": "experimental",
+  "campaign": "1-userspace-on-in-tree-apple_avd",
+  "host": {
+    "architecture": "aarch64",
+    "compatible": [
+      "apple,j416c",
+      "apple,t6021",
+      "apple,arm-platform"
+    ],
+    "model": "Apple MacBook Pro (16-inch, M2 Max, 2023)"
+  },
+  "kernel": {
+    "release": "7.1.13-3-1-ARCH",
+    "package": "linux-asahi 7.1.13.asahi3-1"
+  },
+  "module": {
+    "loaded": true,
+    "loaded_binary_identity": "unknown",
+    "selected_file": "/lib/modules/7.1.13-3-1-ARCH/kernel/drivers/media/platform/apple/avd/apple-avd.ko",
+    "selected_file_sha256": "4864d0dd4f733522da4ec13bba40ae90b3b0441add3a189136bc1a0866dbf6e5",
+    "note": "Selected file is in-tree kernel AVD; loaded binary identity remains unknown. No module unload/reload/install occurred."
+  },
+  "candidate": {
+    "source_commit": "27da69dd5fcb438deab970061a2edcc68a9e1d93",
+    "source_describe": "Merge pull request #81",
+    "library": "build-qualification/src/v4l2_request_drv_video.so",
+    "library_sha256": "3e4fa0e3b2a143cca71ef4308001b5c4c46241a2ba6fec92d90a9244fcdc0c16",
+    "vendor_string": "v4l2-request (omarchy-m1-video 1.3.r11)",
+    "entrypoint": "__vaDriverInit_1_24",
+    "installed_package": "libva-v4l2_request-avd 1.3-1",
+    "installed_package_used": false,
+    "libva": "2.24.1-1",
+    "helper_sha256": {
+      "tests/corpus/manifest.json": "8dd958cd4d1c05ba225253773b80e7a3cd37853c9207a49177793717b074883e",
+      "tests/corpus.py": "0f8112c0daed216cf720a4c744f6eb0b4ef963946f5358cda9729093b9b6c12e",
+      "tests/conformance.py": "67cfcb738b1977c01a49a8c02921c2cea4c816b5dcd648320aa71ace48ad7e74",
+      "tests/compare-results.py": "c481824861764edb78b89d09235e277ec47b7740e2ba02c0860af3ab670dfe52",
+      "tests/hwguard.py": "45d65351b33b13dbdd2145b3d37a83bf48c27cc08f1df08c5f37b196d7643d60",
+      "docs/r11-pass-sets.json": "66bc47b2511dfdd8d5d270be028124c343fa00ded6523035598a785b95ad5583"
+    },
+    "fluster_commit": "f3ad284a9e6cac70dc01b02e0de71c2994181d34"
+  },
+  "tests": {
+    "idle_preflight": {
+      "status": "pass",
+      "artifact": "idle-preflight.jsonl"
+    },
+    "hevc_AMP_A_Samsung_7": {
+      "status": "hardware_pass",
+      "frames": 17,
+      "size": "2560x1600",
+      "bit_exact": true
+    },
+    "avc_AUD_MW_E": {
+      "status": "hardware_pass",
+      "frames": 100,
+      "size": "176x144",
+      "bit_exact": true
+    },
+    "vp9_vp90-2-00-quantizer-00.webm": {
+      "status": "hardware_pass",
+      "frames": 2,
+      "size": "352x288",
+      "bit_exact": true
+    },
+    "capabilities": {
+      "status": "not_run",
+      "reason": "vainfo_not_installed"
+    },
+    "full_conformance": {
+      "status": "not_run",
+      "reason": "bounded_campaign_1_smoke_only"
+    },
+    "export": {
+      "status": "not_run",
+      "reason": "bounded_campaign_1_smoke_only"
+    },
+    "lifecycle": {
+      "status": "not_run",
+      "reason": "bounded_campaign_1_smoke_only"
+    },
+    "clients": {
+      "status": "not_run",
+      "reason": "bounded_campaign_1_smoke_only"
+    },
+    "boot": {
+      "status": "not_run",
+      "reason": "no_module_operation"
+    }
+  },
+  "not_run_on_purpose": [
+    "RPS_E_qualcomm_5",
+    "TSUNEQBD_A_MAIN10_Technicolor_2",
+    "cabac_mot_fld0_full",
+    "vp90-2-05-resize.ivf",
+    "vp90-2-18-resize.ivf"
+  ],
+  "system_operations": {
+    "package_install": false,
+    "module_unload": false,
+    "module_reload": false,
+    "reboot": false,
+    "install_sh": false
+  }
+}

@@ -100,5 +100,13 @@ pass sets onto `t6021`.
 
 Verification for this inventory: 15 qualification tests, 12 H.264 scanner tests,
 22 VP9 scanner tests, 19 package-provenance tests, bash syntax, rebuild and
-installer suites, and `git diff --check`. Hardware smoke, conformance, export,
-lifecycle, client and boot tests were not run. No hardware lease was acquired.
+installer suites, and `git diff --check`. At inventory time, hardware smoke,
+conformance, export, lifecycle, client and boot tests were not run.
+
+## t6021 in-tree userspace smoke, 2026-09-17
+
+A later bounded campaign on this same host decoded three known-pass vectors
+through an isolated `27da69dd5fcb438deab970061a2edcc68a9e1d93` library against
+the already-loaded in-tree module. See
+[t6021-in-tree-smoke](t6021-in-tree-smoke/README.md). Full suites, export,
+lifecycle, client and boot tests remain not run. The device stays experimental.
