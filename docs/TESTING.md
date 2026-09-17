@@ -212,3 +212,16 @@ undefined symbols and an unknown ABI do not establish compatibility.
 This tooling makes no loaded-module identity claim. A selected module's path and hash
 only describe the on-disk candidate for the next load. Loaded binary provenance needs an
 independent recorded boot/load event; kernel/header identity alone is insufficient.
+
+## Boot reset evidence
+
+For a bounded read-only journal and pstore availability summary, use
+[the boot reset investigation procedure](BOOT_RESET_INVESTIGATION.md).
+Its [M2 evidence](evidence/issue13/README.md) and proposed cold/warm matrix do not
+qualify boot reliability. The collector never loads a module or reboots.
+
+Run its synthetic tests without hardware:
+
+```sh
+python3 tests/boot-evidence-test.py
+```
