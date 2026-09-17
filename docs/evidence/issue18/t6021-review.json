@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "record_kind": "maintainer_evidence_assessment",
+  "reviewed_contributor_head": "a88d45cc74ec41d0e95ace3763900137d2ce9b19",
+  "review_date_utc": "2026-09-17",
+  "device_id": "contributor-m2-j416c",
+  "hardware_qualified": false,
+  "support_status": "experimental",
+  "accepted_scope": "inventory_and_contributor_reported_smoke_output",
+  "patch_specific_attribution_verified": false,
+  "independent_m2_execution_attestation": false,
+  "maintainer_hardware_operations": [],
+  "authorship": {
+    "contributor": "z23",
+    "reviewer": "iconidentify (Codex-assisted maintainer review)",
+    "contributor_records_independently_reviewed": true,
+    "maintainer_corrections_independently_reviewed": false,
+    "original_raw_records_unchanged": true
+  },
+  "raw_artifact_sha256": {
+    "m2-j416c-inventory.json": "ffb89bfa5afadcbb75f733ed85d8510c95490ff28b8f344be304cb5ca15ceffd",
+    "t6021-in-tree-smoke/avc-aud-mw-e-guard.jsonl": "51cfa86473f91bfd7f3ad2f618b146ec51d12e7b2b419e30590e14d0176d35dd",
+    "t6021-in-tree-smoke/avc-aud-mw-e-summary.json": "8cea70eafbe8ad6a309cbfceb85ca5c273b401fd74d3b84a89f4d99c71bccfaa",
+    "t6021-in-tree-smoke/hevc-amp-a-guard.jsonl": "5d942449b3b28e8a1855056ad32500c6c7ca957d70b6a95d0b3f7d0d939ad930",
+    "t6021-in-tree-smoke/hevc-amp-a-summary.json": "69377657c20050d9ef243f400bf47495f6fd984b1d8d7f029d1b4b2fba94f5df",
+    "t6021-in-tree-smoke/idle-preflight.jsonl": "fc45368a59a9d6d1cac38d9e9bbefc329cc2ea4104148f34edae326a74e2909f",
+    "t6021-in-tree-smoke/provenance.json": "934fb4ed6f479cf9c7cdfc20a10da09e73873c5fe608d18bbc660eeddee3fe4b",
+    "t6021-in-tree-smoke/vp9-q00-guard.jsonl": "44d00ca0887f606c84ccb68612ae2e6b0848a7fe1a7035b5f8735769a7077d96",
+    "t6021-in-tree-smoke/vp9-q00-summary.json": "5bab97e353a6bed2576d5fcb10edefcfb8a02d70d28b04219dd9b8839c77e78e",
+    "t6021-patched-smoke/patched-avc-aud-mw-e-guard.jsonl": "138114ccc3906447253cfad02e7b24ae4f585d4d6440802e17968942ac4237f3",
+    "t6021-patched-smoke/patched-avc-aud-mw-e-summary.json": "8cea70eafbe8ad6a309cbfceb85ca5c273b401fd74d3b84a89f4d99c71bccfaa",
+    "t6021-patched-smoke/patched-hevc-amp-a-guard.jsonl": "37f39f793be30a2c07bac2f2ac7228218f3a6fe0731315a6a11b52a9bc0091a7",
+    "t6021-patched-smoke/patched-hevc-amp-a-summary.json": "69377657c20050d9ef243f400bf47495f6fd984b1d8d7f029d1b4b2fba94f5df",
+    "t6021-patched-smoke/patched-idle-preflight.jsonl": "c83e1c1806256a904a7474c2b53fce8a40f8a7fbe7247f8a4409afc77640cc24",
+    "t6021-patched-smoke/patched-vp9-q00-guard.jsonl": "0c2956e8278d0e336fa25ac21bf92496a7af69687a6489df10275da8a924dae4",
+    "t6021-patched-smoke/patched-vp9-q00-summary.json": "5bab97e353a6bed2576d5fcb10edefcfb8a02d70d28b04219dd9b8839c77e78e",
+    "t6021-patched-smoke/provenance.json": "1afa8cfbfd75589f96dbb30dd4d0d69205bc13269e3a2b8eb8816d2249383da0",
+    "t6021-patched-smoke/restored-idle-preflight.jsonl": "fd225c9b0ac26c58d061deab4257799f7322d95fa3ba34fadf05e06fb051602d"
+  },
+  "collector_hash_matches_declared_commit": true,
+  "helper_hashes_match_declared_driver_commit": true,
+  "independent_reference": {
+    "repository": "https://github.com/iconidentify/libva-v4l2_request",
+    "commit": "b9803ed5290ecb4b48c09482cbc6e943aee08b63",
+    "archive_path": "docs/resource-churn-2026-09-17/raw-evidence.tar.xz",
+    "archive_sha256": "cf42950f269ba3392d6795ddf4197f7def08a052283119d30d9cff1ac78c5d7d",
+    "scope": "Independent M1 output consistency reference; not M2 execution or kernel attestation"
+  },
+  "frame_comparisons": [
+    {
+      "summary": "t6021-in-tree-smoke/avc-aud-mw-e-summary.json",
+      "vector": "AUD_MW_E",
+      "frames": 100,
+      "native_sizes": [
+        "176x144"
+      ],
+      "aggregate_md5": "e96fe5054de0329a8868d06003375cdb",
+      "reference_member": "codec-suites/avc/summary.json",
+      "reference_summary_sha256": "4e8184157a87f434487de9e3507b01d745a1a611f5406e6ba8b727e09b5b8b74",
+      "reference_suite_total": 135,
+      "ordered_frame_records_match": true,
+      "aggregate_digests_match": true
+    },
+    {
+      "summary": "t6021-in-tree-smoke/hevc-amp-a-summary.json",
+      "vector": "AMP_A_Samsung_7",
+      "frames": 17,
+      "native_sizes": [
+        "2560x1600"
+      ],
+      "aggregate_md5": "93a5875d58072db5539c04e1e943ed9d",
+      "reference_member": "codec-suites/hevc/summary.json",
+      "reference_summary_sha256": "34c4beb92355a6d5fc85dbf52477190193f7289fcfa97f6cd8afc220fa64c7df",
+      "reference_suite_total": 147,
+      "ordered_frame_records_match": true,
+      "aggregate_digests_match": true
+    },
+    {
+      "summary": "t6021-in-tree-smoke/vp9-q00-summary.json",
+      "vector": "vp90-2-00-quantizer-00.webm",
+      "frames": 2,
+      "native_sizes": [
+        "352x288"
+      ],
+      "aggregate_md5": "e3b792ed5ed3a7c53d17db06bd437ad9",
+      "reference_member": "codec-suites/vp9/summary.json",
+      "reference_summary_sha256": "05851a18a8cb7289699bba61fc1f61f531086ecda5f874a05fae6f66c1385829",
+      "reference_suite_total": 305,
+      "ordered_frame_records_match": true,
+      "aggregate_digests_match": true
+    },
+    {
+      "summary": "t6021-patched-smoke/patched-avc-aud-mw-e-summary.json",
+      "vector": "AUD_MW_E",
+      "frames": 100,
+      "native_sizes": [
+        "176x144"
+      ],
+      "aggregate_md5": "e96fe5054de0329a8868d06003375cdb",
+      "reference_member": "codec-suites/avc/summary.json",
+      "reference_summary_sha256": "4e8184157a87f434487de9e3507b01d745a1a611f5406e6ba8b727e09b5b8b74",
+      "reference_suite_total": 135,
+      "ordered_frame_records_match": true,
+      "aggregate_digests_match": true
+    },
+    {
+      "summary": "t6021-patched-smoke/patched-hevc-amp-a-summary.json",
+      "vector": "AMP_A_Samsung_7",
+      "frames": 17,
+      "native_sizes": [
+        "2560x1600"
+      ],
+      "aggregate_md5": "93a5875d58072db5539c04e1e943ed9d",
+      "reference_member": "codec-suites/hevc/summary.json",
+      "reference_summary_sha256": "34c4beb92355a6d5fc85dbf52477190193f7289fcfa97f6cd8afc220fa64c7df",
+      "reference_suite_total": 147,
+      "ordered_frame_records_match": true,
+      "aggregate_digests_match": true
+    },
+    {
+      "summary": "t6021-patched-smoke/patched-vp9-q00-summary.json",
+      "vector": "vp90-2-00-quantizer-00.webm",
+      "frames": 2,
+      "native_sizes": [
+        "352x288"
+      ],
+      "aggregate_md5": "e3b792ed5ed3a7c53d17db06bd437ad9",
+      "reference_member": "codec-suites/vp9/summary.json",
+      "reference_summary_sha256": "05851a18a8cb7289699bba61fc1f61f531086ecda5f874a05fae6f66c1385829",
+      "reference_suite_total": 305,
+      "ordered_frame_records_match": true,
+      "aggregate_digests_match": true
+    }
+  ],
+  "matching_frame_records": 238,
+  "distinct_vector_outputs": 3,
+  "paired_campaign_summary_files_identical": true,
+  "guards_reporting_healthy_idle": [
+    "t6021-in-tree-smoke/avc-aud-mw-e-guard.jsonl",
+    "t6021-in-tree-smoke/hevc-amp-a-guard.jsonl",
+    "t6021-in-tree-smoke/idle-preflight.jsonl",
+    "t6021-in-tree-smoke/vp9-q00-guard.jsonl",
+    "t6021-patched-smoke/patched-avc-aud-mw-e-guard.jsonl",
+    "t6021-patched-smoke/patched-hevc-amp-a-guard.jsonl",
+    "t6021-patched-smoke/patched-idle-preflight.jsonl",
+    "t6021-patched-smoke/patched-vp9-q00-guard.jsonl",
+    "t6021-patched-smoke/restored-idle-preflight.jsonl"
+  ],
+  "unavailable_original_records": {
+    "both_campaigns": {
+      "loaded_module_binary_sha256": null,
+      "corpus_lock_and_verification_output": null,
+      "complete_decode_argv_and_environment": null,
+      "complete_guard_argv_and_journal_boundary": null,
+      "independent_summary_to_guard_run_link": null,
+      "independent_tie_between_reported_library_and_execution": null
+    },
+    "reported_patched_campaign": {
+      "resolved_kernel_source_commit": null,
+      "patchset_source_commit_and_patch_hashes": null,
+      "build_command_options_and_compiler": null,
+      "original_failed_and_successful_module_load_logs": null,
+      "original_module_restoration_logs": null,
+      "contemporaneous_saved_work_and_module_operation_authorization": null
+    }
+  },
+  "later_boot_qualification_in_scope": false,
+  "remaining_qualification": [
+    "full_per_device_capabilities",
+    "full_conformance",
+    "export",
+    "lifecycle",
+    "clients",
+    "separate_installation_and_boot_gates"
+  ],
+  "issue_18_complete": false
+}

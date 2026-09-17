@@ -13,7 +13,7 @@ reboot and suspend are separate activities with their own authorization gates.
 | --- | --- | --- |
 | M1 / T8103, MacBookPro17,1 | Historical r11 userspace tests on `linux-asahi 7.1.13.asahi3-1`; [record](codec-validation-r11-2026-09-15.json) | Experimental; HEVC 144/147, AVC 73/135, opt-in High 10 FRExt 27/69, VP9 216/305; boot/display/codec gaps remain |
 | M2 / `apple,j413`, `apple,t8112` | Inventory only; kernel `7.1.13-3-1-ARCH`, package `linux-asahi 7.1.13.asahi3-1`, installed VA driver `1.3.r5-1` | Experimental; capabilities unknown, no decode attempted; `apple_avd` absent from loaded-module sysfs, `video0` is `apple-isp` / `apple_isp` |
-| M2 Max / `apple,j416c`, `apple,t6021` | Inventory plus bounded smokes on in-tree and hand-loaded patched `apple_avd`; kernel `7.1.13-3-1-ARCH`, package `linux-asahi 7.1.13.asahi3-1`; selected library `27da69dd5fcb438deab970061a2edcc68a9e1d93`; [inventory](evidence/issue18/m2-j416c-inventory.json), [in-tree smoke](evidence/issue18/t6021-in-tree-smoke/README.md), [patched smoke](evidence/issue18/t6021-patched-smoke/README.md) | Experimental; the same three vectors are bit-exact on both the in-tree module and a hand-loaded 15-patch module; not a full-suite, client, or boot-enabled qualification; patched ko was not installed into `updates/`; in-tree module restored afterward |
+| M2 Max / `apple,j416c`, `apple,t6021` | Inventory and two contributor-reported three-vector smoke runs; kernel `7.1.13-3-1-ARCH`, package `linux-asahi 7.1.13.asahi3-1`; selected library `27da69dd5fcb438deab970061a2edcc68a9e1d93`; [inventory](evidence/issue18/m2-j416c-inventory.json), [campaign 1](evidence/issue18/t6021-in-tree-smoke/README.md), [campaign 2](evidence/issue18/t6021-patched-smoke/README.md) | Experimental; all 238 reported frame hashes agree with independent output. Exact loaded-module and 15-patch attribution remain unverified; [review and provenance limits](evidence/issue18/t6021-review.md). These records do not qualify full suites, clients or boot-enabled use. |
 | Other Apple Silicon devices | No record in this workflow | Untested; do not inherit these rows |
 
 The M1 record used an isolated r11 library while its installed package was r5.
@@ -27,14 +27,22 @@ This M2 also has an existing `blacklist apple_avd` directive in
 `/etc/modprobe.d/apple-avd-manual-test.conf`, whose comment reserves loading for a
 manual trial. Preserve that configuration; issue selection does not approve
 overriding the existing trial boundary.
-The M2 Max j416c inventory found a loaded in-tree `apple_avd` on `video0` and the
-FaceTime camera on `video1`. A later bounded campaign used an isolated r11+
-`LIBVA_DRIVERS_PATH` build against that already-loaded module and decoded three
-known-pass smoke vectors bit-exact. That still is not qualification: full suites,
-export, lifecycle, client and boot tests were not run; the selected file remains
-the in-tree kernel module; the loaded-binary hash is unknown; and M1 r11 totals
-must not be copied onto `t6021`. Missing `linux-asahi-headers` and `vainfo` were
-not installed to clear inventory blockers.
+The M2 Max j416c inventory found `apple_avd` loaded on `video0`, a selected
+in-tree module file, and the FaceTime camera on `video1`. A selected file path
+does not identify the binary already loaded. The inventory's missing headers and
+`vainfo` describe that earlier snapshot, not the contributor's later host state.
+
+Two subsequent smoke records report 119 exact frames each through the same
+isolated userspace build. The contributor reports no system changes in campaign 1;
+campaign 2 reports installation of headers, libva-utils and pahole, manual module
+unload/load, an initial failed `insmod`, and restoration of the in-tree module.
+It reports no `updates/` installation, boot-service enablement or reboot during
+those two campaigns. These operation claims lack original command/authorization
+records in this contribution and are not independently verified. The
+[review assessment](evidence/issue18/t6021-review.md) preserves those unknowns and
+limits acceptance to the inventory and reported smoke output. It does not establish
+which patchset was active, a benefit from the patches, or the outcome of any later
+installation/boot campaign. M1 r11 totals must not be copied onto `t6021`.
 
 ## Inventory without opening a decoder
 
@@ -107,12 +115,13 @@ first, then explicitly select `--all --confirm-large-corpus` for the large downl
 Retain `qualification-cache/corpus-lock.json` with the result identities.
 Missing tools, inputs or failed integrity checks block the affected stage.
 
-## Hardware stage: blocked on the inventoried devices
+## Hardware stage: separate preparation and qualification
 
 Do not run the commands below on either inventoried M-series host as part of
 inventory. The j413 M2 has no identified, loaded AVD decoder. The j416c M2 Max
-has a loaded in-tree `apple_avd` node, which still does not authorize a decode
-campaign, module reload, or package install. Do not load a module or change the
+inventory records a loaded `apple_avd` node and a selected in-tree module file.
+That historical inventory and the later limited smoke reports do not authorize a
+new decode campaign, module reload, or package install. Do not load a module or change the
 kernel to remove these gates as part of inventory. First obtain a separately
 approved preparation plan and a scheduled idle hardware window; identify the real
 decoder, selected userspace library, kernel/UAPI and any remaining uncertainty
