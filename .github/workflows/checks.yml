@@ -12,5 +12,6 @@ jobs:
       - run: bash tests/installer.sh
       - run: python3 tests/h264-interlace-scan-test.py
       - run: python3 tests/vp9-sub64-scan-test.py
+      - run: python3 tests/qualify-device-test.py
       - run: python3 -m pip install jsonschema==4.25.1
       - run: python3 tests/package-provenance-test.py

@@ -1,5 +1,12 @@
 # Testing and release checks
 
+## Additional Apple Silicon devices
+
+Use [the device qualification workflow](DEVICE_QUALIFICATION.md) for a portable,
+no-install inventory and pinned, guarded test preparation. Run its offline checks
+with `python3 tests/qualify-device-test.py`. Inventory does not establish decode
+support: each device needs its own hardware evidence before qualification.
+
 ## Offline installer checks
 
 ```sh
