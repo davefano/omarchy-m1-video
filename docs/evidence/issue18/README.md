@@ -1,10 +1,14 @@
-# Issue 18: M2 inventory and qualification gates
+# Issue 18: device inventories and qualification gates
 
 This is a partial, no-install contribution to [issue 18](https://github.com/iconidentify/omarchy-m1-video/issues/18).
-The [M2 inventory](m2-inventory.json) was collected with the committed tool at
-`819d9e132fde09ba2ffe2076dded3f92f6da2fce`. The JSON includes its script hash.
-No serial number, hostname, machine ID, media, user process arguments or journal
-contents were collected. The device label is a public pseudonym.
+The original [M2 j413 inventory](m2-inventory.json) was collected with the committed tool at
+`819d9e132fde09ba2ffe2076dded3f92f6da2fce`. The later [M2 Max j416c inventory](m2-j416c-inventory.json)
+was collected with the merged collector at `9cbaa55718e54f6833f1f38f265c293c33daf9e6`.
+Each JSON includes its script hash. No serial number, hostname, machine ID, media,
+user process arguments or journal contents were collected. Device labels are public
+pseudonyms. Neither inventory is hardware qualification.
+
+## M2 j413 inventory, 2026-09-17
 
 ```sh
 python3 tools/qualify-device.py --device-id contributor-m2-j413 --output docs/evidence/issue18/m2-inventory.json
@@ -23,9 +27,9 @@ loading for manual trial. It was preserved.
 | Issue criterion | Evidence / remaining work |
 | --- | --- |
 | Portable no-install collection and refusal of unsupported claims | Tool, 11 offline/CLI tests, this blocked M2 record; no hardware claim is emitted |
-| Two independent qualified Apple devices | **Not met**: [historical M1 r11 record](../../codec-validation-r11-2026-09-15.json) and M2 inventory exist, but the M2 has no hardware qualification |
+| Two independent qualified Apple devices | **Not met**: [historical M1 r11 record](../../codec-validation-r11-2026-09-15.json) plus j413 and j416c inventories exist; neither additional machine has hardware qualification |
 | Per-device codec/profile and software identity | Inventory explicitly records all codecs, including AV1, as not probed; actual capability and codec tests remain blocked |
-| Reset/corruption remains experimental; no automatic install/load | Both matrix rows remain experimental; no install, module load/unload, reboot, suspend or decoder access performed |
+| Reset/corruption remains experimental; no automatic install/load | All matrix rows remain experimental; no install, module load/unload, reboot, suspend or decoder access performed |
 | Scoped evidence and tests not run | This record and [workflow](../../DEVICE_QUALIFICATION.md); hardware smoke, conformance, export, lifecycle, client and boot tests all not run |
 | Merged changes and completion protocol | Pending review/merge; use Refs, keep issue open |
 
@@ -71,3 +75,30 @@ driver revision. No hardware evidence was added by this review.
 No hardware lease or decoder process was acquired. Next action is a separately approved
 manual setup/test plan that respects the existing blacklist, followed by guarded device
 qualification. Missing hardware evidence is not replaced by CI or the M1 pass sets.
+
+## M2 Max j416c inventory, 2026-09-17
+
+A second no-install inventory was collected on a different AVD generation:
+
+```sh
+python3 tools/qualify-device.py --device-id contributor-m2-j416c --output docs/evidence/issue18/m2-j416c-inventory.json
+```
+
+Observed exit: **2**, with `missing_package:linux-asahi-headers` and `missing_tool:vainfo`.
+`apple_avd` is loaded. `video0` is `avd` / `apple_avd`; `video1` is `apple-isp` / `apple_isp`.
+Installed VA driver: `1.3-1` (SHA-256
+`614fcf7f273e3f81ca101c233374a1b3e395f85a328aefb010477db4fb50b6b9`).
+Selected on-disk module:
+`/lib/modules/7.1.13-3-1-ARCH/kernel/drivers/media/platform/apple/avd/apple-avd.ko`
+(SHA-256 `4864d0dd4f733522da4ec13bba40ae90b3b0441add3a189136bc1a0866dbf6e5`).
+That hash is a next-load identity only; `loaded_binary_sha256` remains null.
+Collector commit `9cbaa55718e54f6833f1f38f265c293c33daf9e6`, script SHA-256
+`8f4ed1f665e60bff50a926631bb93eae4d9fe5a87ff62fa9c89660a267cd0eda`.
+No packages were installed to clear the recorded blockers. H.264, HEVC, VP9 and AV1
+remain `not_probed`. A loaded in-tree decoder node does not transfer the M1 r11
+pass sets onto `t6021`.
+
+Verification for this inventory: 15 qualification tests, 12 H.264 scanner tests,
+22 VP9 scanner tests, 19 package-provenance tests, bash syntax, rebuild and
+installer suites, and `git diff --check`. Hardware smoke, conformance, export,
+lifecycle, client and boot tests were not run. No hardware lease was acquired.
