@@ -42,6 +42,10 @@ missing prerequisites remain explicit, and loaded-module binary identity remains
 unknown. Review the JSON before publishing; use neither a serial number nor a
 personal name for the device label. Keep inventories from separate machines separate.
 A successful inventory command is not a successful hardware preflight.
+The collector records its script SHA-256. Its Git commit is recorded only when
+that commit contains the exact script bytes; standalone/untracked copies and
+locally modified scripts report a null commit instead of borrowing another
+checkout's identity. The script hash remains available in those cases.
 Python 3.11 or newer is required. Exit 0 means the inventory prerequisites were
 found; exit 2 writes the inventory with explicit blockers; exit 1 means the record
 could not be written. None of these states certifies hardware. AV1 and all other

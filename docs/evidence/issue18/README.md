@@ -55,6 +55,19 @@ A failed/interrupted output write can leave a partial file; the command fails.
 Use a new output filename on retry and do not treat partial JSON as evidence.
 Historical M1 corpus pinning and all missing M2 hardware evidence remain limitations.
 
+## Maintainer review correction, 2026-09-17
+
+An independent maintainer review reproduced two collector-provenance failures:
+an untracked standalone copy inside another Git repository inherited that
+repository's commit, and a modified tracked collector retained its old commit.
+The collector now records a commit only when the committed blob matches its
+actual bytes. Both regressions failed before the fix; all 13 qualification tests
+pass afterward. The script SHA-256 remains available when the commit is unknown.
+The maintainer correction was self-reviewed; the original contribution received
+the independent review. The historical M2 inventory and its original collector
+hash are preserved, and all six runbook tool hashes were checked at their pinned
+driver revision. No hardware evidence was added by this review.
+
 No hardware lease or decoder process was acquired. Next action is a separately approved
 manual setup/test plan that respects the existing blacklist, followed by guarded device
 qualification. Missing hardware evidence is not replaced by CI or the M1 pass sets.

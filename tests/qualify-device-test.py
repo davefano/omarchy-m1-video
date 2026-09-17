@@ -153,6 +153,46 @@ class QualificationTest(unittest.TestCase):
         self.command = lambda *args: '/private/module.ko' if args[0] == 'modinfo' else original(*args)
         self.assertIsNone(self.collect()['module']['selected_file_sha256'])
 
+    def copied_collector(self):
+        checkout = self.root / 'unrelated-repository'
+        script = checkout / 'tools/qualify-device.py'
+        self.write('unrelated-repository/tools/qualify-device.py',
+                   (ROOT / 'tools/qualify-device.py').read_bytes())
+        self.write('unrelated-repository/README', b'Unrelated project\n')
+        subprocess.run(['git', 'init', '-q', str(checkout)], check=True)
+        return checkout, script
+
+    def commit_fixture(self, checkout, *paths):
+        subprocess.run(['git', '-C', str(checkout), 'add', '--', *paths], check=True)
+        subprocess.run(['git', '-C', str(checkout), '-c', 'user.name=Fixture',
+                        '-c', 'user.email=fixture@example.invalid', 'commit',
+                        '--no-gpg-sign', '--no-verify', '-qm', 'fixture'], check=True)
+        return subprocess.check_output(['git', '-C', str(checkout), 'rev-parse', 'HEAD'],
+                                       text=True).strip()
+
+    def run_copied_collector(self, script, output_name):
+        output = self.root / output_name
+        result = subprocess.run([sys.executable, str(script), '--device-id', 'copy-fixture',
+                                 '--output', str(output)], capture_output=True,
+                                text=True, timeout=120)
+        self.assertIn(result.returncode, (0, 2), result.stderr)
+        return json.loads(output.read_text())['collector']
+
+    def test_standalone_copy_does_not_claim_unrelated_repository_commit(self):
+        checkout, script = self.copied_collector()
+        self.commit_fixture(checkout, 'README')
+        self.assertIsNone(self.run_copied_collector(script, 'untracked.json')['git_commit'])
+
+    def test_commit_identifies_exact_collector_bytes_only(self):
+        checkout, script = self.copied_collector()
+        revision = self.commit_fixture(checkout, 'tools/qualify-device.py')
+        self.assertEqual(self.run_copied_collector(script, 'clean.json')['git_commit'], revision)
+        with script.open('a') as stream:
+            stream.write('\n# Local collector modification\n')
+        changed = self.run_copied_collector(script, 'modified.json')
+        self.assertIsNone(changed['git_commit'])
+        self.assertEqual(changed['script_sha256'], qualification.file_hash(script))
+
 
 if __name__ == '__main__':
     unittest.main()

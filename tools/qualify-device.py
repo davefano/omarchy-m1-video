@@ -145,6 +145,25 @@ def write_record(path, record):
         stream.write('\n')
 
 
+def collector_revision(script):
+    """Only name a commit when it contains this exact standalone collector."""
+    directory = str(script.parent)
+    top = command('git', '-C', directory, 'rev-parse', '--show-toplevel')
+    if not top:
+        return None
+    try:
+        relative = script.relative_to(Path(top).resolve()).as_posix()
+    except ValueError:
+        return None
+    revision = command('git', '-C', directory, 'rev-parse', '--verify', 'HEAD')
+    if not re.fullmatch(r'[0-9a-f]{40}|[0-9a-f]{64}', revision or ''):
+        return None
+    committed = command('git', '-C', directory, 'rev-parse', '--verify',
+                        revision + ':' + relative)
+    actual = command('git', '-C', directory, 'hash-object', '--no-filters', '--', str(script))
+    return revision if actual is not None and actual == committed else None
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--device-id', required=True, help='public pseudonym, never a serial number')
@@ -153,8 +172,7 @@ def main():
     try:
         record = collect(args.device_id)
         script = Path(__file__).resolve()
-        revision = command('git', '-C', str(script.parents[1]), 'rev-parse', 'HEAD')
-        record['collector'] = {'git_commit': revision if re.fullmatch(r'[0-9a-f]{40}', revision or '') else None,
+        record['collector'] = {'git_commit': collector_revision(script),
                                'script_sha256': file_hash(script), 'python_version': platform.python_version()}
         write_record(args.output, record)
     except (OSError, ValueError) as error:
